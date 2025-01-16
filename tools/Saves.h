@@ -9,8 +9,11 @@
 
 typedef struct {
     int firstTime;
+    int Character_locked[3];
+    int reward;
 } PlayerInfo;
 
+extern PlayerInfo playerInfo;
 
 void savePlayerInfo(PlayerInfo *info);
 

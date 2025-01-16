@@ -1,0 +1,8 @@
+D:/FabricatedBook/cmake-build-debug/CMakeFiles/botton.dir
+D:/FabricatedBook/cmake-build-debug/CMakeFiles/SlaytheSpire.dir
+D:/FabricatedBook/cmake-build-debug/CMakeFiles/test.dir
+D:/FabricatedBook/cmake-build-debug/CMakeFiles/test2.dir
+D:/FabricatedBook/cmake-build-debug/CMakeFiles/test3.dir
+D:/FabricatedBook/cmake-build-debug/CMakeFiles/testmap.dir
+D:/FabricatedBook/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/FabricatedBook/cmake-build-debug/CMakeFiles/rebuild_cache.dir
