@@ -9,6 +9,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_ttf.h>
+
 struct Player;
 struct Enemy;
 typedef struct Buff {
@@ -54,6 +59,8 @@ typedef struct Enemy {
 } Enemy;
 extern int main_Enemynum;
 extern Enemy *main_enemy[3];
+
+void print_everycard(SDL_Renderer *renderer, Player *player, int y);
 
 void init_card();
 

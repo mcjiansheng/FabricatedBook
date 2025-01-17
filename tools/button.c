@@ -15,8 +15,13 @@
 
 // 初始化按钮
 #define FONT_DYNAMIC_SIZE 20
+extern Layer layers[MAX_LAYERS];
 
 void game_Quit(SDL_Window *window, SDL_Renderer *renderer) {
+    free_picture_node();
+    for (int i = 0; i < 6; i++) {
+        free_layer(&layers[i]);
+    }
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -43,7 +48,7 @@ void updateButton(Button *button, SDL_Window *window) {
 
 void initButton(Button *button, Rect rec, SDL_Window *window, SDL_Color color,
                 SDL_Color hoverColor, SDL_Color pressColor,
-                char *text, FILE *font_file, int font_size) {
+                char *text, char *font_file, int font_size) {
     button->rec = rec;
     int window_w, window_h;
     SDL_GetWindowSize(window, &window_w, &window_h);

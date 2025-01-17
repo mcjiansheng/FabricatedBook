@@ -21,17 +21,4 @@
 #include "button.h"
 
 
-typedef struct PPT {
-    int num;
-    char *title, *description;
-    struct PPT *next_PPT;
-    Map *map;
-} PPT;
-
-
-void init_ppt();
-
-void cutscene_animation(SDL_Window *window, SDL_Renderer *renderer, PPT *ppt);
-
-
 #endif //SLAYTHESPIRE_VIDEOS_H

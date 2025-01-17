@@ -7,6 +7,21 @@
 #include <stdlib.h>
 #include "button.h"
 
+void print_everycard(SDL_Renderer *renderer, Player *player, int y) {
+    int i;
+    TTF_Font *font = TTF_OpenFont("./res/ys_zt.ttf", 25), *title_font = TTF_OpenFont("./res/ys_zt.ttf", 35);
+    SDL_Rect rect = {200, 200 + y, 300, 450};
+    for (i = 0; i < player->sum_deck_size; i++) {
+        print_card(renderer, player->sum_deck[i], rect, 0, 0, font,
+                   title_font);
+        rect.x += rect.w * 1.5;
+        if ((i + 1) % 4 == 0) {
+            rect.x = 200;
+            rect.y += rect.h * 1.5;
+        }
+    }
+}
+
 Buff free_buff = {0, 0, 0, 0, 0, 0,
                   0, 0, 0, 0, 0, 0, 0, 0, {0, 0, 0}};
 

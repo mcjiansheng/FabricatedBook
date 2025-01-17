@@ -44,4 +44,6 @@ void choose_card(SDL_Window *window, SDL_Renderer *renderer, Player *player);
 
 void push_beginning_cards(Player *player);
 
+void show_all_card(SDL_Window *window, SDL_Renderer *renderer, Player *player);
+
 #endif //SLAYTHESPIRE_GAMECREATER_H

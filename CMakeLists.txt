@@ -32,7 +32,10 @@ add_executable(SlaytheSpire game.c
         tools/videos.c
         tools/videos.h
         tools/map.c
-        tools/map.h)
+        tools/map.h
+        tools/nodes_event.c
+        tools/nodes_event.h
+)
 target_link_libraries(SlaytheSpire PUBLIC ${SDL_LIBRARIES})
 
 add_executable(test test_sdl.c)
@@ -44,7 +47,6 @@ add_executable(test3 test3.c)
 target_link_libraries(test3 PUBLIC ${SDL_LIBRARIES})
 
 add_executable(testmap tools/map.c
-        game.c
         tools/button.h
         tools/button.c
         tools/Saves.c

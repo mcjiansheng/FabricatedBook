@@ -17,6 +17,7 @@
 #include "card.h"
 #include "color.h"
 #include <string.h>
+#include "map.h"
 
 extern int seed;
 
@@ -36,13 +37,13 @@ typedef struct {
     SDL_Color pressColor;
     char *text;
     TTF_Font *font;
-    FILE *font_file;
+    char *font_file;
     int font_size;
 } Button;
 
 void initButton(Button *button, Rect rec, SDL_Window *window, SDL_Color color,
                 SDL_Color hoverColor, SDL_Color pressColor,
-                char *text, FILE *font_file, int font_size);
+                char *text, char *font_file, int font_size);
 
 void drawButton(SDL_Renderer *renderer, Button *button);
 

@@ -140,6 +140,13 @@ build CMakeFiles/SlaytheSpire.dir/tools/map.c.obj: C_COMPILER__SlaytheSpire_unsc
   OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
   OBJECT_FILE_DIR = CMakeFiles\SlaytheSpire.dir\tools
 
+build CMakeFiles/SlaytheSpire.dir/tools/nodes_event.c.obj: C_COMPILER__SlaytheSpire_unscanned_Debug D$:/FabricatedBook/tools/nodes_event.c || cmake_object_order_depends_target_SlaytheSpire
+  DEP_FILE = CMakeFiles\SlaytheSpire.dir\tools\nodes_event.c.obj.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
+  OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
+  OBJECT_FILE_DIR = CMakeFiles\SlaytheSpire.dir\tools
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target SlaytheSpire
@@ -148,7 +155,7 @@ build CMakeFiles/SlaytheSpire.dir/tools/map.c.obj: C_COMPILER__SlaytheSpire_unsc
 #############################################
 # Link the executable SlaytheSpire.exe
 
-build SlaytheSpire.exe: C_EXECUTABLE_LINKER__SlaytheSpire_Debug CMakeFiles/SlaytheSpire.dir/game.c.obj CMakeFiles/SlaytheSpire.dir/tools/button.c.obj CMakeFiles/SlaytheSpire.dir/tools/Saves.c.obj CMakeFiles/SlaytheSpire.dir/tools/Color.c.obj CMakeFiles/SlaytheSpire.dir/tools/gamecreater.c.obj CMakeFiles/SlaytheSpire.dir/tools/card.c.obj CMakeFiles/SlaytheSpire.dir/tools/videos.c.obj CMakeFiles/SlaytheSpire.dir/tools/map.c.obj
+build SlaytheSpire.exe: C_EXECUTABLE_LINKER__SlaytheSpire_Debug CMakeFiles/SlaytheSpire.dir/game.c.obj CMakeFiles/SlaytheSpire.dir/tools/button.c.obj CMakeFiles/SlaytheSpire.dir/tools/Saves.c.obj CMakeFiles/SlaytheSpire.dir/tools/Color.c.obj CMakeFiles/SlaytheSpire.dir/tools/gamecreater.c.obj CMakeFiles/SlaytheSpire.dir/tools/card.c.obj CMakeFiles/SlaytheSpire.dir/tools/videos.c.obj CMakeFiles/SlaytheSpire.dir/tools/map.c.obj CMakeFiles/SlaytheSpire.dir/tools/nodes_event.c.obj
   FLAGS = -g
   LINK_LIBRARIES = -lmingw32  -lSDL2main  -lSDL2  -lSDL2_image  -lSDL2_mixer  -lSDL2_ttf  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   LINK_PATH = -LD:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/lib
@@ -280,13 +287,6 @@ build CMakeFiles/testmap.dir/tools/map.c.obj: C_COMPILER__testmap_unscanned_Debu
   OBJECT_DIR = CMakeFiles\testmap.dir
   OBJECT_FILE_DIR = CMakeFiles\testmap.dir\tools
 
-build CMakeFiles/testmap.dir/game.c.obj: C_COMPILER__testmap_unscanned_Debug D$:/FabricatedBook/game.c || cmake_object_order_depends_target_testmap
-  DEP_FILE = CMakeFiles\testmap.dir\game.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
-  OBJECT_DIR = CMakeFiles\testmap.dir
-  OBJECT_FILE_DIR = CMakeFiles\testmap.dir
-
 build CMakeFiles/testmap.dir/tools/button.c.obj: C_COMPILER__testmap_unscanned_Debug D$:/FabricatedBook/tools/button.c || cmake_object_order_depends_target_testmap
   DEP_FILE = CMakeFiles\testmap.dir\tools\button.c.obj.d
   FLAGS = -g -fdiagnostics-color=always
@@ -337,7 +337,7 @@ build CMakeFiles/testmap.dir/tools/videos.c.obj: C_COMPILER__testmap_unscanned_D
 #############################################
 # Link the executable testmap.exe
 
-build testmap.exe: C_EXECUTABLE_LINKER__testmap_Debug CMakeFiles/testmap.dir/tools/map.c.obj CMakeFiles/testmap.dir/game.c.obj CMakeFiles/testmap.dir/tools/button.c.obj CMakeFiles/testmap.dir/tools/Saves.c.obj CMakeFiles/testmap.dir/tools/Color.c.obj CMakeFiles/testmap.dir/tools/gamecreater.c.obj CMakeFiles/testmap.dir/tools/card.c.obj CMakeFiles/testmap.dir/tools/videos.c.obj
+build testmap.exe: C_EXECUTABLE_LINKER__testmap_Debug CMakeFiles/testmap.dir/tools/map.c.obj CMakeFiles/testmap.dir/tools/button.c.obj CMakeFiles/testmap.dir/tools/Saves.c.obj CMakeFiles/testmap.dir/tools/Color.c.obj CMakeFiles/testmap.dir/tools/gamecreater.c.obj CMakeFiles/testmap.dir/tools/card.c.obj CMakeFiles/testmap.dir/tools/videos.c.obj
   FLAGS = -g
   LINK_LIBRARIES = -lmingw32  -lSDL2main  -lSDL2  -lSDL2_image  -lSDL2_mixer  -lSDL2_ttf  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   LINK_PATH = -LD:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/lib

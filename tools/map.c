@@ -4,112 +4,348 @@
 
 #include "map.h"
 
-extern PPT first_floor, second_floor[2], third_floor[2], forth_floor[2], fifth_floor[2], small_path, sixth_floor[2];
+extern int windowWidth, windowHeight;
 
-void wilderness(int length, int width, Map *map) {
-    Node *new_node = malloc(sizeof(Node));
-    new_node->type = 1;
-    map->head = new_node;
-    Node *ptr;
-    int last_wid;
-    Node **last_nodes;
-    for (int i = 2; i <= width; i++) {
-        int wid = generate_random(2, 3);
-        Node *new_nodes = malloc(sizeof(Node) * wid);
-        if (i == 2) {
-            new_node->generate_nxt = new_nodes;
-        } else {
-            ptr->generate_nxt = new_nodes;
-        }
-        if (i == 2) {
-            new_node->nxt_num = wid;
-            new_node->nxt = malloc(wid * sizeof(Node *));
-        }
-        for (int j = 0; j < wid; j++) {
-            if (j > 0) {
-                (*(new_nodes + (j - 1) * sizeof(Node))).generate_nxt = new_nodes + j * sizeof(Node);
-            }
-            Node *now_node = new_nodes + j * sizeof(Node);
-            int num = generate_random(1, 10);
-            if (num >= 1 && num <= 6) {
-                now_node->type = 1;
-            } else if (num == 7) {
-                now_node->type = 2;
-            } else {
-                now_node->type = 4;
-            }
-            if (i == 2) {
-                new_node->nxt[j] = now_node;
-            }
-        }
-        ptr = new_node + (wid - 1) * sizeof(Node);
-        if (i > 2) {
-            for (int j = 0; j < last_wid; j++) {
-                last_nodes[j]->nxt_num = generate_random(1, wid);
-                int a[10];
-                for (int k = 0; k < wid; k++) {
-                    a[k] = 1;
-                }
-                for (int k = 0; k < last_nodes[j]->nxt_num; k++) {
-                    int x_nxt = generate_random(0, wid - 1);
-                    while (!a[x_nxt]) {
-                        x_nxt = generate_random(0, wid - 1);
-                    }
-                    a[x_nxt] = 0;
-                    last_nodes[j]->nxt[k] = new_nodes + x_nxt * sizeof(Node);
-                }
-            }
-//            free(last_nodes);
-        }
-        last_wid = wid;
-        last_nodes = malloc(wid * sizeof(Node *));
-        for (int j = 0; j < wid; j++) {
-            last_nodes[j] = new_nodes + j * sizeof(Node);
-        }
-        map->size[i] = last_wid;
-        map->nodes[i] = last_nodes;
-    }
-    Node *tail_node = malloc(sizeof(Node));
-    tail_node->type = 8;
-    tail_node->nxt_num = 0;
-    tail_node->nxt = NULL;
-    tail_node->generate_nxt = NULL;
-    for (int i = 0; i < last_wid; i++) {
-        last_nodes[i]->nxt_num = 1;
-        last_nodes[i]->nxt[0] = tail_node;
-    }
-//    free(last_nodes);
-    map->tail = tail_node;
+extern Layer layers[MAX_LAYERS];
+extern PPT first_floor, second_floor[2], third_floor[2], forth_floor[2], fifth_floor[2], small_path, sixth_floor[2];
+extern int windowWidth, windowHeight;
+int layer_probabilities[MAX_LAYERS][9] = {
+        {60, 10, 0, 30, 0,  0,  0, 0, 0},  // 第1层
+        {40, 20, 0, 10, 10, 10, 0, 0, 10},  // 第2层
+        {40, 20, 0, 10, 10, 10, 0, 0, 10},  // 第3层
+        {40, 20, 0, 10, 10, 10, 0, 0, 10},  // 第4层
+        {40, 20, 0, 10, 10, 10, 0, 0, 10},  // 第5层
+        {0,  0,  0, 0,  0,  0,  0, 0, 100}   // 第6层，固定线路
+};
+SDL_Texture *node_texture[10];
+
+void init_picture_node(SDL_Renderer *renderer) {
+    node_texture[1] = IMG_LoadTexture(renderer, "./img/fight.png");
+    node_texture[2] = IMG_LoadTexture(renderer, "./img/Emergency.png");
+    node_texture[3] = IMG_LoadTexture(renderer, "./img/boss.png");
+    node_texture[4] = IMG_LoadTexture(renderer, "./img/unexpectedly.png");
+    node_texture[5] = IMG_LoadTexture(renderer, "./img/reward.png");
+    node_texture[6] = IMG_LoadTexture(renderer, "./img/shop.png");
+    node_texture[7] = IMG_LoadTexture(renderer, "./img/another_path.png");
+    node_texture[8] = IMG_LoadTexture(renderer, "./img/decision.png");
+    node_texture[9] = IMG_LoadTexture(renderer, "./img/safe_house.png");
 }
 
-void init_map(PPT *ppt) {
-    ppt->map = malloc(sizeof(Map));
-    switch (ppt->num) {
+void free_picture_node() {
+    for (int i = 1; i <= 9; i++) {
+        SDL_DestroyTexture(node_texture[i]);
+    }
+}
+
+void init_ppt() {
+    first_floor = (PPT) {1, "荒野", "该区域环境平缓", NULL, &layers[0]};
+    second_floor[0] = (PPT) {2, "森林", "", &third_floor[0], &layers[1]};
+    second_floor[1] = (PPT) {5, "海港", "进入非战斗节点时金币损失金币，战斗获得金币数量增加", &third_floor[1],
+                             &layers[1]};
+    third_floor[0] = (PPT) {3, "诡异秘林", "", &forth_floor[0], &layers[2]};
+    third_floor[1] = (PPT) {6, "海洋", "每进入一个战斗节点，造成伤害-1，\n"
+                                       "每进入一个非战斗节点，造成伤害+1，至多+-3", &forth_floor[1], &layers[2]};
+    forth_floor[0] = (PPT) {4, "迷雾", "", NULL, &layers[3]};
+    forth_floor[1] = (PPT) {7, "深海", "", NULL, &layers[3]};
+    fifth_floor[0] = (PPT) {8, "高塔", "强大的敌人就在前方，战胜它", NULL, &layers[4]};
+    fifth_floor[1] = (PPT) {9, "巴别塔", "。。。", NULL, &layers[4]};
+    small_path = (PPT) {10, "洞穴", "每前进一步消耗少许金币", NULL, &layers[5]};
+    sixth_floor[0] = (PPT) {11, "追忆之影", "", NULL, &layers[5]};
+    sixth_floor[1] = (PPT) {12, "虚妄之书", "", NULL, &layers[5]};
+}
+
+void cutscene_animation(SDL_Window *window, SDL_Renderer *renderer, PPT *ppt) {
+    TTF_Font *textfont = TTF_OpenFont("./res/ys_zt.ttf", 30);
+    TTF_Font *titlefont = TTF_OpenFont("./res/ys_zt.ttf", 70);
+    SDL_Surface *textsurface, *titlesurface;
+    int t = 0;
+    SDL_Event event;
+    SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
+    SDL_RenderClear(renderer);
+
+    SDL_RenderPresent(renderer);
+    printf("show ppt\n");
+    while (t < 255) {
+        while (SDL_PollEvent(&event) != 0) {
+            if (event.type == SDL_QUIT) {
+                game_Quit(window, renderer);
+            }
+        }
+        SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
+        SDL_RenderClear(renderer);
+        draw_text_with_alpha(renderer, textfont, ppt->description, windowWidth / 2, 500, COLOR_BLACK, t);
+        draw_text_with_alpha(renderer, titlefont, ppt->title, windowWidth / 2, 200, COLOR_BLACK, t);
+        SDL_RenderPresent(renderer);
+        t += 8;
+        SDL_Delay(50);
+    }
+    printf("waiting\n");
+    int quit = 1;
+    while (quit) {
+        while (SDL_PollEvent(&event) != 0) {
+            if (event.type == SDL_QUIT) {
+                game_Quit(window, renderer);
+            }
+            if (event.type == SDL_KEYUP || event.type == SDL_MOUSEBUTTONUP) {
+                quit = 0;
+            }
+        }
+        SDL_Delay(50);
+    }
+    printf("quit\n");
+    while (t > 0) {
+        while (SDL_PollEvent(&event) != 0) {
+            if (event.type == SDL_QUIT) {
+                game_Quit(window, renderer);
+            }
+        }
+        SDL_SetRenderDrawColor(renderer, 220, 220, 220, 255);
+        SDL_RenderClear(renderer);
+        draw_text_with_alpha(renderer, textfont, ppt->description, windowWidth / 2, 500, COLOR_BLACK, t);
+        draw_text_with_alpha(renderer, titlefont, ppt->title, windowWidth / 2, 200, COLOR_BLACK, t);
+        SDL_RenderPresent(renderer);
+        t -= 8;
+        SDL_Delay(50);
+    }
+}
+
+void free_layer(Layer *layer) {
+    for (int i = 0; i < layer->length; i++) {
+        for (int j = 0; j < layer->line_num[i]; j++) {
+            free(layer->nodes[i][j]);
+        }
+    }
+}
+
+NodeType random_choice(int probabilities[], int size) {
+    int total = 0;
+    for (int i = 0; i < size; i++) {
+        total += probabilities[i];
+    }
+
+    int random = rand() % total;
+    int sum = 0;
+
+    for (int i = 0; i < size; i++) {
+        sum += probabilities[i];
+        if (random < sum) {
+            return (NodeType) (i + 1);  // 1到9之间
+        }
+    }
+    return FIGHT;  // 默认返回FIGHT
+}
+
+// 初始化一般层的节点
+Node *create_node(NodeType type) {
+    Node *new_node = malloc(sizeof(Node));
+    new_node->type = type;
+    new_node->nxt_num = 0;
+    for (int i = 0; i < MAX_WIDTH; i++) {
+        new_node->nxt[i] = NULL;
+    }
+    return new_node;
+}
+
+void init_layer(Layer *layer, int layer_idx) {
+
+    // 随机生成每列的节点数（长度）
+    for (int i = 1; i < layer->length; i++) {
+        layer->line_num[i] = 1 + rand() % (layer->width);  // 每列有 1 到 3 个节点
+    }
+    layer->line_num[0] = 1;
+    layer->line_num[layer->length - 1] = 1;
+    // 生成每列的节点
+    for (int col = 1; col <= layer->length - (layer_idx == 3 ? 3 : 2); col++) {
+        for (int row = 0; row < layer->line_num[col]; row++) {
+            // 确保最后一列才有 DECISION 类型节点
+            NodeType type = random_choice(layer_probabilities[layer_idx], 9);
+            layer->nodes[col][row] = create_node(type);
+        }
+    }
+
+    // 设置特殊节点：起点和终点
+    switch (layer_idx) {
+        case 0:
+            layer->nodes[0][0] = create_node(FIGHT);
+            layer->nodes[0][0]->nxt_num = layer->line_num[1];
+            for (int i = 0; i < layer->line_num[1]; i++) {
+                layer->nodes[0][0]->nxt[i] = layer->nodes[1][i];
+            }
+            layer->nodes[layer->length - 1][0] = create_node(DECISION);
+            layer->nodes[layer->length - 1][0]->nxt_num = 0;
+            layer->nodes[layer->length - 1][0]->nxt[0] = NULL;
+            break;
         case 1:
-            ppt->map = (Map) {4, 3};
-            ppt->map->generate = wilderness;
+            layer->nodes[0][0] = create_node(FIGHT);
+            layer->nodes[0][0]->nxt_num = layer->line_num[1];
+            for (int i = 0; i < layer->line_num[1]; i++) {
+                layer->nodes[0][0]->nxt[i] = layer->nodes[1][i];
+            }
+            layer->nodes[layer->length - 1][0] = create_node(BOSS);
+            layer->nodes[layer->length - 1][0]->nxt_num = 0;
+            layer->nodes[layer->length - 1][0]->nxt[0] = NULL;
             break;
         case 2:
+            layer->nodes[0][0] = create_node(REWARD);
+            layer->nodes[0][0]->nxt_num = layer->line_num[1];
+            for (int i = 0; i < layer->line_num[1]; i++) {
+                layer->nodes[0][0]->nxt[i] = layer->nodes[1][i];
+            }
+            layer->nodes[layer->length - 1][0] = create_node(BOSS);
+            layer->nodes[layer->length - 1][0]->nxt_num = 0;
+            layer->nodes[layer->length - 1][0]->nxt[0] = NULL;
             break;
         case 3:
+            layer->nodes[0][0] = create_node(EMERGENCY);
+            layer->nodes[0][0]->nxt_num = layer->line_num[1];
+            for (int i = 0; i < layer->line_num[1]; i++) {
+                layer->nodes[0][0]->nxt[i] = layer->nodes[1][i];
+            }
+            layer->nodes[layer->length - 2][0] = create_node(BOSS);
+            layer->line_num[layer->length - 2] = 1;
+            layer->nodes[layer->length - 1][0] = create_node(DECISION);
+            layer->nodes[layer->length - 2][0]->nxt_num = 1;
+            layer->nodes[layer->length - 2][0]->nxt[0] = layer->nodes[layer->length - 1][0];
+            layer->nodes[layer->length - 1][0]->nxt_num = 0;
+            layer->nodes[layer->length - 1][0]->nxt[0] = NULL;
             break;
         case 4:
-            break;
-        case 5:
-            break;
-        case 6:
-            break;
-        case 7:
-            break;
-        case 8:
-            break;
-        case 9:
-            break;
-        case 10:
-            break;
-        case 11:
-            break;
-        case 12:
+            layer->nodes[0][0] = create_node(UNEXPECTEDLY);
+            layer->nodes[0][0]->nxt_num = layer->line_num[1];
+            for (int i = 0; i < layer->line_num[1]; i++) {
+                layer->nodes[0][0]->nxt[i] = layer->nodes[1][i];
+            }
+            layer->nodes[layer->length - 1][0] = create_node(BOSS);
+            layer->nodes[layer->length - 1][0]->nxt_num = 0;
+            layer->nodes[layer->length - 1][0]->nxt[0] = NULL;
             break;
     }
+    int tail = layer->length - (layer_idx == 3 ? 3 : 2);
+    for (int i = 0; i < layer->line_num[tail]; i++) {
+        layer->nodes[tail][i]->nxt_num = 1;
+        layer->nodes[tail][i]->nxt[0] = layer->nodes[tail + 1][0];
+    }
+    for (int i = 1; i < tail; i++) {
+        int x = 0, y = 0, size;
+        for (int j = 0; j < layer->line_num[i]; j++) {
+            size = layer->line_num[i + 1] - 1 - y;
+            if (size > 0) {
+                y = y + rand() % (size + 1);
+            }
+            layer->nodes[i][j]->nxt_num = y - x + 1;
+            for (int k = x; k <= y; k++) {
+                layer->nodes[i][j]->nxt[k - x] = layer->nodes[i + 1][k];
+            }
+            x = y;
+        }
+    }
+    layer->head = layer->nodes[0][0];
+    layer->tail = layer->nodes[layer->length - 1][0];
+}
+
+void init_layer_six(Layer *layer) {
+    layer->width = 1;
+    layer->length = 4;
+    for (int i = 0; i < 4; i++) {
+        layer->line_num[i] = 1;
+    }
+    layer->nodes[0][0] = create_node(SHOP);
+    layer->nodes[1][0] = create_node(EMERGENCY);
+    layer->nodes[2][0] = create_node(SAFE_HOUSE);
+    layer->nodes[3][0] = create_node(BOSS);
+    layer->nodes[0][0]->nxt_num = 1;
+    layer->nodes[0][0]->nxt[0] = layer->nodes[1][0];
+    layer->nodes[1][0]->nxt_num = 1;
+    layer->nodes[1][0]->nxt[0] = layer->nodes[2][0];
+    layer->nodes[2][0]->nxt_num = 1;
+    layer->nodes[2][0]->nxt[0] = layer->nodes[3][0];
+    layer->nodes[3][0]->nxt_num = 0;
+    layer->nodes[3][0]->nxt[0] = NULL;
+    layer->head = layer->nodes[0][0];
+    layer->tail = layer->nodes[3][0];
+
+}
+
+void print_layer(Layer *layer) {
+    for (int i = 0; i < layer->length; i++) {
+        printf("line:%d num:%d\n", i, layer->line_num[i]);
+        for (int j = 0; j < layer->line_num[i]; j++) {
+            printf("type:%d nxt_num:%d\n", layer->nodes[i][j]->type, layer->nodes[i][j]->nxt_num);
+            for (int k = 0; k < layer->nodes[i][j]->nxt_num; k++) {
+                printf("%d\n", layer->nodes[i][j]->nxt[k]->type);
+            }
+        }
+    }
+}
+
+void init_every_layer() {
+    srand(time(NULL));
+
+    layers[0] = (Layer) {3, 4};
+    layers[1] = (Layer) {3, 5};
+    layers[2] = (Layer) {4, 6};
+    layers[3] = (Layer) {4, 7};
+    layers[4] = (Layer) {4, 7};
+    // 初始化前五层
+    for (int i = 0; i < MAX_LAYERS - 1; i++) {
+        init_layer(&layers[i], i);
+    }
+
+    // 初始化第六层（专门处理）
+    init_layer_six(&layers[5]);
+
+}
+
+void init_map_printer(Layer *layer) {
+    int i, j, size;
+    int now_x = 200, step_x = 500, now_y, step_y;
+    for (i = 0; i < layer->length; i++) {
+        size = layer->line_num[i];
+        now_y = windowHeight / 2;
+        if (size == 3) {
+            step_y = windowHeight / 4;
+            now_y -= step_y;
+        } else if (size == 2) {
+            step_y = windowHeight / 3;
+            now_y -= step_y / 2;
+        } else if (size == 4) {
+            step_y = windowHeight / 5;
+            now_y -= step_y * 1.5;
+        } else {
+            step_y = 0;
+        }
+        for (j = 0; j < layer->line_num[i]; j++) {
+            layer->nodes[i][j]->x = now_x;
+            layer->nodes[i][j]->y = now_y;
+            now_y += step_y;
+        }
+        now_x += step_x;
+    }
+}
+
+void print_map(SDL_Window *window, SDL_Renderer *renderer, Layer *layer, int x) {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    int i, j, k;
+    for (i = 0; i < layer->length; i++) {
+        for (j = 0; j < layer->line_num[i]; j++) {
+            for (k = 0; k < layer->nodes[i][j]->nxt_num; k++) {
+//                thickLineRGBA(renderer, 100, 100, 700, 500, 10, 255, 0, 0, 255);
+                SDL_RenderDrawLine(renderer, layer->nodes[i][j]->x + x, layer->nodes[i][j]->y,
+                                   layer->nodes[i][j]->nxt[k]->x + x, layer->nodes[i][j]->nxt[k]->y);
+//                SDL_RenderPresent(renderer);
+            }
+        }
+    }
+    for (i = 0; i < layer->length; i++) {
+        for (j = 0; j < layer->line_num[i]; j++) {
+            SDL_Rect dstRect = {layer->nodes[i][j]->x + x, layer->nodes[i][j]->y};
+            SDL_QueryTexture(node_texture[layer->nodes[i][j]->type], NULL, NULL, &dstRect.w, &dstRect.h);
+            dstRect.x -= dstRect.w / 2;
+            dstRect.y -= dstRect.h / 2;
+            SDL_RenderCopy(renderer, node_texture[layer->nodes[i][j]->type], NULL, &dstRect);
+//            SDL_RenderPresent(renderer);
+        }
+    }
+
+
 }

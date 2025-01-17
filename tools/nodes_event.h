@@ -1,0 +1,8 @@
+//
+// Created by 48811 on 25-1-17.
+//
+
+#ifndef SLAYTHESPIRE_NODES_EVENT_H
+#define SLAYTHESPIRE_NODES_EVENT_H
+
+#endif //SLAYTHESPIRE_NODES_EVENT_H

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "tools/videos.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
@@ -8,12 +9,13 @@
 #include "tools/Color.h"
 #include "tools/gamecreater.h"
 #include "tools/card.h"
-#include "tools/videos.h"
 #include "tools/map.h"
+#include "tools/nodes_event.h"
 
 #define TTF_FILE "./res/ys_zt.ttf"
 #undef main
 
+Layer layers[MAX_LAYERS];
 int seed;
 int main_Enemynum;
 Enemy *main_enemy[3];
@@ -31,22 +33,8 @@ void game_start(SDL_Window *window, SDL_Renderer *renderer);
 
 void game_main(SDL_Window *window, SDL_Renderer *renderer);
 
-int main(int argc, char *argv[]) {
 
-    PPT ppt;
-    ppt.num = 1;
-    init_map(&ppt);
-    for (int i = 1; i <= ppt.map->length; i++) {
-        printf("floor %d width %d\n", i, ppt.map->size[i]);
-        for (int j = 0; j < ppt.map->size[i]; j++) {
-            Node *now_node = ppt.map->nodes[i][j];
-            printf("now_node type %d nxtnum %d\n", now_node->type, now_node->nxt_num);
-            for (int k = 0; k < now_node->nxt_num; k++) {
-                printf("%d ", now_node->nxt[k]->type);
-            }
-            printf("\n");
-        }
-    }
+int main(int argc, char *argv[]) {
 
 //    PleyInfo_reset();
     SDL_Init(SDL_INIT_VIDEO);
@@ -196,6 +184,7 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
+extern SDL_Texture *node_texture[10];
 
 void game_main(SDL_Window *window, SDL_Renderer *renderer) {
     srand(time(NULL));
@@ -207,11 +196,86 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
     }
 //    playerInfo.reward = 0;
     push_beginning_cards(player);
+    init_every_layer();
     init_ppt();
     PPT *now_ppt = &first_floor;
-    init_map(now_ppt);
+//    init_map(now_ppt);
     cutscene_animation(window, renderer, now_ppt);
-
+    init_picture_node(renderer);
+    int x = 0;
+    int mouse_x, mouse_y;
+    bool dragging = false;
+    int quit = 1;
+    SDL_Event event;
+    TTF_Font *State_font = TTF_OpenFont("./res/ys_zt.ttf", 45);
+    char *hp_text = malloc(20 * sizeof(char)), *coin_text = malloc(20 * sizeof(char));
+    int step = 0;
+    Node *last_node = NULL;
+    init_map_printer(now_ppt->layer);
+    Button map_reset, show_card;
+    initButton(&map_reset, (Rect) {0.05, 0.85, 0.15, 0.08}, window, COLOR_GREY,
+               COLOR_DARKGREY,
+               COLOR_BLACK, "复原", TTF_FILE, 12);
+    initButton(&show_card, (Rect) {0.80, 0.05, 0.15, 0.08}, window, COLOR_GREY,
+               COLOR_GREYGREEN,
+               COLOR_LIGHT_RED, "卡牌", TTF_FILE, 12);
+    while (quit) {
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_QUIT:
+                    Button_destroy(&map_reset);
+                    Button_destroy(&show_card);
+                    free(hp_text);
+                    free(coin_text);
+                    game_Quit(window, renderer);
+                    break;
+                case SDL_WINDOWEVENT:
+                    break;
+                case SDL_MOUSEMOTION:
+                    map_reset.isHovered = isMouseInButton(event.motion.x, event.motion.y, &map_reset);
+                    show_card.isHovered = isMouseInButton(event.motion.x, event.motion.y, &show_card);
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    map_reset.isPressed = isMouseInButton(event.motion.x, event.motion.y, &map_reset);
+                    show_card.isPressed = isMouseInButton(event.motion.x, event.motion.y, &show_card);
+                    dragging = true;
+                    SDL_GetMouseState(&mouse_x, &mouse_y);
+                    break;
+                case SDL_MOUSEBUTTONUP:
+                    if ((x > 1000 || x < -1000) && map_reset.isPressed &&
+                        isMouseInButton(event.button.x, event.button.y, &map_reset)) {
+                        x = 0;
+                    }
+                    map_reset.isPressed = false;
+                    dragging = false;
+                    if (show_card.isPressed &&
+                        isMouseInButton(event.button.x, event.button.y, &show_card)) {
+                        show_all_card(window, renderer, player);
+                    }
+                    show_card.isPressed = false;
+                    break;
+            }
+            if (event.type == SDL_MOUSEMOTION && dragging) {
+                // 更新矩形的位置，计算鼠标移动的距离
+                int delta_x = event.motion.x - mouse_x;
+                x += delta_x;
+                SDL_GetMouseState(&mouse_x, &mouse_y);  // 更新鼠标位置
+            }
+        }
+        SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
+        SDL_RenderClear(renderer);
+        if (x > 1000 || x < -1000) {
+            drawButton(renderer, &map_reset);
+        }
+        print_map(window, renderer, now_ppt->layer, x);
+        sprintf(hp_text, "生命值: %d / %d", player->hp, player->maxhp);
+        draw_text(renderer, State_font, hp_text, 50, 50, COLOR_LIGHT_RED);
+        sprintf(coin_text, "金币: %d", player->coin);
+        draw_text(renderer, State_font, coin_text, 800, 50, COLOR_DARK_YELLOW);
+        drawButton(renderer, &show_card);
+        SDL_RenderPresent(renderer);
+        SDL_Delay(20);
+    }
 }
 
 void game_start(SDL_Window *window, SDL_Renderer *renderer) {
@@ -258,7 +322,6 @@ void game_start(SDL_Window *window, SDL_Renderer *renderer) {
                 case SDL_MOUSEBUTTONUP:
                     if (selectedCharacter != -1 && game_continue.isPressed &&
                         isMouseInButton(event.button.x, event.button.y, &game_continue)) {
-                        // 按钮被点击，执行相应操作
                         printf("game continue Clicked!\n");
                         Button_destroy(&game_continue);
                         Button_destroy(&game_back);
@@ -268,7 +331,6 @@ void game_start(SDL_Window *window, SDL_Renderer *renderer) {
                     game_continue.isPressed = false;
                     if (game_back.isPressed &&
                         isMouseInButton(event.button.x, event.button.y, &game_back)) {
-                        // 按钮被点击，执行相应操作
                         printf("game back Clicked!\n");
                         Button_destroy(&game_continue);
                         Button_destroy(&game_back);
@@ -278,12 +340,12 @@ void game_start(SDL_Window *window, SDL_Renderer *renderer) {
                     break;
             }
         }
+        SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
         SDL_RenderClear(renderer);
         if (selectedCharacter != -1) {
             drawButton(renderer, &game_continue);
         }
         drawButton(renderer, &game_back);
-        SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
         render_character_selection(renderer, windowWidth, windowHeight);
         render_selected_character(renderer, windowWidth, windowHeight);
         SDL_RenderPresent(renderer);
