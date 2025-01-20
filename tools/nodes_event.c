@@ -306,7 +306,7 @@ void round_start(Player *player) {
     }
 }
 
-void print_hands_cards(SDL_Renderer *renderer, Player *player);
+void print_hand_cards(SDL_Renderer *renderer, Player *player);
 
 void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player *player) {
     fight_start(fight, player);
@@ -353,7 +353,7 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
         drawButton(renderer, &next_round);
         print_players(renderer, player);
         print_enemys(renderer);
-        print_hand_cards(renderer, player);
+//        print_hand_cards(renderer, player);
         sprintf(hp_text, "生命值: %d / %d", player->hp, player->maxhp);
         draw_text(renderer, State_font, hp_text, 50, 50, COLOR_LIGHT_RED);
         sprintf(coin_text, "金币: %d", player->coin);
