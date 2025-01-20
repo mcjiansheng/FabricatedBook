@@ -20,24 +20,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include "nodes_event.h"
 
 #define MAX_NODE_TYPES 9
-#define LAYER_1_LENGTH 4
-#define LAYER_1_WIDTH 3
-#define LAYER_2_LENGTH 5
-#define LAYER_2_WIDTH 3
-#define LAYER_3_LENGTH 6
-#define LAYER_3_WIDTH 4
-#define LAYER_4_LENGTH 7
-#define LAYER_4_WIDTH 4
-#define LAYER_5_LENGTH 7
-#define LAYER_5_WIDTH 4
-#define LAYER_6_LENGTH 5
-#define LAYER_6_WIDTH 1
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 
 #define MAX_LAYERS 6
 #define MAX_WIDTH 5
@@ -65,6 +50,7 @@ typedef struct Node {
 typedef struct Layer {
     int width;
     int length;
+    int num;
     int line_num[MAX_LENGTH];
     Node *head, *tail;
     Node *nodes[MAX_LENGTH][MAX_WIDTH];  // 2D array of nodes
@@ -108,5 +94,14 @@ void cutscene_animation(SDL_Window *window, SDL_Renderer *renderer, PPT *ppt);
 void init_map_printer(Layer *layer);
 
 void print_map(SDL_Window *window, SDL_Renderer *renderer, Layer *layer, int x);
+
+void print_nodes(SDL_Renderer *renderer, Node *node, Layer *layer, int x);
+
+void
+check_choose_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *now_node, Layer *layer, int mouse_x, int mouse_y,
+                   int x,
+                   Player *player);
+
+void goin_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *node, Layer *layer, Player *player);
 
 #endif //SLAYTHESPIRE_MAP_H

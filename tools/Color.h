@@ -19,4 +19,5 @@
 #define COLOR_RED (SDL_Color){255,0,0,255}
 #define COLOR_GOLD (SDL_Color){255, 215, 0, 255}
 #define COLOR_DARK_YELLOW (SDL_Color){204, 204, 0,255}
+#define COLOR_ORANGE (SDL_Color){255, 165, 0,0}
 #endif //SLAYTHESPIRE_COLOR_H

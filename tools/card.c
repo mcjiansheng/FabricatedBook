@@ -24,11 +24,13 @@ void print_everycard(SDL_Renderer *renderer, Player *player, int y) {
 
 Buff free_buff = {0, 0, 0, 0, 0, 0,
                   0, 0, 0, 0, 0, 0, 0, 0, {0, 0, 0}};
+//Buff free_buff = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
 void init_buff(Buff *buff) {
     *buff = free_buff;
 }
 
+/*
 Card *create_card(char *name, int cost, int type, int career, void (*effect)(struct Player *, struct Enemy *)) {
     Card *new_card = (Card *) malloc(sizeof(Card));
     new_card->name = strdup(name);
@@ -37,7 +39,7 @@ Card *create_card(char *name, int cost, int type, int career, void (*effect)(str
     new_card->type = type;
     new_card->career = career;
     return new_card;
-}
+}*/
 
 Player *init_player(int hp, int career) {
     Player *player = (Player *) malloc(sizeof(Player));
@@ -75,9 +77,11 @@ void add_card_to_deck(Player *player, Card *card) {
 void Enemy_be_attack(Enemy *enemy, int damage) {
     damage = damage * (double) (1.0 + (enemy->buff.fragile <= 0 ? 0.0 : 1.0) * 0.25 +
                                 (enemy->buff.resistance <= 0 ? 0.0 : 1.0) * (-0.25));
-    if (damage >= enemy->block) {
+    if (damage > enemy->block) {
         damage -= enemy->block;
         enemy->block = 0;
+    } else {
+        enemy->block -= damage;
     }
     enemy->hp -= damage;
     if (enemy->hp <= 0) {
@@ -104,7 +108,7 @@ void critical_hit(Player *player, Enemy *enemy) {
 
 void sweep(Player *player, Enemy *enemy) {
     for (int i = 0; i < main_Enemynum; i++) {
-        Player_attack_enemy(player, main_enemy[i], 5);
+        Player_attack_enemy(player, &main_enemy[i], 5);
     }
 }
 
@@ -204,6 +208,55 @@ void init_card() {
     main_card[1][11] = (Card) {"兴奋", 1, true, 4, 1, false, excited, "清除所有的负面效果"};
     main_card[1][12] = (Card) {"治疗", 1, true, 4, 1, false, heal, "回复10生命值"};
     main_card[1][13] = (Card) {"致命一击", 3, false, 1, 1, true, critical_hit, "造成30点伤害"};
+}
+
+void play_be_attacked(Player *player, Enemy *enemy, int damage) {
+    damage = damage * (double) (1.0 + (player->buff.fragile <= 0 ? 0.0 : 1.0) * 0.25 +
+                                (player->buff.resistance <= 0 ? 0.0 : 1.0) * (-0.25));
+    if (damage > player->block) {
+        damage -= player->block;
+        player->block = 0;
+    } else {
+        player->block -= damage;
+    }
+    player->hp -= damage;
+    if (player->hp <= 0) {
+        player->hp = 0;
+    }
+    if (player->buff.undead > 0 && player->hp == 0) {
+        player->hp = 1;
+    }
+
+}
+
+void enemy_attack_player(Player *player, Enemy *enemy, int damage) {
+    damage = damage * (double) (1.0 + (enemy->buff.strength <= 0 ? 0.0 : 1.0) * 0.25 +
+                                (enemy->buff.weak <= 0 ? 0.0 : 1.0) * (-0.25));
+    play_be_attacked(player, enemy, damage);
+}
+
+void ragpicker_attack(Player *player, Enemy *enemy) {
+    enemy_attack_player(player, enemy, 3);
+    enemy_attack_player(player, enemy, 3);
+}
+
+void ragpicker_Strengthen(Player *player, Enemy *enemy) {
+    get_buff(&enemy->buff.strength, 3);
+}
+
+void ragpicker_Weaken(Player *player, Enemy *enemy) {
+    get_buff(&player->buff.fragile, 1);
+    enemy_attack_player(player, enemy, 5);
+}
+
+extern int Enemy_num_in_map[7][2];
+extern Enemy Enemy_in_map[7][2][10];
+
+void init_enemy(SDL_Renderer *renderer) {
+    Enemy_in_map[1][0][0] = (Enemy) {"拾荒者", IMG_LoadTexture(renderer, "./img/ragpicker.png"), 45, 0, 3};
+    Enemy_in_map[1][0][0].skill[0] = (Enemy_skill) {1, "2*3", ragpicker_attack};
+    Enemy_in_map[1][0][0].skill[1] = (Enemy_skill) {4, "", ragpicker_Strengthen};
+    Enemy_in_map[1][0][0].skill[2] = (Enemy_skill) {3, "5", ragpicker_Weaken};
 }
 
 void draw_card(Player *player) {

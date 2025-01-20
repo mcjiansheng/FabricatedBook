@@ -18,12 +18,18 @@
 Layer layers[MAX_LAYERS];
 int seed;
 int main_Enemynum;
-Enemy *main_enemy[3];
+Enemy main_enemy[3];
 Card main_card[4][50];
 int main_cardnum[4];
 int windowWidth = 1920;
 int windowHeight = 1080;
 
+int round_times;
+
+int Enemy_num_in_map[7][2];
+Enemy Enemy_in_map[7][2][10];
+int fight_in_map[7][2];
+Fight fight_map[7][2][10];
 PlayerInfo playerInfo;
 PPT first_floor, second_floor[2], third_floor[2], forth_floor[2], fifth_floor[2], small_path, sixth_floor[2];
 
@@ -186,6 +192,8 @@ int main(int argc, char *argv[]) {
 
 extern SDL_Texture *node_texture[10];
 
+Node *last_node = NULL;
+
 void game_main(SDL_Window *window, SDL_Renderer *renderer) {
     srand(time(NULL));
     seed = rand();
@@ -198,6 +206,8 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
     push_beginning_cards(player);
     init_every_layer();
     init_ppt();
+    event_init();
+    init_enemy(renderer);
     PPT *now_ppt = &first_floor;
 //    init_map(now_ppt);
     cutscene_animation(window, renderer, now_ppt);
@@ -210,7 +220,6 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
     TTF_Font *State_font = TTF_OpenFont("./res/ys_zt.ttf", 45);
     char *hp_text = malloc(20 * sizeof(char)), *coin_text = malloc(20 * sizeof(char));
     int step = 0;
-    Node *last_node = NULL;
     init_map_printer(now_ppt->layer);
     Button map_reset, show_card;
     initButton(&map_reset, (Rect) {0.05, 0.85, 0.15, 0.08}, window, COLOR_GREY,
@@ -227,6 +236,7 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
                     Button_destroy(&show_card);
                     free(hp_text);
                     free(coin_text);
+                    TTF_CloseFont(State_font);
                     game_Quit(window, renderer);
                     break;
                 case SDL_WINDOWEVENT:
@@ -253,6 +263,7 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
                         show_all_card(window, renderer, player);
                     }
                     show_card.isPressed = false;
+                    check_choose_nodes(window, renderer, last_node, now_ppt->layer, mouse_x, mouse_y, x, player);
                     break;
             }
             if (event.type == SDL_MOUSEMOTION && dragging) {
@@ -264,18 +275,28 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
         }
         SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
         SDL_RenderClear(renderer);
+        //渲染按钮
         if (x > 1000 || x < -1000) {
             drawButton(renderer, &map_reset);
         }
+        drawButton(renderer, &show_card);
+        //渲染当前节点和可选下一步的节点
+        print_nodes(renderer, last_node, now_ppt->layer, x);
+        //渲染地图
         print_map(window, renderer, now_ppt->layer, x);
+        //渲染生命值和金币
         sprintf(hp_text, "生命值: %d / %d", player->hp, player->maxhp);
         draw_text(renderer, State_font, hp_text, 50, 50, COLOR_LIGHT_RED);
         sprintf(coin_text, "金币: %d", player->coin);
         draw_text(renderer, State_font, coin_text, 800, 50, COLOR_DARK_YELLOW);
-        drawButton(renderer, &show_card);
         SDL_RenderPresent(renderer);
         SDL_Delay(20);
     }
+    Button_destroy(&map_reset);
+    Button_destroy(&show_card);
+    free(hp_text);
+    free(coin_text);
+    TTF_CloseFont(State_font);
 }
 
 void game_start(SDL_Window *window, SDL_Renderer *renderer) {
@@ -408,6 +429,7 @@ void game_Welcoming(SDL_Window *window, SDL_Renderer *text_renderer, SDL_Texture
             switch (event.type) {
                 case SDL_QUIT:
 //                    printf("quit!\n");
+                    TTF_CloseFont(textfont);
                     game_Quit(window, text_renderer);
                     exit(0);
                     break;
@@ -445,4 +467,5 @@ void game_Welcoming(SDL_Window *window, SDL_Renderer *text_renderer, SDL_Texture
         alpha += step;
         SDL_Delay(50);
     }
+    TTF_CloseFont(textfont);
 }

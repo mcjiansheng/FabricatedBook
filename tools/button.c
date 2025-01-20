@@ -126,7 +126,7 @@ void Title_print(Title *title, SDL_Window *window, SDL_Renderer *renderer) {
     rect.x -= rect.w / 2;
     rect.y -= rect.h / 2;
     SDL_RenderCopy(renderer, texture, NULL, &rect);
-    SDL_RenderPresent(renderer);
+//    SDL_RenderPresent(renderer);
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
 }

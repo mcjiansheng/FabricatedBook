@@ -76,7 +76,7 @@ void cutscene_animation(SDL_Window *window, SDL_Renderer *renderer, PPT *ppt) {
         draw_text_with_alpha(renderer, textfont, ppt->description, windowWidth / 2, 500, COLOR_BLACK, t);
         draw_text_with_alpha(renderer, titlefont, ppt->title, windowWidth / 2, 200, COLOR_BLACK, t);
         SDL_RenderPresent(renderer);
-        t += 8;
+        t += 10;
         SDL_Delay(50);
     }
     printf("waiting\n");
@@ -104,7 +104,7 @@ void cutscene_animation(SDL_Window *window, SDL_Renderer *renderer, PPT *ppt) {
         draw_text_with_alpha(renderer, textfont, ppt->description, windowWidth / 2, 500, COLOR_BLACK, t);
         draw_text_with_alpha(renderer, titlefont, ppt->title, windowWidth / 2, 200, COLOR_BLACK, t);
         SDL_RenderPresent(renderer);
-        t -= 8;
+        t -= 10;
         SDL_Delay(50);
     }
 }
@@ -232,6 +232,9 @@ void init_layer(Layer *layer, int layer_idx) {
             if (size > 0) {
                 y = y + rand() % (size + 1);
             }
+            if (j == layer->line_num[i] - 1 && y < layer->line_num[i + 1] - 1) {
+                y = layer->line_num[i + 1] - 1;
+            }
             layer->nodes[i][j]->nxt_num = y - x + 1;
             for (int k = x; k <= y; k++) {
                 layer->nodes[i][j]->nxt[k - x] = layer->nodes[i + 1][k];
@@ -246,6 +249,7 @@ void init_layer(Layer *layer, int layer_idx) {
 void init_layer_six(Layer *layer) {
     layer->width = 1;
     layer->length = 4;
+    layer->num = 6;
     for (int i = 0; i < 4; i++) {
         layer->line_num[i] = 1;
     }
@@ -281,11 +285,11 @@ void print_layer(Layer *layer) {
 void init_every_layer() {
     srand(time(NULL));
 
-    layers[0] = (Layer) {3, 4};
-    layers[1] = (Layer) {3, 5};
-    layers[2] = (Layer) {4, 6};
-    layers[3] = (Layer) {4, 7};
-    layers[4] = (Layer) {4, 7};
+    layers[0] = (Layer) {3, 4, 1};
+    layers[1] = (Layer) {3, 5, 2};
+    layers[2] = (Layer) {4, 6, 3};
+    layers[3] = (Layer) {4, 7, 4};
+    layers[4] = (Layer) {4, 7, 5};
     // 初始化前五层
     for (int i = 0; i < MAX_LAYERS - 1; i++) {
         init_layer(&layers[i], i);
@@ -346,6 +350,72 @@ void print_map(SDL_Window *window, SDL_Renderer *renderer, Layer *layer, int x) 
 //            SDL_RenderPresent(renderer);
         }
     }
+}
+
+SDL_Rect nodes_rect(Node *node, int x) {
+    SDL_Rect rect = {node->x + x, node->y};
+    SDL_QueryTexture(node_texture[node->type], NULL, NULL, &rect.w, &rect.h);
+    rect.w += 20;
+    rect.h += 20;
+    rect.x -= rect.w / 2;
+    rect.y -= rect.h / 2;
+    return rect;
+}
+
+bool mouse_in_rect(SDL_Rect rect, int mouse_x, int mouse_y) {
+    if (mouse_x >= rect.x && mouse_x <= rect.x + rect.w &&
+        mouse_y >= rect.y && mouse_y <= rect.y + rect.h) {
+        return true;
+    }
+    return false;
+}
+
+void draw_nodes(SDL_Renderer *renderer, Node *node, SDL_Color Color, int x) {
+    draw_rectangle(renderer, nodes_rect(node, x), Color);
+}
+
+void print_nodes(SDL_Renderer *renderer, Node *node, Layer *layer, int x) {
+    if (node == NULL) {
+        draw_nodes(renderer, layer->head, COLOR_GOLD, x);
+    } else {
+        draw_nodes(renderer, node, COLOR_BLACK, x);
+        for (int i = 0; i < node->nxt_num; i++) {
+            draw_nodes(renderer, node->nxt[i], COLOR_GOLD, x);
+        }
+    }
+}
 
 
+void
+check_choose_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *now_node, Layer *layer, int mouse_x, int mouse_y,
+                   int x,
+                   Player *player) {
+    if (now_node == NULL) {
+        if (mouse_in_rect(nodes_rect(layer->head, x), mouse_x, mouse_y)) {
+            goin_nodes(window, renderer, layer->head, layer, player);
+        }
+    } else {
+        for (int i = 0; i < now_node->nxt_num; i++) {
+            if (mouse_in_rect(nodes_rect(now_node->nxt[i], x), mouse_x, mouse_y)) {
+                goin_nodes(window, renderer, now_node->nxt[i], layer, player);
+                return;
+            }
+        }
+    }
+}
+
+extern Node *last_node;
+
+extern int fight_in_map[7][2];
+extern Fight fight_map[7][2][10];
+
+void goin_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *node, Layer *layer, Player *player) {
+    printf("goin!\n");
+    last_node = node;
+    switch (node->type) {
+        case 1:
+            game_fight(window, renderer,
+                       &fight_map[layer->num][0][generate_random(0, fight_in_map[layer->num][0] - 1)], player);
+            break;
+    }
 }

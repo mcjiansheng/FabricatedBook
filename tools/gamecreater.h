@@ -26,7 +26,10 @@ typedef struct {
     SDL_Color color;//人物颜色
 } Character;
 
-// 函数声明
+int max(int x, int y);
+
+int min(int x, int y);
+
 void init_characters(SDL_Renderer *renderer, PlayerInfo info);
 
 void render_character_selection(SDL_Renderer *renderer, int windowsx, int windowsy);

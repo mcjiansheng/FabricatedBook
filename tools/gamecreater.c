@@ -12,6 +12,14 @@
 #define BUTTON_WIDTH 200
 #define BUTTON_HEIGHT 50
 
+int max(int x, int y) {
+    return x > y ? x : y;
+}
+
+int min(int x, int y) {
+    return x < y ? x : y;
+}
+
 // 角色数据
 Character characters[CHARACTER_COUNT];
 int selectedCharacter = -1;  // 默认未选择角色
@@ -182,7 +190,6 @@ void choose_card(SDL_Window *window, SDL_Renderer *renderer, Player *player) {
             }
         }
 
-        SDL_RenderPresent(renderer);
         while (SDL_PollEvent(&event) != 0) {
             switch (event.type) {
                 case SDL_QUIT:
@@ -216,6 +223,7 @@ void choose_card(SDL_Window *window, SDL_Renderer *renderer, Player *player) {
                     game_continue.isPressed = false;
             }
         }
+        SDL_RenderPresent(renderer);
         SDL_Delay(10);
     }
 }

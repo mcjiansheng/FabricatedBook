@@ -52,17 +52,29 @@ typedef struct Player {
     int sum_deck_size;
     Buff buff;
 } Player;
+typedef struct Enemy_skill {
+    int type;//1 atk 2def 3wek 4inc 5ukn
+    char *qua;
 
+    void (*effect)(struct Player *, struct Enemy *);
+} Enemy_skill;
 typedef struct Enemy {
+    char *name;
+    SDL_Texture *texture;
     int hp, block;
+    int skill_num;
+    Enemy_skill skill[7];
     Buff buff;
+    int next_step;
 } Enemy;
 extern int main_Enemynum;
-extern Enemy *main_enemy[3];
+extern Enemy main_enemy[3];
 
 void print_everycard(SDL_Renderer *renderer, Player *player, int y);
 
 void init_card();
+
+void init_enemy(SDL_Renderer *renderer);
 
 void init_buff(Buff *buff);
 
@@ -88,5 +100,7 @@ void Player_get_block(Player *player, int block);
 void defense(Player *player, Enemy *enemy);
 
 void add_card_to_bag(Player *player, Card *card);
+
+void add_card_to_deck(Player *player, Card *card);
 
 #endif //SLAYTHESPIRE_CARD_H
