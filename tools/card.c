@@ -82,6 +82,90 @@ Card *create_card(char *name, int cost, int type, int career, void (*effect)(str
     new_card->career = career;
     return new_card;
 }*/
+extern int main_potion_num;
+extern Potion main_potion[20];
+
+void p0(Player *player) {
+    player->hp += 10;
+}
+
+void p1(Player *player) {
+    for (int i = 0; i < main_Enemynum; i++) {
+        if (main_enemy[i].hp > 0) {
+            Enemy_be_attack(&main_enemy[i], 10);
+        }
+    }
+}
+
+void p2(Player *player) {
+    Player_get_block(player, 30);
+}
+
+void p3(Player *player) {
+    for (int i = 0; i < main_Enemynum; i++) {
+        if (main_enemy[i].hp > 0) {
+            main_enemy[i].buff.poisoning += 5;
+        }
+    }
+}
+
+void p4(Player *player) {
+    for (int i = 0; i < main_Enemynum; i++) {
+        if (main_enemy[i].hp > 0) {
+            main_enemy[i].buff.withering_times++;
+            main_enemy[i].buff.withering += 5;
+            main_enemy[i].hp -= main_enemy[i].buff.withering_times;
+        }
+    }
+}
+
+void p5(Player *player) {
+    player->energy += 3;
+    for (int i = 0; i < 3; i++) {
+        if (player->deck_size == 0 && player->discard_pile_size == 0) {
+            break;
+        }
+        draw_card(player);
+    }
+}
+
+void p6(Player *player) {
+    for (int i = 0; i < main_Enemynum; i++) {
+        if (main_enemy[i].hp > 0) {
+            main_enemy[i].block = 0;
+        }
+    }
+}
+
+void p7(Player *player) {
+    for (int i = 0; i < main_Enemynum; i++) {
+        if (main_enemy[i].hp > 0) {
+            main_enemy[i].buff.dizziness++;
+        }
+    }
+}
+
+void p8(Player *player) {
+    player->buff.strength += 5;
+}
+
+void p9(Player *player) {
+    player->buff.resistance += 5;
+}
+
+void init_potion() {
+    main_potion_num = 10;
+    main_potion[0] = (Potion) {"回血药水", "回复10点生命值", p0};
+    main_potion[1] = (Potion) {"攻击药水", "对所有敌人造成10点伤害", p1};
+    main_potion[2] = (Potion) {"护盾药水", "获得30护盾", p2};
+    main_potion[3] = (Potion) {"中毒药水", "对所有敌人造成5点中毒", p3};
+    main_potion[4] = (Potion) {"凋零药水", "对所有敌人造成5点凋零并引爆一次", p4};
+    main_potion[5] = (Potion) {"能量药水", "获得三点能量，抽三张卡", p5};
+    main_potion[6] = (Potion) {"碎盾药水", "击碎所有敌人的护盾", p6};
+    main_potion[7] = (Potion) {"眩晕药水", "使所有敌人眩晕1回合", p7};
+    main_potion[8] = (Potion) {"力量药水", "获得5点力量", p8};
+    main_potion[9] = (Potion) {"抗性药水", "获得5点抗性", p9};
+}
 
 Player *init_player(int hp, int career) {
     Player *player = (Player *) malloc(sizeof(Player));
@@ -122,6 +206,7 @@ void Enemy_be_attack(Enemy *enemy, int damage) {
         enemy->block = 0;
     } else {
         enemy->block -= damage;
+        damage = 0;
     }
     if (damage == 0) {
         return;
@@ -240,7 +325,7 @@ void init_card() {
     main_cardnum[1] = 13;//1:攻击 2:防御 3:装备 4:技能
     main_card[1][0] = (Card) {"攻击", 1, false, 1, 1, true, attack, "造成6点伤害"};
     main_card[1][1] = (Card) {"防护", 1, false, 2, 1, false, defense, "获得6点格挡"};
-    main_card[1][2] = (Card) {"痛击", 2, false, 2, 1, true, painful_blow, "造成8点伤害\n提供2点易伤"};
+    main_card[1][2] = (Card) {"痛击", 2, false, 1, 1, true, painful_blow, "造成8点伤害\n提供2点易伤"};
     main_card[1][3] = (Card) {"横扫", 1, false, 1, 1, false, sweep, "对所有单位造成5点伤害"};
     main_card[1][4] = (Card) {"奇袭", 0, true, 4, 1, true, ambush, "造成5点伤害和3点虚弱"};
     main_card[1][5] = (Card) {"反击", 1, false, 4, 1, true, counterattack, "根据格挡值造成伤害"};
@@ -262,6 +347,7 @@ void play_be_attacked(Player *player, Enemy *enemy, int damage) {
         player->block = 0;
     } else {
         player->block -= damage;
+        damage = 0;
     }
     if (damage == 0) {
         return;
@@ -272,7 +358,7 @@ void play_be_attacked(Player *player, Enemy *enemy, int damage) {
     if (player->hp <= 0) {
         player->hp = 0;
     }
-    if (player->buff.undead > 0 && player->hp == 0) {
+    if (player->buff.undead > 0 && player->hp <= 0) {
         player->hp = 1;
     }
 

@@ -12,6 +12,9 @@ typedef struct {
     int Character_locked[3];
     int reward;
 } PlayerInfo;
+struct SUMMARY {
+    int node_num, fight_num;
+};
 
 extern PlayerInfo playerInfo;
 

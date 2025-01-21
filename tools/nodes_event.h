@@ -28,8 +28,13 @@ typedef struct FIGHT {
 
 void event_init();
 
+extern struct SUMMARY summary;
+
 void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player *player);
 
+void game_fail(SDL_Window *window, SDL_Renderer *renderer, Player *player);
+
+void fight_success(SDL_Window *window, SDL_Renderer *renderer, Player *player, int dif);
 //const char *sug[] = {, "请选择释放对象", "能量不足"};
 
 #endif //SLAYTHESPIRE_NODES_EVENT_H

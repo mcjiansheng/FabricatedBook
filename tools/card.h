@@ -35,9 +35,9 @@ extern Card main_card[4][50];
 extern int main_cardnum[4];
 typedef struct Potion {
     char *name;
-    bool need_aim;
+    char *discribe;
 
-    void (*effect)(struct Player *, struct Enemy *);
+    void (*effect)(struct Player *);
 } Potion;
 typedef struct Player {
     int maxhp, hp, coin, energy, block, times;
@@ -74,6 +74,8 @@ void print_everycard(SDL_Renderer *renderer, Player *player, int y);
 
 void init_card();
 
+void init_potion();
+
 void init_enemy(SDL_Renderer *renderer);
 
 void init_buff(Buff *buff);
@@ -93,6 +95,10 @@ void discard_card(Player *player, int card_index);//弃牌
 
 void shuffle_discard_pile_to_deck(Player *player);//洗牌
 void attack(Player *player, Enemy *enemy);
+
+void Enemy_be_attack(Enemy *enemy, int damage);
+
+void Player_get_block(Player *player, int block);
 
 void Player_attack_enemy(Player *player, Enemy *enemy, int damage);
 

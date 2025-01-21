@@ -14,9 +14,8 @@ extern Enemy main_enemy[3];
 extern int round_times;
 
 void event_init() {
-
     fight_in_map[1][0] = 1;
-    fight_map[1][0][0] = (Fight) {3, &Enemy_in_map[1][0][0], &Enemy_in_map[1][0][0], &Enemy_in_map[1][0][0]};
+    fight_map[1][0][0] = (Fight) {1, &Enemy_in_map[1][0][0]};
 }
 
 extern int deadly_tempotimes;
@@ -26,6 +25,12 @@ void decide_enemy_step(Enemy *enemy) {
 }
 
 void fight_start(Fight *fight, Player *player) {
+    player->hand_size = 0;
+    player->hand = (Card **) realloc(player->hand, player->hand_size * sizeof(Card *));
+    player->deck_size = 0;
+    player->deck = (Card **) realloc(player->deck, player->deck_size * sizeof(Card *));
+    player->discard_pile_size = 0;
+    player->discard_pile = (Card **) realloc(player->discard_pile, player->discard_pile_size * sizeof(Card *));
     round_times = 0;
     init_buff(&player->buff);
     main_Enemynum = fight->enemy_num;
@@ -343,7 +348,7 @@ void print_hand_cards(SDL_Renderer *renderer, Player *player, int choose_card, i
     x -= CARD_DIF * n / 2;
     bool hover = false, press = false;
     SDL_Rect rect;
-    TTF_Font *font = TTF_OpenFont("./res/ys_zt.ttf", 20), *title_font = TTF_OpenFont("./res/ys_zt.ttf", 30);
+    TTF_Font *font = TTF_OpenFont("./res/ys_zt.ttf", 16), *title_font = TTF_OpenFont("./res/ys_zt.ttf", 20);
 //    printf("hand card num :%d\n", n);
     for (int i = 0; i < n; i++) {
 //        printf("i:%d mouse:%d %d rect %d %d %d %d\n", i, mouse_x, mouse_y, rect.x, rect.y, rect.w, rect.h);
@@ -388,6 +393,9 @@ bool mouse_in_rect(int mouse_x, int mouse_y, SDL_Rect rect) {
 }*/
 
 void player_aim(Player *player, int mouse_x, int mouse_y, int *choose_card) {
+    if (player->buff.dizziness > 0) {
+        return;
+    }
     Card *card = player->hand[*choose_card];
     bool aim = card->need_aim;
     SDL_Rect rect = {400, 400, 200, 350};
@@ -401,12 +409,18 @@ void player_aim(Player *player, int mouse_x, int mouse_y, int *choose_card) {
     if (main_Enemynum > 0 && main_enemy[0].hp > 0 && mouse_in_rect(rect, mouse_x, mouse_y)) {
         use_card(player, choose_card, &main_enemy[0]);
     }
+    if (main_Enemynum < 2) {
+        return;
+    }
     rect = (SDL_Rect) {1150, 450};
     SDL_QueryTexture(main_enemy[1].texture, NULL, NULL, &rect.w, &rect.h);
     rect.h = rect.h * 200 / rect.w;
     rect.w = 200;
     if (main_Enemynum > 1 && main_enemy[1].hp > 0 && mouse_in_rect(rect, mouse_x, mouse_y)) {
         use_card(player, choose_card, &main_enemy[1]);
+    }
+    if (main_Enemynum < 3) {
+        return;
     }
     rect = (SDL_Rect) {1550, 350};
     SDL_QueryTexture(main_enemy[2].texture, NULL, NULL, &rect.w, &rect.h);
@@ -452,6 +466,15 @@ void Enemy_Action(Player *player, Enemy *enemy) {
     } else {
         enemy->buff.armor--;
     }
+    if (enemy->skill[enemy->next_step].effect == NULL) {
+        printf("enemy skill is null!\n");
+    } else {
+        printf("enemy's skill is ready!\n");
+    }
+    if (enemy->buff.dizziness > 0) {
+        enemy->next_step = generate_random(0, enemy->skill_num - 1);
+        return;
+    }
     enemy->skill[enemy->next_step].effect(player, enemy);
     enemy->next_step = generate_random(0, enemy->skill_num - 1);
 }
@@ -466,26 +489,30 @@ void round_settlement(Player *player, int *times) {
         player->hand_size = 0;
         player->hand = (Card **) realloc(player->hand, player->hand_size * sizeof(Card *));
         Buff_update(player);
+        printf("update buff and discard pile success\n");
     }
     if (*times == 50) {
         if (main_Enemynum > 0 && main_enemy[0].hp > 0) {
             Enemy_Action(player, &main_enemy[0]);
+            printf("enemy 1 action success\n");
         } else {
-            *times += 199;
+            *times = *times + 199;
         }
     }
     if (*times == 250) {
         if (main_Enemynum > 1 && main_enemy[1].hp > 0) {
             Enemy_Action(player, &main_enemy[1]);
+            printf("enemy 2 action success\n");
         } else {
-            *times += 199;
+            *times = *times + 199;
         }
     }
     if (*times == 450) {
         if (main_Enemynum > 2 && main_enemy[2].hp > 0) {
             Enemy_Action(player, &main_enemy[2]);
+            printf("enemy 3 action success\n");
         } else {
-            *times += 199;
+            *times = *times + 199;
         }
     }
     if (*times == 550) {
@@ -495,7 +522,20 @@ void round_settlement(Player *player, int *times) {
                 buff_decrease(&main_enemy[0].buff);
             }
         }
+        printf("buff decrease success!\n");
     }
+}
+
+void check_end(Player *player, int *quit) {
+    if (player->hp <= 0) {
+        *quit = 1;
+    }
+    for (int i = 0; i < main_Enemynum; i++) {
+        if (main_enemy[i].hp > 0) {
+            return;
+        }
+    }
+    *quit = 1;
 }
 
 void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player *player) {
@@ -567,6 +607,9 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
         if (round_progress == 1) {
             drawButton(renderer, &next_round);
             print_hand_cards(renderer, player, choose_card, mouse_x, mouse_y);
+            if (player->buff.poisoning > 0) {
+                advise.text = "你被眩晕了，无法行动！";
+            }
         } else {
             round_settlement(player, &times);
             times++;
@@ -601,7 +644,142 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
         draw_text(renderer, State_font, text, 1700, 700, COLOR_BLACK);
         sprintf(text, "能量: %d", player->energy);
         draw_text(renderer, State_font, text, 700, 700, COLOR_ORANGE);
+        check_end(player, &quit);
+        SDL_RenderPresent(renderer);
+        SDL_Delay(10);
+    }
+    free(hp_text);
+    free(coin_text);
+    free(text);
+    TTF_CloseFont(State_font);
+    Button_destroy(&next_round);
+    Title_destroy(&advise);
+    if (player->hp <= 0) {
+        game_fail(window, renderer, player);
+        return;
+    } else {
+        fight_success(window, renderer, player, 1);
+    }
+}
 
+extern struct SUMMARY summary;
+
+void game_fail(SDL_Window *window, SDL_Renderer *renderer, Player *player) {
+    SDL_Event event;
+    int quit = 0;
+    Button game_back, game_exit;
+    initButton(&game_back, (Rect) {0.75, 0.75, 0.15, 0.08}, window, COLOR_GREY,
+               COLOR_DARKGREY,
+               COLOR_BLACK, "返回主菜单", "./res/ys_zt.ttf", 12);
+    initButton(&game_exit, (Rect) {0.05, 0.75, 0.15, 0.08}, window, COLOR_GREY,
+               COLOR_DARKGREY,
+               COLOR_BLACK, "退出游戏", "./res/ys_zt.ttf", 12);
+    Title title;
+    TTF_Font *font_title = TTF_OpenFont("./res/ys_zt.ttf", 50), *font = TTF_OpenFont("./res/ys_zt.ttf", 25);
+    char *text = malloc(1010 * sizeof(char));
+    sprintf(text, "你总共经过了%d个节点\n完成了%d次战斗", summary.node_num, summary.fight_num);
+    Title_init(&title, "失败", font_title, 0.5, 0.3, COLOR_RED);
+    while (!quit) {
+        SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
+        SDL_RenderClear(renderer);
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_QUIT:
+                    Button_destroy(&game_exit);
+                    Button_destroy(&game_back);
+                    Title_destroy(&title);
+                    free(text);
+                    game_Quit(window, renderer);
+                    break;
+                case SDL_WINDOWEVENT:
+                    break;
+                case SDL_MOUSEMOTION:
+                    game_exit.isHovered = isMouseInButton(event.motion.x, event.motion.y, &game_exit);
+                    game_back.isHovered = isMouseInButton(event.motion.x, event.motion.y, &game_back);
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    game_exit.isPressed = isMouseInButton(event.motion.x, event.motion.y, &game_exit);
+                    game_back.isPressed = isMouseInButton(event.motion.x, event.motion.y, &game_back);
+                    break;
+                case SDL_MOUSEBUTTONUP:
+                    if (game_exit.isPressed &&
+                        isMouseInButton(event.button.x, event.button.y, &game_exit)) {
+                        Button_destroy(&game_exit);
+                        Button_destroy(&game_back);
+                        Title_destroy(&title);
+                        free(text);
+                        game_Quit(window, renderer);
+                        return;
+                    }
+                    game_exit.isPressed = false;
+                    if (game_back.isPressed &&
+                        isMouseInButton(event.button.x, event.button.y, &game_back)) {
+                        printf("game back Clicked!\n");
+                        Button_destroy(&game_exit);
+                        Button_destroy(&game_back);
+                        free(text);
+                        Title_destroy(&title);
+                        return;
+                    }
+                    game_back.isPressed = false;
+                    break;
+            }
+        }
+        Title_print(&title, window, renderer);
+        draw_text(renderer, font, text, windowWidth / 2 - 200, windowHeight * 2 / 3 - 300, COLOR_BLACK);
+        drawButton(renderer, &game_exit);
+        drawButton(renderer, &game_back);
+        SDL_RenderPresent(renderer);
+        SDL_Delay(10);
+    }
+}
+
+void fight_success(SDL_Window *window, SDL_Renderer *renderer, Player *player, int dif) {//金币 卡牌 藏品 药水
+    SDL_Event event;
+    int quit = 0;
+    Button game_continue;
+    initButton(&game_continue, (Rect) {0.75, 0.75, 0.15, 0.08}, window, COLOR_GREY,
+               COLOR_DARKGREY,
+               COLOR_BLACK, "继续", "./res/ys_zt.ttf", 12);
+    Title title;
+    TTF_Font *font_title = TTF_OpenFont("./res/ys_zt.ttf", 50), *font = TTF_OpenFont("./res/ys_zt.ttf", 25);
+    char *text = malloc(200 * sizeof(char));
+    Title_init(&title, "胜利", font_title, 0.5, 0.3, COLOR_GOLD);
+    while (!quit) {
+        SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
+        SDL_RenderClear(renderer);
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_QUIT:
+                    Button_destroy(&game_continue);
+                    Title_destroy(&title);
+                    free(text);
+                    game_Quit(window, renderer);
+                    break;
+                case SDL_WINDOWEVENT:
+                    break;
+                case SDL_MOUSEMOTION:
+                    game_continue.isHovered = isMouseInButton(event.motion.x, event.motion.y, &game_continue);
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    game_continue.isPressed = isMouseInButton(event.motion.x, event.motion.y, &game_continue);
+                    break;
+                case SDL_MOUSEBUTTONUP:
+                    if (game_continue.isPressed &&
+                        isMouseInButton(event.button.x, event.button.y, &game_continue)) {
+                        printf("game back Clicked!\n");
+                        Button_destroy(&game_continue);
+                        free(text);
+                        Title_destroy(&title);
+                        return;
+                    }
+                    game_continue.isPressed = false;
+                    break;
+            }
+        }
+        Title_print(&title, window, renderer);
+        draw_text(renderer, font, text, windowWidth / 2 - 200, windowHeight * 2 / 3 - 300, COLOR_BLACK);
+        drawButton(renderer, &game_continue);
         SDL_RenderPresent(renderer);
         SDL_Delay(10);
     }

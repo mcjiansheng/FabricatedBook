@@ -20,10 +20,12 @@ int seed;
 int main_Enemynum;
 Enemy main_enemy[3];
 Card main_card[4][50];
+int main_potion_num;
+Potion main_potion[20];
 int main_cardnum[4];
 int windowWidth = 1920;
 int windowHeight = 1080;
-
+struct SUMMARY summary = {0, 0};
 int round_times;
 
 int Enemy_num_in_map[7][2];
@@ -199,6 +201,8 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
     seed = rand();
     Player *player = init_player(characters[selectedCharacter].hp, selectedCharacter);
     init_card();
+    init_potion();
+    last_node = NULL;
     if (playerInfo.reward) {
         game_choose_reward(renderer, window, player);
     }
@@ -264,6 +268,9 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
                     }
                     show_card.isPressed = false;
                     check_choose_nodes(window, renderer, last_node, now_ppt->layer, mouse_x, mouse_y, x, player);
+                    if (player->hp <= 0) {
+                        return;
+                    }
                     break;
             }
             if (event.type == SDL_MOUSEMOTION && dragging) {
@@ -309,6 +316,7 @@ void game_start(SDL_Window *window, SDL_Renderer *renderer) {
     SDL_RenderClear(renderer);
     SDL_Event event;
     Button game_continue, game_back;
+    selectedCharacter = -1;
     initButton(&game_continue, (Rect) {0.75, 0.75, 0.15, 0.08}, window, COLOR_GREY,
                COLOR_GREYGREEN,
                COLOR_LIGHT_RED, "开始游戏", TTF_FILE, 12);
@@ -357,7 +365,7 @@ void game_start(SDL_Window *window, SDL_Renderer *renderer) {
                         Button_destroy(&game_back);
                         return;
                     }
-                    game_continue.isPressed = false;
+                    game_back.isPressed = false;
                     break;
             }
         }
