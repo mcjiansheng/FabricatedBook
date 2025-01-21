@@ -30,4 +30,6 @@ void event_init();
 
 void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player *player);
 
+//const char *sug[] = {, "请选择释放对象", "能量不足"};
+
 #endif //SLAYTHESPIRE_NODES_EVENT_H

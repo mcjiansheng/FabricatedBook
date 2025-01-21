@@ -17,7 +17,7 @@
 struct Player;
 struct Enemy;
 typedef struct Buff {
-    int fragile, block_reduction, resistance, block_increase, weak, strength, dizziness, poisoning, withering, flame, freezing, lightning;
+    int fragile, block_reduction, resistance, block_increase, weak, strength, dizziness, poisoning, withering, withering_times, flame, freezing, lightning;
     int armor, undead, extra_energy[3];
 } Buff;
 typedef struct {
@@ -78,13 +78,16 @@ void init_enemy(SDL_Renderer *renderer);
 
 void init_buff(Buff *buff);
 
+void buff_decrease(Buff *buff);
+
 Card *create_card(char *name, int cost, int type, int career, void (*effect)(struct Player *, struct Enemy *));
 
 Player *init_player(int hp, int career);
 
 void draw_card(Player *player);//抽牌
 
-void use_card(Player *player, int card_index, Enemy *enemy);//出牌
+void use_card(Player *player, int *card_index, Enemy *enemy);//出牌
+
 
 void discard_card(Player *player, int card_index);//弃牌
 

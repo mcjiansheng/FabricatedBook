@@ -104,4 +104,6 @@ check_choose_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *now_node, L
 
 void goin_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *node, Layer *layer, Player *player);
 
+bool mouse_in_rect(SDL_Rect rect, int mouse_x, int mouse_y);
+
 #endif //SLAYTHESPIRE_MAP_H

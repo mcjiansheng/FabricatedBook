@@ -23,11 +23,53 @@ void print_everycard(SDL_Renderer *renderer, Player *player, int y) {
 }
 
 Buff free_buff = {0, 0, 0, 0, 0, 0,
-                  0, 0, 0, 0, 0, 0, 0, 0, {0, 0, 0}};
+                  0, 0, 0, 0, 0, 0, 0, 0, 0, {0, 0, 0}};
 //Buff free_buff = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
 void init_buff(Buff *buff) {
     *buff = free_buff;
+}
+
+void buff_decrease(Buff *buff) {
+    if (buff->fragile > 0) {
+        buff->fragile--;
+    }
+    if (buff->block_reduction > 0) {
+        buff->block_reduction--;
+    }
+    if (buff->resistance > 0) {
+        buff->resistance--;
+    }
+    if (buff->block_increase > 0) {
+        buff->block_increase--;
+    }
+    if (buff->weak > 0) {
+        buff->weak--;
+    }
+    if (buff->strength > 0) {
+        buff->strength--;
+    }
+    if (buff->dizziness > 0) {
+        buff->dizziness--;
+    }
+    if (buff->poisoning > 0) {
+        buff->poisoning--;
+    }
+    if (buff->withering > 0) {
+        buff->withering--;
+    }
+    if (buff->flame > 0) {
+        buff->flame--;
+    }
+    if (buff->freezing > 0) {
+        buff->freezing--;
+    }
+    if (buff->lightning > 0) {
+        buff->lightning--;
+    }
+    if (buff->undead > 0) {
+        buff->undead--;
+    }
 }
 
 /*
@@ -75,14 +117,18 @@ void add_card_to_deck(Player *player, Card *card) {
 }
 
 void Enemy_be_attack(Enemy *enemy, int damage) {
-    damage = damage * (double) (1.0 + (enemy->buff.fragile <= 0 ? 0.0 : 1.0) * 0.25 +
-                                (enemy->buff.resistance <= 0 ? 0.0 : 1.0) * (-0.25));
     if (damage > enemy->block) {
         damage -= enemy->block;
         enemy->block = 0;
     } else {
         enemy->block -= damage;
     }
+    if (damage == 0) {
+        return;
+    }
+    damage = damage * (double) (1.0 + (enemy->buff.fragile <= 0 ? 0.0 : 1.0) * 0.25 +
+                                (enemy->buff.resistance <= 0 ? 0.0 : 1.0) * (-0.25));
+
     enemy->hp -= damage;
     if (enemy->hp <= 0) {
         enemy->hp = 0;
@@ -211,14 +257,17 @@ void init_card() {
 }
 
 void play_be_attacked(Player *player, Enemy *enemy, int damage) {
-    damage = damage * (double) (1.0 + (player->buff.fragile <= 0 ? 0.0 : 1.0) * 0.25 +
-                                (player->buff.resistance <= 0 ? 0.0 : 1.0) * (-0.25));
     if (damage > player->block) {
         damage -= player->block;
         player->block = 0;
     } else {
         player->block -= damage;
     }
+    if (damage == 0) {
+        return;
+    }
+    damage = damage * (double) (1.0 + (player->buff.fragile <= 0 ? 0.0 : 1.0) * 0.25 +
+                                (player->buff.resistance <= 0 ? 0.0 : 1.0) * (-0.25));
     player->hp -= damage;
     if (player->hp <= 0) {
         player->hp = 0;
@@ -274,12 +323,12 @@ void draw_card(Player *player) {
     }
 }
 
-void use_card(Player *player, int card_index, Enemy *enemy) {
-    if (card_index < 0 || card_index >= player->hand_size) {
+void use_card(Player *player, int *card_index, Enemy *enemy) {
+    if (*card_index < 0 || *card_index >= player->hand_size) {
         printf("Invalid card index!\n");
         return;
     }
-    Card *card = player->hand[card_index];
+    Card *card = player->hand[*card_index];
     if (card->cost > player->energy) {
         printf("Not enough energy to use the card!\n");
         return;
@@ -287,7 +336,8 @@ void use_card(Player *player, int card_index, Enemy *enemy) {
     player->energy -= card->cost;
     card->effect(player, enemy); // 调用卡牌的效果函数
     // 将使用过的卡牌放入弃牌堆
-    discard_card(player, card_index);
+    discard_card(player, *card_index);
+    *card_index = -1;
 }
 
 void discard_card(Player *player, int card_index) {
@@ -296,9 +346,11 @@ void discard_card(Player *player, int card_index) {
         return;
     }
     Card *card = player->hand[card_index];
-    player->discard_pile_size++;
-    player->discard_pile = (Card **) realloc(player->discard_pile, player->discard_pile_size * sizeof(Card *));
-    player->discard_pile[player->discard_pile_size - 1] = card;
+    if (!card->exhaust) {
+        player->discard_pile_size++;
+        player->discard_pile = (Card **) realloc(player->discard_pile, player->discard_pile_size * sizeof(Card *));
+        player->discard_pile[player->discard_pile_size - 1] = card;
+    }
     // 移除手牌中的该卡牌
     for (int i = card_index; i < player->hand_size - 1; i++) {
         player->hand[i] = player->hand[i + 1];
