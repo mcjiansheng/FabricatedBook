@@ -7,6 +7,9 @@
 #include <stdlib.h>
 #include "button.h"
 
+extern int main_collection_num[6];
+extern Collection main_collection[6][10];
+
 void print_everycard(SDL_Renderer *renderer, Player *player, int y) {
     int i;
     TTF_Font *font = TTF_OpenFont("./res/ys_zt.ttf", 25), *title_font = TTF_OpenFont("./res/ys_zt.ttf", 35);
@@ -14,6 +17,21 @@ void print_everycard(SDL_Renderer *renderer, Player *player, int y) {
     for (i = 0; i < player->sum_deck_size; i++) {
         print_card(renderer, player->sum_deck[i], rect, 0, 0, font,
                    title_font);
+        rect.x += rect.w * 1.5;
+        if ((i + 1) % 4 == 0) {
+            rect.x = 200;
+            rect.y += rect.h * 1.5;
+        }
+    }
+}
+
+void print_everycollection(SDL_Renderer *renderer, Player *player, int y) {
+    int i;
+    TTF_Font *font = TTF_OpenFont("./res/ys_zt.ttf", 25), *title_font = TTF_OpenFont("./res/ys_zt.ttf", 35);
+    SDL_Rect rect = {200, 200 + y, 200, 300};
+    for (i = 0; i < player->sum_collection; i++) {
+        print_collection(renderer, player->collections[i], rect, font,
+                         title_font);
         rect.x += rect.w * 1.5;
         if ((i + 1) % 4 == 0) {
             rect.x = 200;
@@ -86,7 +104,7 @@ extern int main_potion_num;
 extern Potion main_potion[20];
 
 void p0(Player *player) {
-    player->hp += 10;
+    player_get_hp(player, 10);
 }
 
 void p1(Player *player) {
@@ -114,7 +132,7 @@ void p4(Player *player) {
         if (main_enemy[i].hp > 0) {
             main_enemy[i].buff.withering_times++;
             main_enemy[i].buff.withering += 5;
-            main_enemy[i].hp -= main_enemy[i].buff.withering_times;
+            Enemy_be_attack(&main_enemy[i], main_enemy[i].buff.withering_times);
         }
     }
 }
@@ -155,16 +173,16 @@ void p9(Player *player) {
 
 void init_potion() {
     main_potion_num = 10;
-    main_potion[0] = (Potion) {"回血药水", "回复10点生命值", p0};
-    main_potion[1] = (Potion) {"攻击药水", "对所有敌人造成10点伤害", p1};
-    main_potion[2] = (Potion) {"护盾药水", "获得30护盾", p2};
-    main_potion[3] = (Potion) {"中毒药水", "对所有敌人造成5点中毒", p3};
-    main_potion[4] = (Potion) {"凋零药水", "对所有敌人造成5点凋零并引爆一次", p4};
-    main_potion[5] = (Potion) {"能量药水", "获得三点能量，抽三张卡", p5};
-    main_potion[6] = (Potion) {"碎盾药水", "击碎所有敌人的护盾", p6};
-    main_potion[7] = (Potion) {"眩晕药水", "使所有敌人眩晕1回合", p7};
-    main_potion[8] = (Potion) {"力量药水", "获得5点力量", p8};
-    main_potion[9] = (Potion) {"抗性药水", "获得5点抗性", p9};
+    main_potion[0] = (Potion) {"回血药水", "回复10点生命值", COLOR_LIGHT_GREEN, p0};
+    main_potion[1] = (Potion) {"攻击药水", "对所有敌人造成10点伤害", COLOR_RED, p1};
+    main_potion[2] = (Potion) {"护盾药水", "获得30护盾", COLOR_GREY, p2};
+    main_potion[3] = (Potion) {"中毒药水", "对所有敌人造成5点中毒", COLOR_GREYGREEN, p3};
+    main_potion[4] = (Potion) {"凋零药水", "对所有敌人造成5点凋零并引爆一次", COLOR_BLACK, p4};
+    main_potion[5] = (Potion) {"能量药水", "获得三点能量，抽三张卡", COLOR_ORANGE, p5};
+    main_potion[6] = (Potion) {"碎盾药水", "击碎所有敌人的护盾", COLOR_BLACK, p6};
+    main_potion[7] = (Potion) {"眩晕药水", "使所有敌人眩晕1回合", COLOR_ORANGE, p7};
+    main_potion[8] = (Potion) {"力量药水", "获得5点力量", COLOR_RED, p8};
+    main_potion[9] = (Potion) {"抗性药水", "获得5点抗性", COLOR_BLACK, p9};
 }
 
 Player *init_player(int hp, int career) {
@@ -185,6 +203,14 @@ Player *init_player(int hp, int career) {
     player->sum_deck_size = 0;
     player->buff = free_buff;
     player->times = 0;
+    player->sum_Potion = 0;
+    player->potions = NULL;
+    get_potion(player, &main_potion[generate_random(0, 9)]);
+    get_potion(player, &main_potion[generate_random(0, 9)]);
+    get_potion(player, &main_potion[generate_random(0, 9)]);
+    player->sum_collection = 0;
+    player->collections = NULL;
+    player_get_collection(player, 0, 0);
     return player;
 }
 
@@ -226,6 +252,12 @@ void Enemy_be_attack(Enemy *enemy, int damage) {
 void Player_attack_enemy(Player *player, Enemy *enemy, int damage) {
     damage = damage * (double) (1.0 + (player->buff.strength <= 0 ? 0.0 : 1.0) * 0.25 +
                                 (player->buff.weak <= 0 ? 0.0 : 1.0) * (-0.25));
+    if (main_collection[3][0].get && player->hp <= player->maxhp / 10) {
+        damage = damage * 1.5;
+    }
+    if (main_collection[4][0].get) {
+        damage = damage * (1.0 + (player->coin / 10) * 0.08);
+    }
     Enemy_be_attack(enemy, damage);
 }
 
@@ -313,11 +345,15 @@ void excited(Player *player, Enemy *enemy) {
     player->buff.lightning = 0;
 }
 
-void heal(Player *player, Enemy *enemy) {
-    player->hp += 10;
+void player_get_hp(Player *player, int num) {
+    player->hp += num;
     if (player->hp > player->maxhp) {
         player->hp = player->maxhp;
     }
+}
+
+void heal(Player *player, Enemy *enemy) {
+    player_get_hp(player, 10);
 }
 
 void init_card() {
@@ -327,12 +363,12 @@ void init_card() {
     main_card[1][1] = (Card) {"防护", 1, false, 2, 1, false, defense, "获得6点格挡"};
     main_card[1][2] = (Card) {"痛击", 2, false, 1, 1, true, painful_blow, "造成8点伤害\n提供2点易伤"};
     main_card[1][3] = (Card) {"横扫", 1, false, 1, 1, false, sweep, "对所有单位造成5点伤害"};
-    main_card[1][4] = (Card) {"奇袭", 0, true, 4, 1, true, ambush, "造成5点伤害和3点虚弱"};
+    main_card[1][4] = (Card) {"奇袭", 0, true, 4, 1, true, ambush, "造成5点伤害\n和3点虚弱"};
     main_card[1][5] = (Card) {"反击", 1, false, 4, 1, true, counterattack, "根据格挡值造成伤害"};
     main_card[1][6] = (Card) {"强力击", 2, false, 1, 1, true, powerful_strike,
                               "造成10点伤害\n手中每有一张攻击牌\n使伤害增加3"};
     main_card[1][7] = (Card) {"装甲", 2, true, 3, 1, false, armorer, "使我方该场战斗中格挡值\n不再在回合结束时消失"};
-    main_card[1][8] = (Card) {"致命节奏", 1, false, 1, 1, true, deadly_tempo, "造成7点伤害\n每使用一次该牌，伤害+1"};
+    main_card[1][8] = (Card) {"致命节奏", 1, false, 1, 1, true, deadly_tempo, "造成7点伤害\n每使用一次该牌\n伤害+1"};
     main_card[1][9] = (Card) {"底牌", 0, true, 4, 1, false, ACE, "抽5张牌"};
     main_card[1][10] = (Card) {"搏命挣扎", 0, true, 4, 1, false, struggle_desperately,
                                "接下来的3回合内不死\n且额外获得2能量\n但3回合结束后直接死亡"};
@@ -341,7 +377,7 @@ void init_card() {
     main_card[1][13] = (Card) {"致命一击", 3, false, 1, 1, true, critical_hit, "造成30点伤害"};
 }
 
-void play_be_attacked(Player *player, Enemy *enemy, int damage) {
+void player_be_attacked(Player *player, Enemy *enemy, int damage) {
     if (damage > player->block) {
         damage -= player->block;
         player->block = 0;
@@ -367,7 +403,14 @@ void play_be_attacked(Player *player, Enemy *enemy, int damage) {
 void enemy_attack_player(Player *player, Enemy *enemy, int damage) {
     damage = damage * (double) (1.0 + (enemy->buff.strength <= 0 ? 0.0 : 1.0) * 0.25 +
                                 (enemy->buff.weak <= 0 ? 0.0 : 1.0) * (-0.25));
-    play_be_attacked(player, enemy, damage);
+    player_be_attacked(player, enemy, damage);
+}
+
+void enemy_get_block(Enemy *enemy, int block) {
+    block = block *
+            (double) (1.0 + (enemy->buff.block_increase > 0 ? 0.5 : 0.0) -
+                      (enemy->buff.block_reduction > 0 ? 0.5 : 0.0));
+    enemy->block += block;
 }
 
 void ragpicker_attack(Player *player, Enemy *enemy) {
@@ -384,14 +427,31 @@ void ragpicker_Weaken(Player *player, Enemy *enemy) {
     enemy_attack_player(player, enemy, 5);
 }
 
+void vulture_block(Player *player, Enemy *enemy) {
+    enemy_get_block(enemy, 3);
+}
+
+void vulture_attack(Player *player, Enemy *enemy) {
+    enemy_attack_player(player, enemy, 3);
+}
+
+void vulture_attack2(Player *player, Enemy *enemy) {
+    enemy_attack_player(player, enemy, 7);
+}
+
 extern int Enemy_num_in_map[7][2];
 extern Enemy Enemy_in_map[7][2][10];
 
 void init_enemy(SDL_Renderer *renderer) {
+    Enemy_num_in_map[1][0] = 2;
     Enemy_in_map[1][0][0] = (Enemy) {"拾荒者", IMG_LoadTexture(renderer, "./img/ragpicker.png"), 45, 0, 3};
     Enemy_in_map[1][0][0].skill[0] = (Enemy_skill) {1, "2*3", ragpicker_attack};
     Enemy_in_map[1][0][0].skill[1] = (Enemy_skill) {4, "", ragpicker_Strengthen};
     Enemy_in_map[1][0][0].skill[2] = (Enemy_skill) {3, "5", ragpicker_Weaken};
+    Enemy_in_map[1][0][1] = (Enemy) {"秃鹫", IMG_LoadTexture(renderer, "./img/vulture.png"), 25, 0, 3};
+    Enemy_in_map[1][0][1].skill[0] = (Enemy_skill) {2, "3", vulture_block};
+    Enemy_in_map[1][0][1].skill[1] = (Enemy_skill) {1, "3", vulture_attack};
+    Enemy_in_map[1][0][1].skill[2] = (Enemy_skill) {1, "7", vulture_attack2};
 }
 
 void draw_card(Player *player) {
@@ -463,5 +523,56 @@ void shuffle_discard_pile_to_deck(Player *player) {
         Card *temp = player->deck[i];
         player->deck[i] = player->deck[j];
         player->deck[j] = temp;
+    }
+}
+
+void get_potion(Player *player, Potion *potion) {
+    if (player->player_career != 2 && player->sum_Potion > 2) {
+        return;
+    }
+    if (player->player_career == 2 && player->sum_Potion > 4) {
+        return;
+    }
+    player->sum_Potion++;
+    player->potions = (Potion **) realloc(player->potions, player->sum_Potion * sizeof(Potion *));
+    player->potions[player->sum_Potion - 1] = potion;
+}
+
+void discard_potion(Player *player, int index) {
+    if (index > player->sum_Potion) {
+        return;
+    }
+    for (int i = index; i < player->sum_Potion - 1; i++) {
+        player->potions[i] = player->potions[i + 1];
+    }
+    player->sum_Potion--;
+    player->potions = (Potion **) realloc(player->potions, player->sum_Potion * sizeof(Potion *));
+}
+
+void use_potion(Player *player, int index) {
+    if (index > player->sum_Potion) {
+        return;
+    }
+    player->potions[index]->effect(player);
+    discard_potion(player, index);
+}
+
+extern int main_collection_num[6];
+extern Collection main_collection[6][10];
+
+void player_get_collection(Player *player, int x, int y) {
+    main_collection[x][y].get = true;
+    player->sum_collection++;
+    player->collections = (Collection **) realloc(player->collections, player->sum_collection * sizeof(Collection *));
+    player->collections[player->sum_collection - 1] = &main_collection[x][y];
+    if (x == 0 && y == 0) {
+        player->maxhp += 5;
+        player->hp += 5;
+    }
+    if (x == 0 && y == 1) {
+        player->coin += 30;
+    }
+    if (x == 1 && y == 0) {
+        player->coin += 100;
     }
 }

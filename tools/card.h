@@ -13,6 +13,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
+#include "collection.h"
 
 struct Player;
 struct Enemy;
@@ -36,6 +37,7 @@ extern int main_cardnum[4];
 typedef struct Potion {
     char *name;
     char *discribe;
+    SDL_Color color;
 
     void (*effect)(struct Player *);
 } Potion;
@@ -50,6 +52,10 @@ typedef struct Player {
     int discard_pile_size;
     Card **sum_deck;//总牌堆
     int sum_deck_size;
+    int sum_Potion;
+    Potion **potions;
+    int sum_collection;
+    Collection **collections;
     Buff buff;
 } Player;
 typedef struct Enemy_skill {
@@ -71,6 +77,8 @@ extern int main_Enemynum;
 extern Enemy main_enemy[3];
 
 void print_everycard(SDL_Renderer *renderer, Player *player, int y);
+
+void print_everycollection(SDL_Renderer *renderer, Player *player, int y);
 
 void init_card();
 
@@ -102,14 +110,22 @@ void Player_get_block(Player *player, int block);
 
 void Player_attack_enemy(Player *player, Enemy *enemy, int damage);
 
-void Enemy_be_attack(Enemy *enemy, int damage);
-
-void Player_get_block(Player *player, int block);
+void player_be_attacked(Player *player, Enemy *enemy, int damage);
 
 void defense(Player *player, Enemy *enemy);
 
 void add_card_to_bag(Player *player, Card *card);
 
 void add_card_to_deck(Player *player, Card *card);
+
+void get_potion(Player *player, Potion *potion);
+
+void discard_potion(Player *player, int index);
+
+void use_potion(Player *player, int index);
+
+void player_get_hp(Player *player, int num);
+
+void player_get_collection(Player *player, int x, int y);
 
 #endif //SLAYTHESPIRE_CARD_H

@@ -38,7 +38,7 @@ void free_picture_node() {
 }
 
 void init_ppt() {
-    first_floor = (PPT) {1, "荒野", "该区域环境平缓", NULL, &layers[0]};
+    first_floor = (PPT) {1, "荒野", "该区域环境平缓", &second_floor, &layers[0]};
     second_floor[0] = (PPT) {2, "森林", "", &third_floor[0], &layers[1]};
     second_floor[1] = (PPT) {5, "海港", "进入非战斗节点时金币损失金币，战斗获得金币数量增加", &third_floor[1],
                              &layers[1]};
@@ -181,7 +181,7 @@ void init_layer(Layer *layer, int layer_idx) {
             for (int i = 0; i < layer->line_num[1]; i++) {
                 layer->nodes[0][0]->nxt[i] = layer->nodes[1][i];
             }
-            layer->nodes[layer->length - 1][0] = create_node(BOSS);
+            layer->nodes[layer->length - 1][0] = create_node(SHOP);
             layer->nodes[layer->length - 1][0]->nxt_num = 0;
             layer->nodes[layer->length - 1][0]->nxt[0] = NULL;
             break;
@@ -415,7 +415,12 @@ void goin_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *node, Layer *l
     switch (node->type) {
         case 1:
             game_fight(window, renderer,
-                       &fight_map[layer->num][0][generate_random(0, fight_in_map[layer->num][0] - 1)], player);
+                       &fight_map[layer->num][0][generate_random(0, fight_in_map[layer->num][0] - 1)], player, 0,
+                       layer->num);
+            break;
+        case 2:
+            game_fight(window, renderer, &fight_map[layer->num][1][generate_random(0, fight_in_map[layer->num][1] - 1)],
+                       player, 1, layer->num);
             break;
     }
 }

@@ -15,21 +15,6 @@
 
 // 初始化按钮
 #define FONT_DYNAMIC_SIZE 20
-extern Layer layers[MAX_LAYERS];
-
-void game_Quit(SDL_Window *window, SDL_Renderer *renderer) {
-    free_picture_node();
-    for (int i = 0; i < 6; i++) {
-        free_layer(&layers[i]);
-    }
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-    TTF_Quit();
-    IMG_Quit();
-    savePlayerInfo(&playerInfo);
-    exit(0);
-}
 
 void updateButton(Button *button, SDL_Window *window) {
     int window_w, window_h;
@@ -141,6 +126,23 @@ int generate_random(int lower, int upper) {
     return (rand() % (upper - lower + 1)) + lower;
 }
 
+int generate_random_with_weighted(int x[5]) {
+    srand(seed + time(NULL));
+    seed = rand();
+    int i, sum = 0;
+    for (i = 0; i < 5; i++) {
+        sum += x[i];
+    }
+    int rd = rand() % sum;
+    sum = 0;
+    for (i = 0; i < 5; i++) {
+        sum += x[i];
+        if (rd < sum) {
+            return i;
+        }
+    }
+}
+
 void draw_rectangle(SDL_Renderer *renderer, SDL_Rect rect, SDL_Color color) {
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(renderer, &rect);
@@ -241,4 +243,37 @@ void draw_text_with_alpha(SDL_Renderer *renderer, TTF_Font *font, const char *te
     }
     free(str);
     free(token);
+}
+
+void print_collection(SDL_Renderer *renderer, Collection *collection, SDL_Rect rect, TTF_Font *font,
+                      TTF_Font *title_font) {
+    SDL_Color border_color;
+    switch (collection->value) {
+        case 0:
+            border_color = COLOR_BLACK;
+            break;
+        case 1:
+            border_color = COLOR_LIGHT_BLUE;
+            break;
+        case 2:
+            border_color = COLOR_PURPLE;
+            break;
+        case 3:
+            border_color = COLOR_GOLD;
+            break;
+        case 5:
+            border_color = COLOR_LIGHT_RED;
+            break;
+        case 6:
+            border_color = COLOR_GREYGREEN;
+            break;
+    }
+    SDL_Rect border_rect = {rect.x - 5, rect.y - 5, rect.w + 10,
+                            rect.h + 10};
+    draw_rectangle(renderer, border_rect, border_color);
+
+    draw_rectangle(renderer, rect, COLOR_LIGHT_GREY);
+    SDL_Color text_color = COLOR_BLACK;
+    draw_text(renderer, title_font, collection->name, rect.x + 10, rect.y + 20, text_color);
+    draw_text(renderer, font, collection->discribe, rect.x + 10, rect.y + 200, text_color);
 }

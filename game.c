@@ -10,7 +10,8 @@
 #include "tools/gamecreater.h"
 #include "tools/card.h"
 #include "tools/map.h"
-#include "tools/nodes_event.h"
+#include "tools/fight.h"
+#include "tools/events.h"
 
 #define TTF_FILE "./res/ys_zt.ttf"
 #undef main
@@ -27,13 +28,31 @@ int windowWidth = 1920;
 int windowHeight = 1080;
 struct SUMMARY summary = {0, 0};
 int round_times;
-
+int main_collection_num[6];
+Collection main_collection[6][10];
 int Enemy_num_in_map[7][2];
 Enemy Enemy_in_map[7][2][10];
 int fight_in_map[7][2];
 Fight fight_map[7][2][10];
 PlayerInfo playerInfo;
+Events Safe_house, decitions[2], rewards;
+Events main_event[10];
+
 PPT first_floor, second_floor[2], third_floor[2], forth_floor[2], fifth_floor[2], small_path, sixth_floor[2];
+
+void game_Quit(SDL_Window *window, SDL_Renderer *renderer) {
+    free_picture_node();
+    for (int i = 0; i < 6; i++) {
+        free_layer(&layers[i]);
+    }
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    TTF_Quit();
+    IMG_Quit();
+    savePlayerInfo(&playerInfo);
+    exit(0);
+}
 
 void game_Welcoming(SDL_Window *window, SDL_Renderer *text_renderer, SDL_Texture *background_texture);
 
@@ -200,44 +219,66 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
     srand(time(NULL));
     seed = rand();
     Player *player = init_player(characters[selectedCharacter].hp, selectedCharacter);
+    init_collection();
+//    printf("init player finish!\n");
     init_card();
+//    printf("init card finish!\n");
     init_potion();
+//    printf("init potion finish!\n");
     last_node = NULL;
     if (playerInfo.reward) {
         game_choose_reward(renderer, window, player);
     }
 //    playerInfo.reward = 0;
     push_beginning_cards(player);
+//    printf("init beginning_cards finish!\n");
     init_every_layer();
+//    printf("init layer finish!\n");
     init_ppt();
+//    printf("init ppt finish!\n");
     event_init();
+//    printf("init event finish!\n");
     init_enemy(renderer);
+//    printf("init enemy finish!\n");
     PPT *now_ppt = &first_floor;
 //    init_map(now_ppt);
     cutscene_animation(window, renderer, now_ppt);
     init_picture_node(renderer);
+//    printf("init every finish!\n");
     int x = 0;
     int mouse_x, mouse_y;
     bool dragging = false;
-    int quit = 1;
+    int quit = 1, choose_potion = -1;
     SDL_Event event;
     TTF_Font *State_font = TTF_OpenFont("./res/ys_zt.ttf", 45);
     char *hp_text = malloc(20 * sizeof(char)), *coin_text = malloc(20 * sizeof(char));
     int step = 0;
     init_map_printer(now_ppt->layer);
-    Button map_reset, show_card;
+    Button map_reset, show_card, show_collection;
     initButton(&map_reset, (Rect) {0.05, 0.85, 0.15, 0.08}, window, COLOR_GREY,
                COLOR_DARKGREY,
                COLOR_BLACK, "复原", TTF_FILE, 12);
     initButton(&show_card, (Rect) {0.80, 0.05, 0.15, 0.08}, window, COLOR_GREY,
                COLOR_GREYGREEN,
                COLOR_LIGHT_RED, "卡牌", TTF_FILE, 12);
+    initButton(&show_collection, (Rect) {0.80, 0.15, 0.15, 0.08}, window, COLOR_GREY,
+               COLOR_GREYGREEN,
+               COLOR_LIGHT_RED, "藏品", TTF_FILE, 12);
+    Button potion_using, potion_discard;
+    initButton(&potion_using, (Rect) {0.5, 0.2, 0.05, 0.025}, window, COLOR_GREY, COLOR_GREYGREEN, COLOR_LIGHT_RED,
+               "使用", "./res/ys_zt.ttf", 5);
+    initButton(&potion_discard, (Rect) {0.5, 0.2, 0.05, 0.025}, window, COLOR_GREY, COLOR_GREYGREEN, COLOR_BLACK,
+               "丢弃", "./res/ys_zt.ttf", 5);
+    printf("init button finish!\n");
     while (quit) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_QUIT:
                     Button_destroy(&map_reset);
                     Button_destroy(&show_card);
+                    Button_destroy(&potion_using);
+                    Button_destroy(&potion_discard);
+                    Button_destroy(&show_collection);
                     free(hp_text);
                     free(coin_text);
                     TTF_CloseFont(State_font);
@@ -248,10 +289,17 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
                 case SDL_MOUSEMOTION:
                     map_reset.isHovered = isMouseInButton(event.motion.x, event.motion.y, &map_reset);
                     show_card.isHovered = isMouseInButton(event.motion.x, event.motion.y, &show_card);
+                    potion_using.isHovered = isMouseInButton(event.motion.x, event.motion.y, &potion_using);
+                    potion_discard.isHovered = isMouseInButton(event.motion.x, event.motion.y, &potion_discard);
+                    show_collection.isHovered = isMouseInButton(event.motion.x, event.motion.y, &show_collection);
                     break;
                 case SDL_MOUSEBUTTONDOWN:
+                    player_choose_potion(player, mouse_x, mouse_y, &choose_potion);
                     map_reset.isPressed = isMouseInButton(event.motion.x, event.motion.y, &map_reset);
                     show_card.isPressed = isMouseInButton(event.motion.x, event.motion.y, &show_card);
+                    potion_using.isPressed = isMouseInButton(event.motion.x, event.motion.y, &potion_using);
+                    potion_discard.isPressed = isMouseInButton(event.motion.x, event.motion.y, &potion_discard);
+                    show_collection.isPressed = isMouseInButton(event.motion.x, event.motion.y, &show_collection);
                     dragging = true;
                     SDL_GetMouseState(&mouse_x, &mouse_y);
                     break;
@@ -267,10 +315,27 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
                         show_all_card(window, renderer, player);
                     }
                     show_card.isPressed = false;
+                    if (show_collection.isPressed &&
+                        isMouseInButton(event.button.x, event.button.y, &show_collection)) {
+                        show_all_collection(window, renderer, player);
+                    }
+                    show_collection.isPressed = false;
                     check_choose_nodes(window, renderer, last_node, now_ppt->layer, mouse_x, mouse_y, x, player);
+                    if (now_ppt->layer->tail == last_node) {
+                        now_ppt = now_ppt->next_PPT;
+                        last_node = NULL;
+                        init_map_printer(now_ppt->layer);
+                        printf("next floor!\n");
+                    }
                     if (player->hp <= 0) {
                         return;
                     }
+                    if (choose_potion != -1 && potion_discard.isPressed &&
+                        isMouseInButton(event.button.x, event.button.y, &potion_discard)) {
+                        discard_potion(player, choose_potion);
+                        choose_potion = -1;
+                    }
+                    potion_discard.isPressed = false;
                     break;
             }
             if (event.type == SDL_MOUSEMOTION && dragging) {
@@ -282,11 +347,22 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
         }
         SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
         SDL_RenderClear(renderer);
+        draw_Potion(renderer, player);
+        if (choose_potion != -1) {
+            print_potion_discribe(renderer, player, choose_potion, &potion_using, &potion_discard);
+            drawButton(renderer, &potion_discard);
+        }
+        printf("draw potion!\n");
+//        sprintf(show_collection.text, "藏品:%d", player->sum_collection);
+//        sprintf(show_card.text, "卡牌:%d", player->sum_deck_size);
+        printf("update button text\n");
         //渲染按钮
         if (x > 1000 || x < -1000) {
             drawButton(renderer, &map_reset);
         }
         drawButton(renderer, &show_card);
+        drawButton(renderer, &show_collection);
+        printf("draw button!\n");
         //渲染当前节点和可选下一步的节点
         print_nodes(renderer, last_node, now_ppt->layer, x);
         //渲染地图

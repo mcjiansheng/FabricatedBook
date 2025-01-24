@@ -36,7 +36,7 @@ void load_texture(SDL_Renderer *renderer, Character *character, const char *imag
 
 void init_characters(SDL_Renderer *renderer, PlayerInfo info) {
     // 初始化角色数据
-    characters[0] = (Character) {"战士", "每击杀一名单位回复3点生命值，战斗胜利回复6点生命值", NULL, 1};
+    characters[0] = (Character) {"战士", "战斗胜利回复6-12点生命值", NULL, 1};
     characters[1] = (Character) {"法师", "奇数回合行动点+1，上一回合未使用的行动点保留到下一回合", NULL, 0};
     characters[2] = (Character) {"巫师", "药水携带量增加，战斗胜利获得药水概率增加", NULL, 0};
     // 加载角色立绘和锁图标
@@ -160,7 +160,7 @@ void choose_card(SDL_Window *window, SDL_Renderer *renderer, Player *player) {
     Button game_continue;
     initButton(&game_continue, (Rect) {0.75, 0.75, 0.15, 0.08}, window, COLOR_GREY,
                COLOR_GREYGREEN,
-               COLOR_LIGHT_RED, "开始游戏", "./res/ys_zt.ttf", 12);
+               COLOR_LIGHT_RED, "继续游戏", "./res/ys_zt.ttf", 12);
     updateButton(&game_continue, window);
     while (1) {
         SDL_SetRenderDrawColor(renderer, 200, 200, 200, 200);
@@ -379,6 +379,69 @@ void show_all_card(SDL_Window *window, SDL_Renderer *renderer, Player *player) {
         SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
         SDL_RenderClear(renderer);
         print_everycard(renderer, player, y);
+        drawButton(renderer, &game_back);
+        SDL_RenderPresent(renderer);
+        SDL_Delay(20);
+    }
+
+}
+
+void show_all_collection(SDL_Window *window, SDL_Renderer *renderer, Player *player) {
+    int y = 0;
+    int mouse_x, mouse_y;
+    bool dragging = false;
+    int quit = 1;
+    SDL_Event event;
+    Button game_back;
+    initButton(&game_back, (Rect) {0.05, 0.85, 0.15, 0.08}, window, COLOR_GREY,
+               COLOR_DARKGREY,
+               COLOR_BLACK, "返回", "./res/ys_zt.ttf", 12);
+    while (quit) {
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_QUIT:
+                    Button_destroy(&game_back);
+                    game_Quit(window, renderer);
+                    break;
+                case SDL_WINDOWEVENT:
+                    break;
+                case SDL_MOUSEWHEEL:
+                    if (event.wheel.y > 0) {
+                        // 向上滚动，画面上移
+                        y += 50;
+                    } else if (event.wheel.y < 0) {
+                        // 向下滚动，画面下移
+                        y -= 50;
+                    }
+                    break;
+                case SDL_MOUSEMOTION:
+                    game_back.isHovered = isMouseInButton(event.motion.x, event.motion.y, &game_back);
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    game_back.isPressed = isMouseInButton(event.motion.x, event.motion.y, &game_back);
+                    dragging = true;
+                    SDL_GetMouseState(&mouse_x, &mouse_y);
+                    break;
+                case SDL_MOUSEBUTTONUP:
+                    dragging = false;
+                    if (game_back.isPressed &&
+                        isMouseInButton(event.button.x, event.button.y, &game_back)) {
+                        Button_destroy(&game_back);
+                        return;
+                    }
+                    game_back.isPressed = false;
+                    break;
+            }
+            if (event.type == SDL_MOUSEMOTION && dragging) {
+                // 更新矩形的位置，计算鼠标移动的距离
+                int delta_y = event.motion.y - mouse_y;
+                y += delta_y;
+                SDL_GetMouseState(&mouse_x, &mouse_y);  // 更新鼠标位置
+            }
+        }
+        SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
+        SDL_RenderClear(renderer);
+        print_everycollection(renderer, player, y);
         drawButton(renderer, &game_back);
         SDL_RenderPresent(renderer);
         SDL_Delay(20);

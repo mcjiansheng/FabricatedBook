@@ -49,7 +49,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "SlaytheSpire::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-SlaytheSpire-Debug-b57586f766460caf403e.json",
+					"jsonFile" : "target-SlaytheSpire-Debug-e22e11d70120edfbdbab.json",
 					"name" : "SlaytheSpire",
 					"projectIndex" : 0
 				},
@@ -63,28 +63,28 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-test-Debug-4606027498ca9a7f30a7.json",
+					"jsonFile" : "target-test-Debug-f87181ff62b7fedefba3.json",
 					"name" : "test",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "test2::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-test2-Debug-551cff2d544ac7b07fbd.json",
+					"jsonFile" : "target-test2-Debug-6daf817843ae215054f2.json",
 					"name" : "test2",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "test3::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-test3-Debug-8083a6232b9adceb6b99.json",
+					"jsonFile" : "target-test3-Debug-49f4c3bcc3fb89555e57.json",
 					"name" : "test3",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "testmap::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-testmap-Debug-d7dd9b5838001d6942e7.json",
+					"jsonFile" : "target-testmap-Debug-7753cad11b1c8a3e91b9.json",
 					"name" : "testmap",
 					"projectIndex" : 0
 				}

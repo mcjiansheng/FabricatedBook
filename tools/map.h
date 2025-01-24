@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
-#include "nodes_event.h"
+#include "fight.h"
 
 #define MAX_NODE_TYPES 9
 

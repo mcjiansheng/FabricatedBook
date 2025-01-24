@@ -2,7 +2,7 @@
 // Created by 48811 on 25-1-17.
 //
 
-#include "nodes_event.h"
+#include "fight.h"
 
 extern int Enemy_num_in_map[7][2];
 extern Enemy Enemy_in_map[7][2][10];
@@ -10,12 +10,18 @@ extern int fight_in_map[7][2];
 extern Fight fight_map[7][2][10];
 extern int main_Enemynum;
 extern Enemy main_enemy[3];
-
+extern int main_potion_num;
+extern Potion main_potion[20];
 extern int round_times;
+extern int main_collection_num[6];
+extern Collection main_collection[6][10];
 
 void event_init() {
-    fight_in_map[1][0] = 1;
+    fight_in_map[1][0] = 2;
     fight_map[1][0][0] = (Fight) {1, &Enemy_in_map[1][0][0]};
+    fight_map[1][0][1] = (Fight) {3, &Enemy_in_map[1][0][1], &Enemy_in_map[1][0][1], &Enemy_in_map[1][0][1]};
+    fight_in_map[1][1] = 1;
+    fight_map[1][1][0] = (Fight) {3, &Enemy_in_map[1][0][0], &Enemy_in_map[1][0][0], &Enemy_in_map[1][0][0]};
 }
 
 extern int deadly_tempotimes;
@@ -265,7 +271,7 @@ void print_enemys(SDL_Renderer *renderer) {
         draw_text(renderer, State_font, text, 1380, 400, COLOR_LIGHT_RED);
         if (main_enemy[0].block > 0) {
             sprintf(text, "block: %d", main_enemy[0].block);
-            draw_text(renderer, State_font, text, 1400, 400, COLOR_BLACK);
+            draw_text(renderer, State_font, text, 1380, 430, COLOR_BLACK);
         }
         draw_enemy_next_step(renderer, 1380, 370, &main_enemy[0]);
         draw_Buff(renderer, &main_enemy[0].buff, 1350, 400 + rect.h);
@@ -280,7 +286,7 @@ void print_enemys(SDL_Renderer *renderer) {
         draw_text(renderer, State_font, text, 1180, 450, COLOR_LIGHT_RED);
         if (main_enemy[1].block > 0) {
             sprintf(text, "block: %d", main_enemy[1].block);
-            draw_text(renderer, State_font, text, 1200, 400, COLOR_BLACK);
+            draw_text(renderer, State_font, text, 1180, 480, COLOR_BLACK);
         }
         draw_enemy_next_step(renderer, 1180, 420, &main_enemy[1]);
         draw_Buff(renderer, &main_enemy[1].buff, rect.x, rect.y + rect.h);
@@ -295,7 +301,7 @@ void print_enemys(SDL_Renderer *renderer) {
         draw_text(renderer, State_font, text, 1580, 350, COLOR_LIGHT_RED);
         if (main_enemy[2].block > 0) {
             sprintf(text, "block: %d", main_enemy[2].block);
-            draw_text(renderer, State_font, text, 1600, 400, COLOR_BLACK);
+            draw_text(renderer, State_font, text, 1580, 380, COLOR_BLACK);
         }
         draw_enemy_next_step(renderer, 1580, 320, &main_enemy[2]);
         draw_Buff(renderer, &main_enemy[2].buff, rect.x, rect.y + rect.h);
@@ -328,6 +334,12 @@ void round_start(Player *player) {
         player->buff.armor--;
     }
     round_progress = 1;
+
+    if (round_times == 1 && main_collection[2][0].get) {
+        player->energy += 3;
+        draw_card(player);
+        draw_card(player);
+    }
 }
 
 extern int windowWidth, windowHeight;
@@ -370,6 +382,22 @@ void print_hand_cards(SDL_Renderer *renderer, Player *player, int choose_card, i
     TTF_CloseFont(title_font);
 }
 
+void draw_Potion(SDL_Renderer *renderer, Player *player) {
+    SDL_Rect potion_rect[5] = {{100, 100, 100, 50},
+                               {210, 100, 100, 50},
+                               {320, 100, 100, 50},
+                               {430, 100, 100, 50},
+                               {540, 100, 100, 50}};
+    TTF_Font *font = TTF_OpenFont("./res/ys_zt.ttf", 20);
+    for (int i = 0; i < player->sum_Potion; i++) {
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &potion_rect[i]);
+        draw_text(renderer, font, player->potions[i]->name, potion_rect[i].x + 10, potion_rect[i].y + 25,
+                  player->potions[i]->color);
+    }
+    TTF_CloseFont(font);
+}
+
 void player_choose_card(Player *player, int mouse_x, int mouse_y, int *choose_card) {
     int x, y;
     int n = player->hand_size;
@@ -386,6 +414,41 @@ void player_choose_card(Player *player, int mouse_x, int mouse_y, int *choose_ca
         x += CARD_DIF;
     }
 }
+
+void player_choose_potion(Player *player, int mouse_x, int mouse_y, int *choose_potion) {
+    SDL_Rect potion_rect[5] = {{100, 100, 100, 50},
+                               {210, 100, 100, 50},
+                               {320, 100, 100, 50},
+                               {430, 100, 100, 50},
+                               {540, 100, 100, 50}};
+    for (int i = 0; i < player->sum_Potion; i++) {
+        if (mouse_in_rect(potion_rect[i], mouse_x, mouse_y)) {
+            *choose_potion = i;
+            return;
+        }
+    }
+    if (abs(mouse_x - 250) + abs(mouse_y - 150) > 500) {
+        *choose_potion = -1;
+    }
+}
+
+void print_potion_discribe(SDL_Renderer *renderer, Player *player, int choose_potion, Button *potion_use,
+                           Button *potion_discard) {
+    SDL_Rect potion_rect[3] = {{100, 100, 100, 50},
+                               {210, 100, 100, 50},
+                               {320, 100, 100, 50}};
+    TTF_Font *font = TTF_OpenFont("./res/ys_zt.ttf", 20);
+    SDL_Rect potion_discribe_rect = {potion_rect[choose_potion].x, 150, 300, 100};
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderFillRect(renderer, &potion_discribe_rect);
+    draw_text(renderer, font, player->potions[choose_potion]->discribe, potion_discribe_rect.x + 10,
+              potion_discribe_rect.y + 25,
+              COLOR_BLACK);
+    potion_use->rect.x = potion_discribe_rect.x + 10;
+    potion_discard->rect.x = potion_discribe_rect.x + 110;
+    TTF_CloseFont(font);
+}
+
 
 /*
 bool mouse_in_rect(int mouse_x, int mouse_y, SDL_Rect rect) {
@@ -438,18 +501,18 @@ void Buff_update(Player *player) {
             continue;
         }
         if (main_enemy[i].buff.poisoning > 0) {
-            main_enemy[i].hp -= main_enemy[i].buff.poisoning;
+            Enemy_be_attack(&main_enemy[i], main_enemy[i].buff.poisoning);
         }
         if (main_enemy[i].buff.withering > 0) {
             main_enemy[i].buff.withering_times++;
-            main_enemy[i].hp -= main_enemy[i].buff.withering_times;
+            Enemy_be_attack(&main_enemy[i], main_enemy[i].buff.withering_times);
         }
         if (main_enemy[i].buff.undead > 0 && main_enemy[i].hp <= 0) {
             main_enemy[i].hp = 1;
         }
     }
     if (player->buff.poisoning > 0) {
-        player->hp -= player->buff.poisoning;
+        player_be_attacked(player, NULL, player->buff.poisoning);
     }
     if (player->buff.withering > 0) {
         player->buff.withering_times++;
@@ -491,8 +554,10 @@ void round_settlement(Player *player, int *times) {
         Buff_update(player);
         printf("update buff and discard pile success\n");
     }
+    printf("%d\n", *times);
     if (*times == 50) {
         if (main_Enemynum > 0 && main_enemy[0].hp > 0) {
+            printf("enemy 1 try to action!\n");
             Enemy_Action(player, &main_enemy[0]);
             printf("enemy 1 action success\n");
         } else {
@@ -517,9 +582,10 @@ void round_settlement(Player *player, int *times) {
     }
     if (*times == 550) {
         buff_decrease(&player->buff);
-        for (int i = 0; i < 3; i++) {
-            if (main_Enemynum > i && main_enemy[i].hp > 0) {
-                buff_decrease(&main_enemy[0].buff);
+        for (int i = 0; i < main_Enemynum; i++) {
+            if (main_enemy[i].hp > 0) {
+                printf("buff decrease %d\n", i);
+                buff_decrease(&main_enemy[i].buff);
             }
         }
         printf("buff decrease success!\n");
@@ -538,7 +604,7 @@ void check_end(Player *player, int *quit) {
     *quit = 1;
 }
 
-void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player *player) {
+void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player *player, int dif, int layer_num) {
     fight_start(fight, player);
     SDL_Event event;
     int quit = 0;
@@ -546,7 +612,7 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
             20 * sizeof(char));
     TTF_Font *State_font = TTF_OpenFont("./res/ys_zt.ttf", 45);
     TTF_Font *advise_font = TTF_OpenFont("./res/ys_zt.ttf", 30);
-    int choose_card = -1, mouse_x = 0, mouse_y = 0;
+    int choose_card = -1, mouse_x = 0, mouse_y = 0, choose_potion = -1;
     round_start(player);
     Button next_round;
     Title advise;
@@ -555,10 +621,13 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
     initButton(&next_round, (Rect) {0.5, 0.62, 0.10, 0.05}, window, COLOR_GREY,
                COLOR_GREYGREEN,
                COLOR_LIGHT_RED, "下一回合", "./res/ys_zt.ttf", 10);
+    Button potion_using, potion_discard;
+    initButton(&potion_using, (Rect) {0.5, 0.2, 0.05, 0.025}, window, COLOR_GREY, COLOR_GREYGREEN, COLOR_LIGHT_RED,
+               "使用", "./res/ys_zt.ttf", 5);
+    initButton(&potion_discard, (Rect) {0.5, 0.2, 0.05, 0.025}, window, COLOR_GREY, COLOR_GREYGREEN, COLOR_BLACK,
+               "丢弃", "./res/ys_zt.ttf", 5);
     int times = 0;
     while (!quit) {
-        SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
-        SDL_RenderClear(renderer);
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_QUIT:
@@ -567,6 +636,8 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
                     free(text);
                     TTF_CloseFont(State_font);
                     Button_destroy(&next_round);
+                    Button_destroy(&potion_using);
+                    Button_destroy(&potion_discard);
                     Title_destroy(&advise);
                     game_Quit(window, renderer);
                     break;
@@ -576,35 +647,63 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
                     mouse_x = event.motion.x;
                     mouse_y = event.motion.y;
                     next_round.isHovered = isMouseInButton(event.motion.x, event.motion.y, &next_round);
+                    potion_using.isHovered = isMouseInButton(event.motion.x, event.motion.y, &potion_using);
+                    potion_discard.isHovered = isMouseInButton(event.motion.x, event.motion.y, &potion_discard);
                     break;
                 case SDL_MOUSEBUTTONDOWN:
                     if (round_progress == 1) {
                         player_choose_card(player, mouse_x, mouse_y, &choose_card);
+                        player_choose_potion(player, mouse_x, mouse_y, &choose_potion);
                     }
-                    if (choose_card != -1) {
+                    if (choose_card != -1 && round_progress == 1) {
                         player_aim(player, mouse_x, mouse_y, &choose_card);
                     }
                     next_round.isPressed = isMouseInButton(event.motion.x, event.motion.y, &next_round);
+                    potion_using.isPressed = isMouseInButton(event.motion.x, event.motion.y, &potion_using);
+                    potion_discard.isPressed = isMouseInButton(event.motion.x, event.motion.y, &potion_discard);
                     break;
                 case SDL_MOUSEBUTTONUP:
                     if (round_progress == 1 && next_round.isPressed &&
                         isMouseInButton(event.button.x, event.button.y, &next_round)) {
                         times = 0;
                         round_progress = -1;
+                        choose_card = -1;
+                        choose_potion = -1;
                         printf("next_round clicked!\n");
                     }
                     next_round.isPressed = false;
+                    if (round_progress == 1 && choose_potion != -1 && potion_using.isPressed &&
+                        isMouseInButton(event.button.x, event.button.y, &potion_using)) {
+                        use_potion(player, choose_potion);
+                        choose_potion = -1;
+                    }
+                    potion_using.isPressed = false;
+                    if (round_progress == 1 && choose_potion != -1 && potion_discard.isPressed &&
+                        isMouseInButton(event.button.x, event.button.y, &potion_discard)) {
+                        discard_potion(player, choose_potion);
+                        choose_potion = -1;
+                    }
+                    potion_discard.isPressed = false;
                     break;
             }
         }
-        if (choose_card == -1) {
-            advise.text = "请选择要使用的卡牌";
-        } else if (player->energy < player->hand[choose_card]->cost) {
-            advise.text = "能量不足";
-        } else {
-            advise.text = "请选择释放对象";
+        SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
+        SDL_RenderClear(renderer);
+        draw_Potion(renderer, player);
+        if (round_progress == 1 && choose_potion != -1) {
+            print_potion_discribe(renderer, player, choose_potion, &potion_using, &potion_discard);
+            drawButton(renderer, &potion_using);
+            drawButton(renderer, &potion_discard);
         }
+        printf("draw potion success!\n");
         if (round_progress == 1) {
+            if (choose_card == -1) {
+                advise.text = "请选择要使用的卡牌";
+            } else if (player->energy < player->hand[choose_card]->cost) {
+                advise.text = "能量不足";
+            } else {
+                advise.text = "请选择释放对象";
+            }
             drawButton(renderer, &next_round);
             print_hand_cards(renderer, player, choose_card, mouse_x, mouse_y);
             if (player->buff.poisoning > 0) {
@@ -630,12 +729,15 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
             }
         }
         Title_print(&advise, window, renderer);
+        printf("print title success!\n");
         print_players(renderer, player);
+        printf("print_players success!\n");
         print_enemys(renderer);
+        printf("print enemys success!\n");
         sprintf(hp_text, "生命值: %d / %d", player->hp, player->maxhp);
-        draw_text(renderer, State_font, hp_text, 50, 50, COLOR_LIGHT_RED);
+        draw_text(renderer, State_font, hp_text, 50, 300, COLOR_LIGHT_RED);
         sprintf(text, "格挡: %d", player->block);
-        draw_text(renderer, State_font, text, 120, 200, COLOR_BLACK);
+        draw_text(renderer, State_font, text, 400, 300, COLOR_BLACK);
         sprintf(coin_text, "金币: %d", player->coin);
         draw_text(renderer, State_font, coin_text, 800, 50, COLOR_DARK_YELLOW);
         sprintf(text, "牌堆: %d", player->deck_size);
@@ -644,21 +746,26 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
         draw_text(renderer, State_font, text, 1700, 700, COLOR_BLACK);
         sprintf(text, "能量: %d", player->energy);
         draw_text(renderer, State_font, text, 700, 700, COLOR_ORANGE);
+        printf("print everything success!\n");
         check_end(player, &quit);
+        printf("check end success!\n");
         SDL_RenderPresent(renderer);
         SDL_Delay(10);
+        printf("RenderPresent success!\n");
     }
     free(hp_text);
     free(coin_text);
     free(text);
     TTF_CloseFont(State_font);
+    Button_destroy(&potion_using);
+    Button_destroy(&potion_discard);
     Button_destroy(&next_round);
     Title_destroy(&advise);
     if (player->hp <= 0) {
         game_fail(window, renderer, player);
         return;
     } else {
-        fight_success(window, renderer, player, 1);
+        fight_success(window, renderer, player, dif, layer_num);
     }
 }
 
@@ -734,17 +841,147 @@ void game_fail(SDL_Window *window, SDL_Renderer *renderer, Player *player) {
     }
 }
 
-void fight_success(SDL_Window *window, SDL_Renderer *renderer, Player *player, int dif) {//金币 卡牌 藏品 药水
+void
+print_rewards(SDL_Renderer *renderer, bool g_coin, bool g_card, bool g_po, bool g_co, int coin_get, Potion *potion_get,
+              Collection *collection_get) {
+    SDL_Rect rect = {800, 500, 320, 100};
+    TTF_Font *font = TTF_OpenFont("./res/ys_zt.ttf", 40);
+    char *text = malloc(50 * sizeof(char));
+    if (g_coin) {
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &rect);
+        sprintf(text, "金币： %d", coin_get);
+        draw_text(renderer, font, text, rect.x + 10, rect.y + 25,
+                  COLOR_GOLD);
+        rect.y += 120;
+    }
+    if (g_card) {
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &rect);
+        sprintf(text, "一张卡牌");
+        draw_text(renderer, font, text, rect.x + 10, rect.y + 25,
+                  COLOR_BLACK);
+        rect.y += 120;
+    }
+    if (g_po && potion_get != NULL) {
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &rect);
+        sprintf(text, "%s", potion_get->name);
+        draw_text(renderer, font, text, rect.x + 10, rect.y + 25,
+                  potion_get->color);
+        rect.y += 120;
+
+    }
+    if (g_co && collection_get != NULL) {
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &rect);
+        sprintf(text, "%s", collection_get->name);
+        draw_text(renderer, font, text, rect.x + 10, rect.y + 25,
+                  COLOR_BLACK);
+        rect.y += 120;
+    }
+    TTF_CloseFont(font);
+}
+
+void
+player_choose_reward(SDL_Window *window, SDL_Renderer *renderer, Player *player, int mouse_x, int mouse_y, bool *g_coin,
+                     bool *g_card, bool *g_po, bool *g_co,
+                     int coin_get, Potion *potion_get, int collection_get_x, int collection_get_y) {
+    SDL_Rect rect = {800, 500, 320, 100};
+    if (*g_coin) {
+        if (mouse_in_rect(rect, mouse_x, mouse_y)) {
+            player->coin += coin_get;
+            *g_coin = false;
+            return;
+        }
+        rect.y += 120;
+    }
+    if (*g_card) {
+        if (mouse_in_rect(rect, mouse_x, mouse_y)) {
+            choose_card(window, renderer, player);
+            *g_card = false;
+            return;
+        }
+        rect.y += 120;
+    }
+    if (*g_po) {
+        if (mouse_in_rect(rect, mouse_x, mouse_y)) {
+            get_potion(player, potion_get);
+            *g_po = false;
+            return;
+        }
+        rect.y += 120;
+    }
+    if (*g_co) {
+        if (mouse_in_rect(rect, mouse_x, mouse_y)) {
+            player_get_collection(player, collection_get_x, collection_get_y);
+            *g_co = false;
+            return;
+        }
+        rect.y += 120;
+    }
+}
+
+void fight_success(SDL_Window *window, SDL_Renderer *renderer, Player *player, int dif, int layer_num) {//金币 卡牌 藏品 药水
+    summary.fight_num++;
+    if (player->player_career == 1) {
+        player_get_hp(player, generate_random(6, 12));
+    }
     SDL_Event event;
+    char *hp_text = malloc(20 * sizeof(char)), *coin_text = malloc(20 * sizeof(char));
     int quit = 0;
     Button game_continue;
     initButton(&game_continue, (Rect) {0.75, 0.75, 0.15, 0.08}, window, COLOR_GREY,
                COLOR_DARKGREY,
                COLOR_BLACK, "继续", "./res/ys_zt.ttf", 12);
     Title title;
-    TTF_Font *font_title = TTF_OpenFont("./res/ys_zt.ttf", 50), *font = TTF_OpenFont("./res/ys_zt.ttf", 25);
-    char *text = malloc(200 * sizeof(char));
+    TTF_Font *font_title = TTF_OpenFont("./res/ys_zt.ttf", 50);
+    TTF_Font *State_font = TTF_OpenFont("./res/ys_zt.ttf", 45);
+//    char *text = malloc(200 * sizeof(char));
     Title_init(&title, "胜利", font_title, 0.5, 0.3, COLOR_GOLD);
+    Button potion_using, potion_discard;
+    initButton(&potion_using, (Rect) {0.5, 0.2, 0.05, 0.025}, window, COLOR_GREY, COLOR_GREYGREEN, COLOR_LIGHT_RED,
+               "使用", "./res/ys_zt.ttf", 5);
+    initButton(&potion_discard, (Rect) {0.5, 0.2, 0.05, 0.025}, window, COLOR_GREY, COLOR_GREYGREEN, COLOR_BLACK,
+               "丢弃", "./res/ys_zt.ttf", 5);
+    int choose_potion = -1;
+    int mouse_x, mouse_y;
+    int coin_get = generate_random(15, 30);
+    if (dif == 1) {
+        coin_get += generate_random(20, 30);
+    }
+    bool get_potion = generate_random(1, 5) == 1;
+    if (player->player_career == 3) {
+        get_potion = generate_random(1, 5) <= 3;
+    }
+    bool get_collection = generate_random(1, 5) <= 2;
+    if (dif == 1) {
+        get_collection = true;
+    }
+    Potion *potion_get = NULL;
+    if (get_potion) {
+        potion_get = &main_potion[generate_random(0, main_potion_num - 1)];
+    }
+    int collection_get_x = 0, collection_get_y = 0;
+    bool get_coin = true, get_card = true;
+    Collection *collection_get;
+    if (get_collection) {
+        if (all_collections_had()) {
+            collection_get_x = 0;
+            collection_get_y = 0;
+        } else {
+            do {
+                int arr[5] = {10, 20, 30, 40, 1};
+                collection_get_x = generate_random_with_weighted(arr);
+                collection_get_y = generate_random(0, main_collection_num[collection_get_x] - 1);
+            } while (main_collection[collection_get_x][collection_get_y].get);
+        }
+        collection_get = &main_collection[collection_get_x][collection_get_y];
+    } else {
+        collection_get = NULL;
+    }
+
+
     while (!quit) {
         SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
         SDL_RenderClear(renderer);
@@ -752,34 +989,70 @@ void fight_success(SDL_Window *window, SDL_Renderer *renderer, Player *player, i
             switch (event.type) {
                 case SDL_QUIT:
                     Button_destroy(&game_continue);
+                    Button_destroy(&potion_using);
+                    Button_destroy(&potion_discard);
                     Title_destroy(&title);
-                    free(text);
+                    TTF_CloseFont(State_font);
+//                    free(text);
                     game_Quit(window, renderer);
                     break;
                 case SDL_WINDOWEVENT:
                     break;
                 case SDL_MOUSEMOTION:
+                    mouse_x = event.motion.x;
+                    mouse_y = event.motion.y;
                     game_continue.isHovered = isMouseInButton(event.motion.x, event.motion.y, &game_continue);
+                    potion_using.isHovered = isMouseInButton(event.motion.x, event.motion.y, &potion_using);
+                    potion_discard.isHovered = isMouseInButton(event.motion.x, event.motion.y, &potion_discard);
                     break;
                 case SDL_MOUSEBUTTONDOWN:
+                    player_choose_potion(player, mouse_x, mouse_y, &choose_potion);
                     game_continue.isPressed = isMouseInButton(event.motion.x, event.motion.y, &game_continue);
+                    potion_using.isPressed = isMouseInButton(event.motion.x, event.motion.y, &potion_using);
+                    potion_discard.isPressed = isMouseInButton(event.motion.x, event.motion.y, &potion_discard);
                     break;
                 case SDL_MOUSEBUTTONUP:
                     if (game_continue.isPressed &&
                         isMouseInButton(event.button.x, event.button.y, &game_continue)) {
                         printf("game back Clicked!\n");
                         Button_destroy(&game_continue);
-                        free(text);
+//                        free(text);
                         Title_destroy(&title);
                         return;
                     }
                     game_continue.isPressed = false;
+                    if (choose_potion != -1 && potion_discard.isPressed &&
+                        isMouseInButton(event.button.x, event.button.y, &potion_discard)) {
+                        discard_potion(player, choose_potion);
+                        choose_potion = -1;
+                    }
+                    potion_discard.isPressed = false;
+                    player_choose_reward(window, renderer, player, mouse_x, mouse_y, &get_coin, &get_card, &get_potion,
+                                         &get_collection, coin_get, potion_get, collection_get_x, collection_get_y);
                     break;
             }
         }
+        draw_Potion(renderer, player);
+        if (choose_potion != -1) {
+            print_potion_discribe(renderer, player, choose_potion, &potion_using, &potion_discard);
+            drawButton(renderer, &potion_discard);
+        }
         Title_print(&title, window, renderer);
-        draw_text(renderer, font, text, windowWidth / 2 - 200, windowHeight * 2 / 3 - 300, COLOR_BLACK);
+//        draw_text(renderer, font, text, windowWidth / 2 - 200, windowHeight * 2 / 3 - 300, COLOR_BLACK);
         drawButton(renderer, &game_continue);
+        if (!get_coin && !get_card && !get_potion && !get_collection) {
+            Button_destroy(&game_continue);
+            Button_destroy(&potion_using);
+            Button_destroy(&potion_discard);
+            Title_destroy(&title);
+            TTF_CloseFont(State_font);
+            return;
+        }
+        sprintf(hp_text, "生命值: %d / %d", player->hp, player->maxhp);
+        draw_text(renderer, State_font, hp_text, 50, 50, COLOR_LIGHT_RED);
+        sprintf(coin_text, "金币: %d", player->coin);
+        draw_text(renderer, State_font, coin_text, 800, 50, COLOR_DARK_YELLOW);
+        print_rewards(renderer, get_coin, get_card, get_potion, get_collection, coin_get, potion_get, collection_get);
         SDL_RenderPresent(renderer);
         SDL_Delay(10);
     }

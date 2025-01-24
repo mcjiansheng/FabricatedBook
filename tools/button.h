@@ -17,7 +17,7 @@
 #include "card.h"
 #include "color.h"
 #include <string.h>
-#include "map.h"
+//#include "map.h"
 
 extern int seed;
 
@@ -68,6 +68,8 @@ void Title_destroy(Title *title);
 
 int generate_random(int lower, int upper);
 
+int generate_random_with_weighted(int x[5]);
+
 void draw_rectangle(SDL_Renderer *renderer, SDL_Rect rect, SDL_Color color);
 
 void draw_text(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y, SDL_Color color);
@@ -77,5 +79,8 @@ void draw_text_with_alpha(SDL_Renderer *renderer, TTF_Font *font, const char *te
 
 void print_card(SDL_Renderer *renderer, Card *card, SDL_Rect rect, int hover, int selected, TTF_Font *font,
                 TTF_Font *title_font);
+
+void print_collection(SDL_Renderer *renderer, Collection *collection, SDL_Rect rect, TTF_Font *font,
+                      TTF_Font *title_font);
 
 #endif //SLAYTHESPIRE_BUTTON_H

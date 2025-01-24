@@ -33,8 +33,12 @@ add_executable(SlaytheSpire game.c
         tools/videos.h
         tools/map.c
         tools/map.h
-        tools/nodes_event.c
-        tools/nodes_event.h
+        tools/fight.c
+        tools/fight.h
+        tools/collection.c
+        tools/collection.h
+        tools/events.c
+        tools/events.h
 )
 target_link_libraries(SlaytheSpire PUBLIC ${SDL_LIBRARIES})
 

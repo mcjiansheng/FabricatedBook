@@ -140,8 +140,22 @@ build CMakeFiles/SlaytheSpire.dir/tools/map.c.obj: C_COMPILER__SlaytheSpire_unsc
   OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
   OBJECT_FILE_DIR = CMakeFiles\SlaytheSpire.dir\tools
 
-build CMakeFiles/SlaytheSpire.dir/tools/nodes_event.c.obj: C_COMPILER__SlaytheSpire_unscanned_Debug D$:/FabricatedBook/tools/nodes_event.c || cmake_object_order_depends_target_SlaytheSpire
-  DEP_FILE = CMakeFiles\SlaytheSpire.dir\tools\nodes_event.c.obj.d
+build CMakeFiles/SlaytheSpire.dir/tools/fight.c.obj: C_COMPILER__SlaytheSpire_unscanned_Debug D$:/FabricatedBook/tools/fight.c || cmake_object_order_depends_target_SlaytheSpire
+  DEP_FILE = CMakeFiles\SlaytheSpire.dir\tools\fight.c.obj.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
+  OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
+  OBJECT_FILE_DIR = CMakeFiles\SlaytheSpire.dir\tools
+
+build CMakeFiles/SlaytheSpire.dir/tools/collection.c.obj: C_COMPILER__SlaytheSpire_unscanned_Debug D$:/FabricatedBook/tools/collection.c || cmake_object_order_depends_target_SlaytheSpire
+  DEP_FILE = CMakeFiles\SlaytheSpire.dir\tools\collection.c.obj.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
+  OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
+  OBJECT_FILE_DIR = CMakeFiles\SlaytheSpire.dir\tools
+
+build CMakeFiles/SlaytheSpire.dir/tools/events.c.obj: C_COMPILER__SlaytheSpire_unscanned_Debug D$:/FabricatedBook/tools/events.c || cmake_object_order_depends_target_SlaytheSpire
+  DEP_FILE = CMakeFiles\SlaytheSpire.dir\tools\events.c.obj.d
   FLAGS = -g -fdiagnostics-color=always
   INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
   OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
@@ -155,7 +169,7 @@ build CMakeFiles/SlaytheSpire.dir/tools/nodes_event.c.obj: C_COMPILER__SlaytheSp
 #############################################
 # Link the executable SlaytheSpire.exe
 
-build SlaytheSpire.exe: C_EXECUTABLE_LINKER__SlaytheSpire_Debug CMakeFiles/SlaytheSpire.dir/game.c.obj CMakeFiles/SlaytheSpire.dir/tools/button.c.obj CMakeFiles/SlaytheSpire.dir/tools/Saves.c.obj CMakeFiles/SlaytheSpire.dir/tools/Color.c.obj CMakeFiles/SlaytheSpire.dir/tools/gamecreater.c.obj CMakeFiles/SlaytheSpire.dir/tools/card.c.obj CMakeFiles/SlaytheSpire.dir/tools/videos.c.obj CMakeFiles/SlaytheSpire.dir/tools/map.c.obj CMakeFiles/SlaytheSpire.dir/tools/nodes_event.c.obj
+build SlaytheSpire.exe: C_EXECUTABLE_LINKER__SlaytheSpire_Debug CMakeFiles/SlaytheSpire.dir/game.c.obj CMakeFiles/SlaytheSpire.dir/tools/button.c.obj CMakeFiles/SlaytheSpire.dir/tools/Saves.c.obj CMakeFiles/SlaytheSpire.dir/tools/Color.c.obj CMakeFiles/SlaytheSpire.dir/tools/gamecreater.c.obj CMakeFiles/SlaytheSpire.dir/tools/card.c.obj CMakeFiles/SlaytheSpire.dir/tools/videos.c.obj CMakeFiles/SlaytheSpire.dir/tools/map.c.obj CMakeFiles/SlaytheSpire.dir/tools/fight.c.obj CMakeFiles/SlaytheSpire.dir/tools/collection.c.obj CMakeFiles/SlaytheSpire.dir/tools/events.c.obj
   FLAGS = -g
   LINK_LIBRARIES = -lmingw32  -lSDL2main  -lSDL2  -lSDL2_image  -lSDL2_mixer  -lSDL2_ttf  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   LINK_PATH = -LD:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/lib
