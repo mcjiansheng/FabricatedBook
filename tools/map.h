@@ -21,6 +21,7 @@
 #include <time.h>
 #include <string.h>
 #include "fight.h"
+#include "events.h"
 
 #define MAX_NODE_TYPES 9
 

@@ -22,9 +22,11 @@ typedef struct events {
     int choice_num;
     char *choice_name[4], *choice_discribe[4], *choice_end[4];
 
-    void (*effect)(Player *);
+    void (*effect[4])(Player *);
 } Events;
 
 void init_events();
+
+void init_safehouse();
 
 #endif //SLAYTHESPIRE_EVENTS_H

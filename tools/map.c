@@ -39,14 +39,16 @@ void free_picture_node() {
 
 void init_ppt() {
     first_floor = (PPT) {1, "荒野", "该区域环境平缓", &second_floor, &layers[0]};
-    second_floor[0] = (PPT) {2, "森林", "", &third_floor[0], &layers[1]};
+    second_floor[0] = (PPT) {2, "森林", "进入非战斗节点时金币损失金币，战斗获得金币数量增加", &third_floor[0],
+                             &layers[1]};
     second_floor[1] = (PPT) {5, "海港", "进入非战斗节点时金币损失金币，战斗获得金币数量增加", &third_floor[1],
                              &layers[1]};
-    third_floor[0] = (PPT) {3, "诡异秘林", "", &forth_floor[0], &layers[2]};
+    third_floor[0] = (PPT) {3, "诡异秘林", "每进入一个战斗节点，造成伤害-1，每进入一个非战斗节点，造成伤害+1，至多+-3\n",
+                            &forth_floor[0], &layers[2]};
     third_floor[1] = (PPT) {6, "海洋", "每进入一个战斗节点，造成伤害-1，\n"
                                        "每进入一个非战斗节点，造成伤害+1，至多+-3", &forth_floor[1], &layers[2]};
-    forth_floor[0] = (PPT) {4, "迷雾", "", NULL, &layers[3]};
-    forth_floor[1] = (PPT) {7, "深海", "", NULL, &layers[3]};
+    forth_floor[0] = (PPT) {4, "迷雾", "每次前进都有概率回复或损失生命值", NULL, &layers[3]};
+    forth_floor[1] = (PPT) {7, "深海", "每次前进都有概率回复或损失生命值", NULL, &layers[3]};
     fifth_floor[0] = (PPT) {8, "高塔", "强大的敌人就在前方，战胜它", NULL, &layers[4]};
     fifth_floor[1] = (PPT) {9, "巴别塔", "。。。", NULL, &layers[4]};
     small_path = (PPT) {10, "洞穴", "每前进一步消耗少许金币", NULL, &layers[5]};
@@ -408,10 +410,67 @@ extern Node *last_node;
 
 extern int fight_in_map[7][2];
 extern Fight fight_map[7][2][10];
+extern Fight boss[3][3];
+extern Collection main_collection[6][10];
+
+Fight *generate_boss(Layer *layer) {
+    int x = layer->num - 2, y;
+    if (layer->num == 2) {
+        if (main_collection[5][3].get) {
+            y = 2;
+        } else {
+            y = generate_random(0, 1);
+        }
+    } else if (layer->num == 2) {
+        if (main_collection[5][4].get) {
+            y = 1;
+        } else {
+            y = 0;
+        }
+    } else {
+        if (main_collection[5][3].get) {
+            y = 1;
+        } else {
+            y = generate_random(0, 1);
+        }
+    }
+    return &boss[x][y];
+}
 
 void goin_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *node, Layer *layer, Player *player) {
     printf("goin!\n");
     last_node = node;
+    if (layer->num == 1) {
+        if (node->type != 1 && node->type != 2 && node->type != 3) {
+            player->coin -= generate_random(10, 20);
+            if (player->coin < 0) {
+                player->coin = 0;
+            }
+        }
+    }
+    if (layer->num == 2) {
+        if (node->type != 1 && node->type != 2 && node->type != 3) {
+            player->extra_damage++;
+            if (player->extra_damage > 3) {
+                player->extra_damage = 3;
+            }
+        } else {
+            player->extra_damage--;
+            if (player->extra_damage < -3) {
+                player->extra_damage = -3;
+            }
+        }
+    }
+    if (layer->num == 3) {
+        if (generate_random(1, 2) == 1) {
+            player_get_hp(player, generate_random(5, 30));
+        } else {
+            player->hp -= generate_random(1, 20);
+            if (player->hp <= 0) {
+                player->hp = 1;
+            }
+        }
+    }
     switch (node->type) {
         case 1:
             game_fight(window, renderer,
@@ -421,6 +480,14 @@ void goin_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *node, Layer *l
         case 2:
             game_fight(window, renderer, &fight_map[layer->num][1][generate_random(0, fight_in_map[layer->num][1] - 1)],
                        player, 1, layer->num);
+            break;
+        case 3:
+            game_fight(window, renderer, generate_boss(layer), player, 1, layer->num);
+            break;
+        case 4:
+            break;
+        case 9:
+            init_safehouse();
             break;
     }
 }

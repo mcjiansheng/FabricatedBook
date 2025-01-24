@@ -211,6 +211,7 @@ Player *init_player(int hp, int career) {
     player->sum_collection = 0;
     player->collections = NULL;
     player_get_collection(player, 0, 0);
+    player->extra_damage = 0;
     return player;
 }
 
@@ -218,6 +219,12 @@ void add_card_to_bag(Player *player, Card *card) {
     player->sum_deck_size++;
     player->sum_deck = (Card **) realloc(player->sum_deck, player->sum_deck_size * sizeof(Card *));
     player->sum_deck[player->sum_deck_size - 1] = card;
+}
+
+void delete_card_from_bag(Player *player, int index) {
+    player->sum_deck[index] = player->sum_deck[player->sum_deck_size - 1];
+    player->sum_deck_size--;
+    player->sum_deck = (Card **) realloc(player->sum_deck, player->sum_deck_size * sizeof(Card *));
 }
 
 void add_card_to_deck(Player *player, Card *card) {
@@ -258,7 +265,10 @@ void Player_attack_enemy(Player *player, Enemy *enemy, int damage) {
     if (main_collection[4][0].get) {
         damage = damage * (1.0 + (player->coin / 10) * 0.08);
     }
-    Enemy_be_attack(enemy, damage);
+    damage += player->extra_damage;
+    if (damage > 0) {
+        Enemy_be_attack(enemy, damage);
+    }
 }
 
 void attack(Player *player, Enemy *enemy) {

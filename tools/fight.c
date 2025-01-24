@@ -15,6 +15,7 @@ extern Potion main_potion[20];
 extern int round_times;
 extern int main_collection_num[6];
 extern Collection main_collection[6][10];
+extern Fight boss[3][3];
 
 void event_init() {
     fight_in_map[1][0] = 2;
@@ -213,7 +214,7 @@ void print_players(SDL_Renderer *renderer, Player *player) {
 }
 
 
-void draw_enemy_next_step(SDL_Renderer *renderer, int x, int y, Enemy *enemy) {
+void draw_enemy_next_step(SDL_Renderer *renderer, int x, int y, Enemy *enemy, int layernum) {
     SDL_Color color;
     char *text = malloc(20 * sizeof(char));
     TTF_Font *State_font = TTF_OpenFont("./res/ys_zt.ttf", 20);
@@ -254,11 +255,12 @@ void draw_enemy_next_step(SDL_Renderer *renderer, int x, int y, Enemy *enemy) {
     if (strcmp(enemy->skill[enemy->next_step].qua, "")) {
         draw_text(renderer, State_font, enemy->skill[enemy->next_step].qua, x + 20, y, color);
     }
+    SDL_DestroyTexture(texture);
     free(text);
     TTF_CloseFont(State_font);
 }
 
-void print_enemys(SDL_Renderer *renderer) {
+void print_enemys(SDL_Renderer *renderer, int layernum) {
     TTF_Font *State_font = TTF_OpenFont("./res/ys_zt.ttf", 20);
     char *text = malloc(20 * sizeof(char));
     if (main_Enemynum > 0 && main_enemy[0].hp > 0) {
@@ -273,7 +275,7 @@ void print_enemys(SDL_Renderer *renderer) {
             sprintf(text, "block: %d", main_enemy[0].block);
             draw_text(renderer, State_font, text, 1380, 430, COLOR_BLACK);
         }
-        draw_enemy_next_step(renderer, 1380, 370, &main_enemy[0]);
+        draw_enemy_next_step(renderer, 1380, 370, &main_enemy[0], layernum);
         draw_Buff(renderer, &main_enemy[0].buff, 1350, 400 + rect.h);
     }
     if (main_Enemynum > 1 && main_enemy[1].hp > 0) {
@@ -288,7 +290,7 @@ void print_enemys(SDL_Renderer *renderer) {
             sprintf(text, "block: %d", main_enemy[1].block);
             draw_text(renderer, State_font, text, 1180, 480, COLOR_BLACK);
         }
-        draw_enemy_next_step(renderer, 1180, 420, &main_enemy[1]);
+        draw_enemy_next_step(renderer, 1180, 420, &main_enemy[1], layernum);
         draw_Buff(renderer, &main_enemy[1].buff, rect.x, rect.y + rect.h);
     }
     if (main_Enemynum > 2 && main_enemy[2].hp > 0) {
@@ -303,7 +305,7 @@ void print_enemys(SDL_Renderer *renderer) {
             sprintf(text, "block: %d", main_enemy[2].block);
             draw_text(renderer, State_font, text, 1580, 380, COLOR_BLACK);
         }
-        draw_enemy_next_step(renderer, 1580, 320, &main_enemy[2]);
+        draw_enemy_next_step(renderer, 1580, 320, &main_enemy[2], layernum);
         draw_Buff(renderer, &main_enemy[2].buff, rect.x, rect.y + rect.h);
     }
     free(text);
@@ -494,6 +496,8 @@ void player_aim(Player *player, int mouse_x, int mouse_y, int *choose_card) {
     }
 }
 
+extern Fight boss[3][3];
+
 //extern const char *sug[];
 void Buff_update(Player *player) {
     for (int i = 0; i < main_Enemynum; i++) {
@@ -528,12 +532,12 @@ void Enemy_Action(Player *player, Enemy *enemy) {
         enemy->block = 0;
     } else {
         enemy->buff.armor--;
-    }
+    }/*
     if (enemy->skill[enemy->next_step].effect == NULL) {
         printf("enemy skill is null!\n");
     } else {
         printf("enemy's skill is ready!\n");
-    }
+    }*/
     if (enemy->buff.dizziness > 0) {
         enemy->next_step = generate_random(0, enemy->skill_num - 1);
         return;
@@ -552,14 +556,14 @@ void round_settlement(Player *player, int *times) {
         player->hand_size = 0;
         player->hand = (Card **) realloc(player->hand, player->hand_size * sizeof(Card *));
         Buff_update(player);
-        printf("update buff and discard pile success\n");
+//        printf("update buff and discard pile success\n");
     }
-    printf("%d\n", *times);
+//    printf("%d\n", *times);
     if (*times == 50) {
         if (main_Enemynum > 0 && main_enemy[0].hp > 0) {
-            printf("enemy 1 try to action!\n");
+//            printf("enemy 1 try to action!\n");
             Enemy_Action(player, &main_enemy[0]);
-            printf("enemy 1 action success\n");
+//            printf("enemy 1 action success\n");
         } else {
             *times = *times + 199;
         }
@@ -567,7 +571,7 @@ void round_settlement(Player *player, int *times) {
     if (*times == 250) {
         if (main_Enemynum > 1 && main_enemy[1].hp > 0) {
             Enemy_Action(player, &main_enemy[1]);
-            printf("enemy 2 action success\n");
+//            printf("enemy 2 action success\n");
         } else {
             *times = *times + 199;
         }
@@ -575,7 +579,7 @@ void round_settlement(Player *player, int *times) {
     if (*times == 450) {
         if (main_Enemynum > 2 && main_enemy[2].hp > 0) {
             Enemy_Action(player, &main_enemy[2]);
-            printf("enemy 3 action success\n");
+//            printf("enemy 3 action success\n");
         } else {
             *times = *times + 199;
         }
@@ -584,11 +588,11 @@ void round_settlement(Player *player, int *times) {
         buff_decrease(&player->buff);
         for (int i = 0; i < main_Enemynum; i++) {
             if (main_enemy[i].hp > 0) {
-                printf("buff decrease %d\n", i);
+//                printf("buff decrease %d\n", i);
                 buff_decrease(&main_enemy[i].buff);
             }
         }
-        printf("buff decrease success!\n");
+//        printf("buff decrease success!\n");
     }
 }
 
@@ -669,7 +673,7 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
                         round_progress = -1;
                         choose_card = -1;
                         choose_potion = -1;
-                        printf("next_round clicked!\n");
+//                        printf("next_round clicked!\n");
                     }
                     next_round.isPressed = false;
                     if (round_progress == 1 && choose_potion != -1 && potion_using.isPressed &&
@@ -695,7 +699,7 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
             drawButton(renderer, &potion_using);
             drawButton(renderer, &potion_discard);
         }
-        printf("draw potion success!\n");
+//        printf("draw potion success!\n");
         if (round_progress == 1) {
             if (choose_card == -1) {
                 advise.text = "请选择要使用的卡牌";
@@ -729,11 +733,11 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
             }
         }
         Title_print(&advise, window, renderer);
-        printf("print title success!\n");
+//        printf("print title success!\n");
         print_players(renderer, player);
-        printf("print_players success!\n");
-        print_enemys(renderer);
-        printf("print enemys success!\n");
+//        printf("print_players success!\n");
+        print_enemys(renderer, layer_num);
+//        printf("print enemys success!\n");
         sprintf(hp_text, "生命值: %d / %d", player->hp, player->maxhp);
         draw_text(renderer, State_font, hp_text, 50, 300, COLOR_LIGHT_RED);
         sprintf(text, "格挡: %d", player->block);
@@ -746,12 +750,12 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
         draw_text(renderer, State_font, text, 1700, 700, COLOR_BLACK);
         sprintf(text, "能量: %d", player->energy);
         draw_text(renderer, State_font, text, 700, 700, COLOR_ORANGE);
-        printf("print everything success!\n");
+//        printf("print everything success!\n");
         check_end(player, &quit);
-        printf("check end success!\n");
+//        printf("check end success!\n");
         SDL_RenderPresent(renderer);
         SDL_Delay(10);
-        printf("RenderPresent success!\n");
+//        printf("RenderPresent success!\n");
     }
     free(hp_text);
     free(coin_text);
@@ -950,6 +954,9 @@ void fight_success(SDL_Window *window, SDL_Renderer *renderer, Player *player, i
     if (dif == 1) {
         coin_get += generate_random(20, 30);
     }
+    if (layer_num == 1) {
+        coin_get += generate_random(10, 15);
+    }
     bool get_potion = generate_random(1, 5) == 1;
     if (player->player_career == 3) {
         get_potion = generate_random(1, 5) <= 3;
@@ -1014,7 +1021,7 @@ void fight_success(SDL_Window *window, SDL_Renderer *renderer, Player *player, i
                 case SDL_MOUSEBUTTONUP:
                     if (game_continue.isPressed &&
                         isMouseInButton(event.button.x, event.button.y, &game_continue)) {
-                        printf("game back Clicked!\n");
+//                        printf("game back Clicked!\n");
                         Button_destroy(&game_continue);
 //                        free(text);
                         Title_destroy(&title);

@@ -57,6 +57,7 @@ typedef struct Player {
     int sum_collection;
     Collection **collections;
     Buff buff;
+    int extra_damage;
 } Player;
 typedef struct Enemy_skill {
     int type;//1 atk 2def 3wek 4inc 5ukn
@@ -117,6 +118,8 @@ void defense(Player *player, Enemy *enemy);
 void add_card_to_bag(Player *player, Card *card);
 
 void add_card_to_deck(Player *player, Card *card);
+
+void delete_card_from_bag(Player *player, int index);
 
 void get_potion(Player *player, Potion *potion);
 

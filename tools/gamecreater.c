@@ -153,7 +153,7 @@ void choose_card(SDL_Window *window, SDL_Renderer *renderer, Player *player) {
     }
     Card *card[3] = {&main_card[player->player_career][a], &main_card[player->player_career][b],
                      &main_card[player->player_career][c]};
-    printf("%d %d %d\n", a, b, c);
+//    printf("%d %d %d\n", a, b, c);
     SDL_Event event;
     Title title;
     Title_init(&title, "请选择想要的卡牌", TTF_OpenFont("./res/ys_zt.ttf", 50), 0.5, 0.2, COLOR_BLACK);

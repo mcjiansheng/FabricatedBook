@@ -36,7 +36,9 @@ int fight_in_map[7][2];
 Fight fight_map[7][2][10];
 PlayerInfo playerInfo;
 Events Safe_house, decitions[2], rewards;
+int main_event_num;
 Events main_event[10];
+Fight boss[3][3];
 
 PPT first_floor, second_floor[2], third_floor[2], forth_floor[2], fifth_floor[2], small_path, sixth_floor[2];
 
@@ -237,6 +239,7 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
     init_ppt();
 //    printf("init ppt finish!\n");
     event_init();
+    init_events();
 //    printf("init event finish!\n");
     init_enemy(renderer);
 //    printf("init enemy finish!\n");
@@ -325,6 +328,7 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
                         now_ppt = now_ppt->next_PPT;
                         last_node = NULL;
                         init_map_printer(now_ppt->layer);
+                        cutscene_animation(window, renderer, now_ppt);
                         printf("next floor!\n");
                     }
                     if (player->hp <= 0) {
