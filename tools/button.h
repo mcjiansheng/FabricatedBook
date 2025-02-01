@@ -74,6 +74,9 @@ void draw_rectangle(SDL_Renderer *renderer, SDL_Rect rect, SDL_Color color);
 
 void draw_text(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y, SDL_Color color);
 
+void
+draw_text_alpha(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y, SDL_Color color, int alpha);
+
 void draw_text_with_alpha(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y, SDL_Color color,
                           int alpha);
 

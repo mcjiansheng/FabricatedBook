@@ -58,6 +58,7 @@ typedef struct Player {
     Collection **collections;
     Buff buff;
     int extra_damage;
+    bool enter_allowance;
 } Player;
 typedef struct Enemy_skill {
     int type;//1 atk 2def 3wek 4inc 5ukn

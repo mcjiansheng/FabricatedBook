@@ -297,6 +297,7 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
                     show_collection.isHovered = isMouseInButton(event.motion.x, event.motion.y, &show_collection);
                     break;
                 case SDL_MOUSEBUTTONDOWN:
+                    SDL_GetMouseState(&mouse_x, &mouse_y);
                     player_choose_potion(player, mouse_x, mouse_y, &choose_potion);
                     map_reset.isPressed = isMouseInButton(event.motion.x, event.motion.y, &map_reset);
                     show_card.isPressed = isMouseInButton(event.motion.x, event.motion.y, &show_card);
@@ -304,7 +305,6 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
                     potion_discard.isPressed = isMouseInButton(event.motion.x, event.motion.y, &potion_discard);
                     show_collection.isPressed = isMouseInButton(event.motion.x, event.motion.y, &show_collection);
                     dragging = true;
-                    SDL_GetMouseState(&mouse_x, &mouse_y);
                     break;
                 case SDL_MOUSEBUTTONUP:
                     if ((x > 1000 || x < -1000) && map_reset.isPressed &&

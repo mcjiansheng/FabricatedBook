@@ -176,6 +176,63 @@ void draw_text(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, 
     free(token);
 }
 
+void
+draw_text_alpha(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y, SDL_Color color, int alpha) {
+    char *str = strdup(text);  // 复制字符串，避免修改原始字符串
+    char *token = strtok(str, "\n");
+    int line_height = TTF_FontLineSkip(font);  // 获取字体的行高
+    int num_lines = 0;
+    while (token != NULL) {
+        num_lines++;
+        token = strtok(NULL, "\n");
+    }
+    int start_y = y - (line_height * num_lines / 2);  // 计算起始 Y 坐标，使文本居中
+    token = strdup(text);
+    token = strtok(token, "\n");
+    int line = 0;
+    while (token != NULL) {
+        SDL_Surface *surface = TTF_RenderUTF8_Blended(font, token, color);
+        SDL_SetSurfaceAlphaMod(surface, alpha);
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_Rect rect = {x, start_y + (line * line_height), surface->w, surface->h};
+        SDL_RenderCopy(renderer, texture, NULL, &rect);
+        SDL_FreeSurface(surface);
+        SDL_DestroyTexture(texture);
+        line++;
+        token = strtok(NULL, "\n");
+    }
+    free(str);
+    free(token);
+}
+
+void draw_text_with_alpha(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y, SDL_Color color,
+                          int alpha) {
+    char *str = strdup(text);  // 复制字符串，避免修改原始字符串
+    char *token = strtok(str, "\n");
+    int line_height = TTF_FontLineSkip(font);  // 获取字体的行高
+    int num_lines = 0;
+    while (token != NULL) {
+        num_lines++;
+        token = strtok(NULL, "\n");
+    }
+    int start_y = y - (line_height * num_lines / 2);  // 计算起始 Y 坐标，使文本居中
+    token = strdup(text);
+    token = strtok(token, "\n");
+    int line = 0;
+    while (token != NULL) {
+        SDL_Surface *surface = TTF_RenderUTF8_Blended(font, token, color);
+        SDL_SetSurfaceAlphaMod(surface, alpha);
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_Rect rect = {x - (surface->w / 2), start_y + (line * line_height), surface->w, surface->h};
+        SDL_RenderCopy(renderer, texture, NULL, &rect);
+        SDL_FreeSurface(surface);
+        SDL_DestroyTexture(texture);
+        line++;
+        token = strtok(NULL, "\n");
+    }
+    free(str);
+    free(token);
+}
 
 void print_card(SDL_Renderer *renderer, Card *card, SDL_Rect rect, int hover, int selected, TTF_Font *font,
                 TTF_Font *title_font) {
@@ -214,35 +271,6 @@ void print_card(SDL_Renderer *renderer, Card *card, SDL_Rect rect, int hover, in
         draw_text(renderer, font, "消耗", rect.x + 200, rect.y + 100, text_color);
     }
     draw_text(renderer, font, card->description, rect.x + 10, rect.y + 200, text_color);
-}
-
-void draw_text_with_alpha(SDL_Renderer *renderer, TTF_Font *font, const char *text, int x, int y, SDL_Color color,
-                          int alpha) {
-    char *str = strdup(text);  // 复制字符串，避免修改原始字符串
-    char *token = strtok(str, "\n");
-    int line_height = TTF_FontLineSkip(font);  // 获取字体的行高
-    int num_lines = 0;
-    while (token != NULL) {
-        num_lines++;
-        token = strtok(NULL, "\n");
-    }
-    int start_y = y - (line_height * num_lines / 2);  // 计算起始 Y 坐标，使文本居中
-    token = strdup(text);
-    token = strtok(token, "\n");
-    int line = 0;
-    while (token != NULL) {
-        SDL_Surface *surface = TTF_RenderUTF8_Blended(font, token, color);
-        SDL_SetSurfaceAlphaMod(surface, alpha);
-        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_Rect rect = {x - (surface->w / 2), start_y + (line * line_height), surface->w, surface->h};
-        SDL_RenderCopy(renderer, texture, NULL, &rect);
-        SDL_FreeSurface(surface);
-        SDL_DestroyTexture(texture);
-        line++;
-        token = strtok(NULL, "\n");
-    }
-    free(str);
-    free(token);
 }
 
 void print_collection(SDL_Renderer *renderer, Collection *collection, SDL_Rect rect, TTF_Font *font,

@@ -978,7 +978,7 @@ void fight_success(SDL_Window *window, SDL_Renderer *renderer, Player *player, i
             collection_get_y = 0;
         } else {
             do {
-                int arr[5] = {10, 20, 30, 40, 1};
+                int arr[5] = {40, 30, 20, 10, 1};
                 collection_get_x = generate_random_with_weighted(arr);
                 collection_get_y = generate_random(0, main_collection_num[collection_get_x] - 1);
             } while (main_collection[collection_get_x][collection_get_y].get);

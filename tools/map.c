@@ -168,7 +168,7 @@ void init_layer(Layer *layer, int layer_idx) {
     // 设置特殊节点：起点和终点
     switch (layer_idx) {
         case 0:
-            layer->nodes[0][0] = create_node(FIGHT);
+            layer->nodes[0][0] = create_node(UNEXPECTEDLY);
             layer->nodes[0][0]->nxt_num = layer->line_num[1];
             for (int i = 0; i < layer->line_num[1]; i++) {
                 layer->nodes[0][0]->nxt[i] = layer->nodes[1][i];
@@ -437,6 +437,10 @@ Fight *generate_boss(Layer *layer) {
     return &boss[x][y];
 }
 
+extern Events Safe_house, decitions[2], rewards;
+extern int main_event_num;
+extern Events main_event[10];
+
 void goin_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *node, Layer *layer, Player *player) {
     printf("goin!\n");
     last_node = node;
@@ -485,9 +489,11 @@ void goin_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *node, Layer *l
             game_fight(window, renderer, generate_boss(layer), player, 1, layer->num);
             break;
         case 4:
+            enter_events(window, renderer, player, &main_event[generate_random(0, main_event_num - 1)]);
             break;
         case 9:
             init_safehouse();
+            enter_events(window, renderer, player, &Safe_house);
             break;
     }
 }

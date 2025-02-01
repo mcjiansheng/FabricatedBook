@@ -212,6 +212,7 @@ Player *init_player(int hp, int career) {
     player->collections = NULL;
     player_get_collection(player, 0, 0);
     player->extra_damage = 0;
+    player->enter_allowance = false;
     return player;
 }
 

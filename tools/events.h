@@ -15,6 +15,7 @@
 #include "Saves.h"
 #include "Button.h"
 #include "card.h"
+#include "fight.h"
 
 typedef struct events {
     char *name;
@@ -28,5 +29,7 @@ typedef struct events {
 void init_events();
 
 void init_safehouse();
+
+void enter_events(SDL_Window *window, SDL_Renderer *renderer, Player *player, Events *events);
 
 #endif //SLAYTHESPIRE_EVENTS_H
