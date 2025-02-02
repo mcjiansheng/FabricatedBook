@@ -35,11 +35,12 @@ Enemy Enemy_in_map[7][2][10];
 int fight_in_map[7][2];
 Fight fight_map[7][2][10];
 PlayerInfo playerInfo;
-Events Safe_house, decitions[2], rewards;
+Events Safe_house, decitions[2], events_rewards;
+Rewards rewards;
 int main_event_num;
 Events main_event[10];
 Fight boss[3][3];
-
+int endness;
 PPT first_floor, second_floor[2], third_floor[2], forth_floor[2], fifth_floor[2], small_path, sixth_floor[2];
 
 void game_Quit(SDL_Window *window, SDL_Renderer *renderer) {
@@ -221,6 +222,7 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
     srand(time(NULL));
     seed = rand();
     Player *player = init_player(characters[selectedCharacter].hp, selectedCharacter);
+    endness = -1;
     init_collection();
 //    printf("init player finish!\n");
     init_card();
@@ -324,15 +326,19 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
                     }
                     show_collection.isPressed = false;
                     check_choose_nodes(window, renderer, last_node, now_ppt->layer, mouse_x, mouse_y, x, player);
+                    if (player->hp <= 0) {
+                        return;
+                    }
+                    if (endness != -1) {
+                        return;
+                    }
                     if (now_ppt->layer->tail == last_node) {
                         now_ppt = now_ppt->next_PPT;
                         last_node = NULL;
                         init_map_printer(now_ppt->layer);
                         cutscene_animation(window, renderer, now_ppt);
+                        x = 0;
                         printf("next floor!\n");
-                    }
-                    if (player->hp <= 0) {
-                        return;
                     }
                     if (choose_potion != -1 && potion_discard.isPressed &&
                         isMouseInButton(event.button.x, event.button.y, &potion_discard)) {
@@ -356,10 +362,10 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
             print_potion_discribe(renderer, player, choose_potion, &potion_using, &potion_discard);
             drawButton(renderer, &potion_discard);
         }
-        printf("draw potion!\n");
+//        printf("draw potion!\n");
 //        sprintf(show_collection.text, "藏品:%d", player->sum_collection);
 //        sprintf(show_card.text, "卡牌:%d", player->sum_deck_size);
-        printf("update button text\n");
+//        printf("update button text\n");
         //渲染按钮
         if (x > 1000 || x < -1000) {
             drawButton(renderer, &map_reset);

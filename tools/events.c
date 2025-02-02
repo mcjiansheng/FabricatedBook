@@ -4,7 +4,8 @@
 
 #include "events.h"
 
-extern Events Safe_house, decitions[2], rewards;
+extern Events Safe_house, decitions[2], events_rewards;
+extern Rewards rewards;
 extern int main_event_num;
 extern Events main_event[10];
 extern int main_collection_num[6];
@@ -29,9 +30,9 @@ void safe_house_coin(Player *player) {
 }
 
 void init_rewards() {
-    rewards.name = "得偿所愿";
-    rewards.discribe = "散落的珠宝，未知的财务，你索取，???回应";
-    rewards.choice_num = 3;
+    events_rewards.name = "得偿所愿";
+    events_rewards.discribe = "散落的珠宝，未知的财务，你索取，???回应";
+    events_rewards.choice_num = 3;
     for (int i = 0; i < 3; i++) {
         int arr[5] = {30, 25, 20, 15, 10};
         int collection_get_x = generate_random_with_weighted(arr), collection_get_y = generate_random(0,
@@ -48,25 +49,30 @@ void init_rewards() {
         }
         switch (collection_get_x) {
             case 0:
-                rewards.choice_name[i] = "谢谢！";
+                events_rewards.choice_name[i] = "谢谢！";
                 break;
             case 1:
-                rewards.choice_name[i] = "拿走一件藏品";
+                events_rewards.choice_name[i] = "拿走一件藏品";
                 break;
             case 2:
-                rewards.choice_name[i] = "许愿....";
+                events_rewards.choice_name[i] = "许愿....";
                 break;
             case 3:
-                rewards.choice_name[i] = "我需要的是这个！";
+                events_rewards.choice_name[i] = "我需要的是这个！";
                 break;
             default:
-                rewards.choice_name[i] = "你曾经在神话中所闻的物件，如今出现在你的面前 ";
+                events_rewards.choice_name[i] = "难道这就是...";
         }
-        rewards.choice_discribe[i] = malloc(200 * sizeof(char));
-        sprintf(rewards.choice_discribe[i], "获得 “%s”", main_collection[collection_get_x][collection_get_y].discribe);
-        rewards.choice_end[i] = "不知何人回应了你的愿望\n希望这个藏品能为你的旅途提供帮助";
-        rewards.effect[i] = player_get_collection(Player * player, collection_get_x, collection_get_y);
+        events_rewards.choice_discribe[i] = malloc(200 * sizeof(char));
+        sprintf(events_rewards.choice_discribe[i], "获得 “%s” : %s",
+                main_collection[collection_get_x][collection_get_y].name,
+                main_collection[collection_get_x][collection_get_y].discribe);
+        events_rewards.choice_end[i] = "不知何人回应了你的愿望\n希望这个藏品能为你的旅途提供帮助";
+        rewards.x[i] = collection_get_x;
+        rewards.y[i] = collection_get_y;
+//        events_rewards.effect[i] = player_get_collection(Player * player, collection_get_x, collection_get_y);
     }
+    rewards.events = &events_rewards;
 }
 
 void init_safehouse() {
@@ -85,6 +91,32 @@ void init_safehouse() {
     Safe_house.choice_discribe[2] = "获得一些金币";
     Safe_house.choice_end[2] = "你获得了一些补给";
     Safe_house.effect[2] = safe_house_coin;
+}
+
+void decitions_forward(Player *player) {
+    return;
+}
+
+extern int endness;
+
+void decitions_back(Player *player) {
+    endness = 0;
+    return;
+}
+
+void init_decition() {
+    decitions[0].name = "迷雾";
+    decitions[0].discribe = "迷雾渐起，前途未知，你将何去何从？\n选择下一层的方向";
+    decitions[0].choice_num = 2;
+    decitions[0].choice_name[0] = "前进";
+    decitions[0].choice_discribe[0] = "走";
+    decitions[0].effect[0] = decitions_forward;
+    decitions[0].choice_end[0] = "你突破了迷雾，进入森林";
+    decitions[0].choice_name[1] = "回头";
+    decitions[0].choice_discribe[1] = "这个地方很诡异，你决定立刻离开";
+    decitions[0].effect[1] = decitions_back;
+    decitions[0].choice_end[1] = "你转身离去";
+
 }
 
 void Wings_Statue_wish(Player *player) {
@@ -166,6 +198,21 @@ void player_choose_choice(Events *events, Player *player, int mouse_x, int mouse
     }
 }
 
+void player_choose_rewards(Rewards *rewardss, Player *player, int mouse_x, int mouse_y, int *choice) {
+    int i = 0;
+    Events *events = rewardss->events;
+    SDL_Rect rect = {1200, 300, 500, 150};
+    for (i = 0; i < events->choice_num; i++) {
+        if (mouse_in_rect(rect, mouse_x, mouse_y)) {
+            player->enter_allowance = true;
+            *choice = i;
+            player_get_collection(player, rewardss->x[i], rewardss->y[i]);
+            break;
+        }
+        rect.y += 200;
+    }
+}
+
 void draw_end(SDL_Renderer *renderer, Events *events, int choice, int alpha) {
     TTF_Font *title_font = TTF_OpenFont("./res/ys_zt.ttf", 45), *text_font = TTF_OpenFont("./res/ys_zt.ttf", 20);
     draw_text_alpha(renderer, title_font, events->choice_name[choice], 300, 500, COLOR_BLACK, alpha);
@@ -224,7 +271,162 @@ void enter_events(SDL_Window *window, SDL_Renderer *renderer, Player *player, Ev
                         choose_potion = -1;
                     }
                     potion_discard.isPressed = false;
-                    player_choose_choice(events, player, mouse_x, mouse_y, &choice);
+                    if (alpha >= 255) {
+                        player_choose_choice(events, player, mouse_x, mouse_y, &choice);
+                    }
+
+                    break;
+            }
+        }
+        SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
+        SDL_RenderClear(renderer);
+        //渲染事件
+        draw_events(renderer, events, alpha);
+        draw_choose(renderer, events, mouse_x, mouse_y, press, alpha);
+        //渲染药水
+        draw_Potion(renderer, player);
+        if (choose_potion != -1) {
+            printf("%d\n", choose_potion);
+            print_potion_discribe(renderer, player, choose_potion, &potion_using, &potion_discard);
+            drawButton(renderer, &potion_discard);
+        }
+        //渲染生命值和金币
+        sprintf(hp_text, "生命值: %d / %d", player->hp, player->maxhp);
+        draw_text(renderer, State_font, hp_text, 50, 50, COLOR_LIGHT_RED);
+        sprintf(coin_text, "金币: %d", player->coin);
+        draw_text(renderer, State_font, coin_text, 800, 50, COLOR_DARK_YELLOW);
+        SDL_RenderPresent(renderer);
+        SDL_Delay(20);
+        if (alpha < 255) {
+            alpha += step;
+            if (alpha > 255) {
+                alpha = 255;
+            }
+        }
+    }
+    int quit = 1;
+    alpha = 0;
+    while (quit) {
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_QUIT:
+                    Button_destroy(&potion_using);
+                    Button_destroy(&potion_discard);
+//                    printf("button destroyed!\n");
+                    free(hp_text);
+                    free(coin_text);
+//                    printf("text free!\n");
+                    TTF_CloseFont(State_font);
+//                    printf("font close!\n");
+                    game_Quit(window, renderer);
+                    break;
+                case SDL_WINDOWEVENT:
+                    break;
+                case SDL_MOUSEMOTION:
+                    SDL_GetMouseState(&mouse_x, &mouse_y);
+                    potion_using.isHovered = isMouseInButton(event.motion.x, event.motion.y, &potion_using);
+                    potion_discard.isHovered = isMouseInButton(event.motion.x, event.motion.y, &potion_discard);
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    player_choose_potion(player, mouse_x, mouse_y, &choose_potion);
+                    potion_using.isPressed = isMouseInButton(event.motion.x, event.motion.y, &potion_using);
+                    potion_discard.isPressed = isMouseInButton(event.motion.x, event.motion.y, &potion_discard);
+                    break;
+                case SDL_MOUSEBUTTONUP:
+                    if (choose_potion != -1 && potion_discard.isPressed &&
+                        isMouseInButton(event.button.x, event.button.y, &potion_discard)) {
+                        discard_potion(player, choose_potion);
+                        choose_potion = -1;
+                    } else {
+                        if (alpha == 255) {
+                            quit = 0;
+                        }
+                    }
+                    potion_discard.isPressed = false;
+                    break;
+            }
+        }
+        SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
+        SDL_RenderClear(renderer);
+        //渲染事件
+        draw_end(renderer, events, choice, alpha);
+        //渲染药水
+        draw_Potion(renderer, player);
+        if (choose_potion != -1) {
+            printf("%d\n", choose_potion);
+            print_potion_discribe(renderer, player, choose_potion, &potion_using, &potion_discard);
+            drawButton(renderer, &potion_discard);
+        }
+        //渲染生命值和金币
+        sprintf(hp_text, "生命值: %d / %d", player->hp, player->maxhp);
+        draw_text(renderer, State_font, hp_text, 50, 50, COLOR_LIGHT_RED);
+        sprintf(coin_text, "金币: %d", player->coin);
+        draw_text(renderer, State_font, coin_text, 800, 50, COLOR_DARK_YELLOW);
+        SDL_RenderPresent(renderer);
+        SDL_Delay(20);
+        if (alpha < 255) {
+            alpha += step;
+            if (alpha > 255) {
+                alpha = 255;
+            }
+        }
+    }
+}
+
+void enter_rewards(SDL_Window *window, SDL_Renderer *renderer, Player *player, Rewards *rewardss) {
+    Events *events = rewardss->events;
+    player->enter_allowance = false;
+    SDL_Event event;
+    TTF_Font *State_font = TTF_OpenFont("./res/ys_zt.ttf", 45);
+    char *hp_text = malloc(20 * sizeof(char)), *coin_text = malloc(20 * sizeof(char));
+    Button potion_using, potion_discard;
+    initButton(&potion_discard, (Rect) {0.5, 0.2, 0.05, 0.025}, window, COLOR_GREY, COLOR_GREYGREEN, COLOR_BLACK,
+               "丢弃", "./res/ys_zt.ttf", 5);
+    initButton(&potion_using, (Rect) {0.5, 0.2, 0.05, 0.025}, window, COLOR_GREY, COLOR_GREYGREEN, COLOR_LIGHT_RED,
+               "使用", "./res/ys_zt.ttf", 5);
+    printf("init button finish!\n");
+    int mouse_x = 0, mouse_y = 0;
+    int choose_potion = -1, press = 0, choice = -1;
+    int alpha = 0, step = 7;
+    while (!player->enter_allowance) {
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_QUIT:
+                    Button_destroy(&potion_using);
+                    Button_destroy(&potion_discard);
+//                    printf("button destroyed!\n");
+                    free(hp_text);
+                    free(coin_text);
+//                    printf("text free!\n");
+                    TTF_CloseFont(State_font);
+//                    printf("font close!\n");
+                    game_Quit(window, renderer);
+                    break;
+                case SDL_WINDOWEVENT:
+                    break;
+                case SDL_MOUSEMOTION:
+                    SDL_GetMouseState(&mouse_x, &mouse_y);
+                    potion_using.isHovered = isMouseInButton(event.motion.x, event.motion.y, &potion_using);
+                    potion_discard.isHovered = isMouseInButton(event.motion.x, event.motion.y, &potion_discard);
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    press = 1;
+                    player_choose_potion(player, mouse_x, mouse_y, &choose_potion);
+                    potion_using.isPressed = isMouseInButton(event.motion.x, event.motion.y, &potion_using);
+                    potion_discard.isPressed = isMouseInButton(event.motion.x, event.motion.y, &potion_discard);
+                    break;
+                case SDL_MOUSEBUTTONUP:
+                    press = 0;
+                    if (choose_potion != -1 && potion_discard.isPressed &&
+                        isMouseInButton(event.button.x, event.button.y, &potion_discard)) {
+                        discard_potion(player, choose_potion);
+                        choose_potion = -1;
+                    }
+                    potion_discard.isPressed = false;
+                    if (alpha >= 255) {
+                        player_choose_rewards(rewardss, player, mouse_x, mouse_y, &choice);
+                    }
+
                     break;
             }
         }

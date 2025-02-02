@@ -18,11 +18,14 @@ extern Collection main_collection[6][10];
 extern Fight boss[3][3];
 
 void event_init() {
-    fight_in_map[1][0] = 2;
+    fight_in_map[1][0] = 3;
     fight_map[1][0][0] = (Fight) {1, &Enemy_in_map[1][0][0]};
     fight_map[1][0][1] = (Fight) {3, &Enemy_in_map[1][0][1], &Enemy_in_map[1][0][1], &Enemy_in_map[1][0][1]};
-    fight_in_map[1][1] = 1;
+    fight_map[1][0][2] = (Fight) {2, &Enemy_in_map[1][0][2], &Enemy_in_map[1][0][2]};
+    fight_in_map[1][1] = 2;
     fight_map[1][1][0] = (Fight) {3, &Enemy_in_map[1][0][0], &Enemy_in_map[1][0][0], &Enemy_in_map[1][0][0]};
+    fight_map[1][1][1] = (Fight) {1, &Enemy_in_map[1][1][0]};
+
 }
 
 extern int deadly_tempotimes;
@@ -341,6 +344,13 @@ void round_start(Player *player) {
         player->energy += 3;
         draw_card(player);
         draw_card(player);
+    }
+//    printf("1 2 get:%d\n", main_collection[0][2].get);
+    if (round_times == 1 && main_collection[0][2].get) {
+        player->energy += 1;
+    }
+    if (main_collection[3][1].get && player->maxhp / 10 >= player->hp) {
+        player->block += 10;
     }
 }
 
@@ -710,7 +720,7 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
             }
             drawButton(renderer, &next_round);
             print_hand_cards(renderer, player, choose_card, mouse_x, mouse_y);
-            if (player->buff.poisoning > 0) {
+            if (player->buff.dizziness > 0) {
                 advise.text = "你被眩晕了，无法行动！";
             }
         } else {
@@ -754,7 +764,7 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
         check_end(player, &quit);
 //        printf("check end success!\n");
         SDL_RenderPresent(renderer);
-        SDL_Delay(10);
+        SDL_Delay(5);
 //        printf("RenderPresent success!\n");
     }
     free(hp_text);
@@ -910,6 +920,12 @@ player_choose_reward(SDL_Window *window, SDL_Renderer *renderer, Player *player,
     }
     if (*g_po) {
         if (mouse_in_rect(rect, mouse_x, mouse_y)) {
+            if (player->sum_Potion >= 3 && player->player_career != 2) {
+                return;
+            }
+            if (player->sum_Potion >= 5 && player->player_career == 2) {
+                return;
+            }
             get_potion(player, potion_get);
             *g_po = false;
             return;
@@ -954,8 +970,18 @@ void fight_success(SDL_Window *window, SDL_Renderer *renderer, Player *player, i
     if (dif == 1) {
         coin_get += generate_random(20, 30);
     }
-    if (layer_num == 1) {
+    if (layer_num == 2) {
         coin_get += generate_random(10, 15);
+    }
+    if (main_collection[3][2].get && player->hp > player->maxhp / 10) {
+        player->hp -= 5;
+        if (player->hp <= 0) {
+            player->hp = 1;
+        }
+        coin_get += 20;
+    }
+    if (main_collection[1][1].get) {
+        coin_get = coin_get * 1.5;
     }
     bool get_potion = generate_random(1, 5) == 1;
     if (player->player_career == 3) {

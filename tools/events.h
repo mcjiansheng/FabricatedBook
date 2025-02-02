@@ -25,11 +25,22 @@ typedef struct events {
 
     void (*effect[4])(Player *);
 } Events;
+typedef struct rewards {
+    Events *events;
+    int x[4], y[4];
+} Rewards;
 
+//Rewards events_rewards;
 void init_events();
+
+void init_rewards();
+
+void init_decition();
 
 void init_safehouse();
 
 void enter_events(SDL_Window *window, SDL_Renderer *renderer, Player *player, Events *events);
+
+void enter_rewards(SDL_Window *window, SDL_Renderer *renderer, Player *player, Rewards *rewards);
 
 #endif //SLAYTHESPIRE_EVENTS_H

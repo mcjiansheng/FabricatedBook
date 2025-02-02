@@ -60,7 +60,7 @@ void cutscene_animation(SDL_Window *window, SDL_Renderer *renderer, PPT *ppt) {
     TTF_Font *textfont = TTF_OpenFont("./res/ys_zt.ttf", 30);
     TTF_Font *titlefont = TTF_OpenFont("./res/ys_zt.ttf", 70);
     SDL_Surface *textsurface, *titlesurface;
-    int t = 0;
+    int t = 5;
     SDL_Event event;
     SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
     SDL_RenderClear(renderer);
@@ -168,7 +168,7 @@ void init_layer(Layer *layer, int layer_idx) {
     // 设置特殊节点：起点和终点
     switch (layer_idx) {
         case 0:
-            layer->nodes[0][0] = create_node(UNEXPECTEDLY);
+            layer->nodes[0][0] = create_node(EMERGENCY);
             layer->nodes[0][0]->nxt_num = layer->line_num[1];
             for (int i = 0; i < layer->line_num[1]; i++) {
                 layer->nodes[0][0]->nxt[i] = layer->nodes[1][i];
@@ -437,14 +437,15 @@ Fight *generate_boss(Layer *layer) {
     return &boss[x][y];
 }
 
-extern Events Safe_house, decitions[2], rewards;
+extern Events Safe_house, decitions[2], events_rewards;
 extern int main_event_num;
 extern Events main_event[10];
+extern Rewards rewards;
 
 void goin_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *node, Layer *layer, Player *player) {
     printf("goin!\n");
     last_node = node;
-    if (layer->num == 1) {
+    if (layer->num == 2) {
         if (node->type != 1 && node->type != 2 && node->type != 3) {
             player->coin -= generate_random(10, 20);
             if (player->coin < 0) {
@@ -452,7 +453,7 @@ void goin_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *node, Layer *l
             }
         }
     }
-    if (layer->num == 2) {
+    if (layer->num == 3) {
         if (node->type != 1 && node->type != 2 && node->type != 3) {
             player->extra_damage++;
             if (player->extra_damage > 3) {
@@ -465,7 +466,7 @@ void goin_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *node, Layer *l
             }
         }
     }
-    if (layer->num == 3) {
+    if (layer->num == 4) {
         if (generate_random(1, 2) == 1) {
             player_get_hp(player, generate_random(5, 30));
         } else {
@@ -490,6 +491,16 @@ void goin_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *node, Layer *l
             break;
         case 4:
             enter_events(window, renderer, player, &main_event[generate_random(0, main_event_num - 1)]);
+            break;
+        case 5:
+            init_rewards();
+            enter_rewards(window, renderer, player, &rewards);
+            break;
+        case 8:
+            init_decition();
+            if (layer->num == 1) {
+                enter_events(window, renderer, player, &decitions[0]);
+            }
             break;
         case 9:
             init_safehouse();

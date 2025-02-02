@@ -245,9 +245,17 @@ void Enemy_be_attack(Enemy *enemy, int damage) {
     if (damage == 0) {
         return;
     }
-    damage = damage * (double) (1.0 + (enemy->buff.fragile <= 0 ? 0.0 : 1.0) * 0.25 +
-                                (enemy->buff.resistance <= 0 ? 0.0 : 1.0) * (-0.25));
-
+    double enemy_hurt_increase = 1.0;
+    if (enemy->buff.fragile > 0) {
+        enemy_hurt_increase += 0.25;
+    }
+    if (enemy->buff.resistance > 0) {
+        enemy_hurt_increase -= 0.25;
+    }
+    if (enemy_hurt_increase < 0) {
+        return;
+    }
+    damage = (double) (damage) * enemy_hurt_increase;
     enemy->hp -= damage;
     if (enemy->hp <= 0) {
         enemy->hp = 0;
@@ -258,14 +266,23 @@ void Enemy_be_attack(Enemy *enemy, int damage) {
 }
 
 void Player_attack_enemy(Player *player, Enemy *enemy, int damage) {
-    damage = damage * (double) (1.0 + (player->buff.strength <= 0 ? 0.0 : 1.0) * 0.25 +
-                                (player->buff.weak <= 0 ? 0.0 : 1.0) * (-0.25));
+    double damage_increase = 1.0;
+    if (player->buff.strength > 0) {
+        damage_increase += 0.25;
+    }
+    if (player->buff.weak > 0) {
+        damage_increase -= 0.25;
+    }
     if (main_collection[3][0].get && player->hp <= player->maxhp / 10) {
-        damage = damage * 1.5;
+        damage_increase += 0.5;
     }
     if (main_collection[4][0].get) {
-        damage = damage * (1.0 + (player->coin / 10) * 0.08);
+        damage_increase += (0.08) * (damage / 10);
     }
+    if (damage_increase < 0) {
+        return;
+    }
+    damage = (double) (damage) * damage_increase;
     damage += player->extra_damage;
     if (damage > 0) {
         Enemy_be_attack(enemy, damage);
@@ -287,8 +304,20 @@ void sweep(Player *player, Enemy *enemy) {
 }
 
 void Player_get_block(Player *player, int block) {
-    block = block * (double) (1.0 + (player->buff.block_reduction <= 0 ? 0.0 : -0.5) +
-                              (player->buff.block_increase <= 0 ? 0.0 : 0.5));
+    double block_increase = 1.0;
+    if (player->buff.block_reduction > 0) {
+        block_increase -= 0.5;
+    }
+    if (player->buff.block_increase > 0) {
+        block_increase += 0.5;
+    }
+    if (main_collection[3][1].get && player->maxhp / 10 >= player->hp) {
+        block_increase += 0.5;
+    }
+    if (block_increase < 0) {
+        return;
+    }
+    block = (double) (block) * block_increase;
     player->block += block;
 }
 
@@ -396,11 +425,17 @@ void player_be_attacked(Player *player, Enemy *enemy, int damage) {
         player->block -= damage;
         damage = 0;
     }
-    if (damage == 0) {
+    if (damage <= 0) {
         return;
     }
-    damage = damage * (double) (1.0 + (player->buff.fragile <= 0 ? 0.0 : 1.0) * 0.25 +
-                                (player->buff.resistance <= 0 ? 0.0 : 1.0) * (-0.25));
+    double damage_increase = 1.0;
+    if (player->buff.fragile > 0) {
+        damage_increase += 0.25;
+    }
+    if (player->buff.resistance > 0) {
+        damage_increase -= 0.25;
+    }
+    damage = (double) (damage) * damage_increase;
     player->hp -= damage;
     if (player->hp <= 0) {
         player->hp = 0;
@@ -412,16 +447,31 @@ void player_be_attacked(Player *player, Enemy *enemy, int damage) {
 }
 
 void enemy_attack_player(Player *player, Enemy *enemy, int damage) {
-    damage = damage * (double) (1.0 + (enemy->buff.strength <= 0 ? 0.0 : 1.0) * 0.25 +
-                                (enemy->buff.weak <= 0 ? 0.0 : 1.0) * (-0.25));
+    double damage_increase = 1.0;
+    if (enemy->buff.strength > 0) {
+        damage_increase += 0.25;
+    }
+    if (enemy->buff.weak > 0) {
+        damage_increase -= 0.25;
+    }
+    damage = (double) (damage) * damage_increase;
     player_be_attacked(player, enemy, damage);
 }
 
 void enemy_get_block(Enemy *enemy, int block) {
-    block = block *
-            (double) (1.0 + (enemy->buff.block_increase > 0 ? 0.5 : 0.0) -
-                      (enemy->buff.block_reduction > 0 ? 0.5 : 0.0));
+    double block_increase = 1.0;
+    if (enemy->buff.block_increase > 0) {
+        block_increase += 0.5;
+    }
+    if (enemy->buff.block_reduction > 0) {
+        block_increase -= 0.5;
+    }
+    block = (double) (block) * block_increase;
     enemy->block += block;
+}
+
+void enemy_get_hp(Enemy *enemy, int num) {
+    enemy->hp += num;
 }
 
 void ragpicker_attack(Player *player, Enemy *enemy) {
@@ -450,11 +500,57 @@ void vulture_attack2(Player *player, Enemy *enemy) {
     enemy_attack_player(player, enemy, 7);
 }
 
+void wandering_ghost_recover(Player *player, Enemy *enemy) {
+    enemy_get_hp(enemy, 10);
+    get_buff(&enemy->buff.resistance, 5);
+    get_buff(&enemy->buff.strength, 5);
+}
+
+void wandering_ghost_attack(Player *player, Enemy *enemy) {
+    for (int i = 0; i < 8; i++) {
+        enemy_attack_player(player, enemy, 2);
+        if (generate_random(1, 2) == 1) {
+            get_buff(&player->buff.withering, 1);
+        }
+    }
+}
+
+void wandering_ghost_weaken(Player *player, Enemy *enemy) {
+    get_buff(&player->buff.fragile, 5);
+    get_buff(&player->buff.weak, 5);
+}
+
+void wandering_ghost_attack2(Player *player, Enemy *enemy) {
+    enemy_attack_player(player, enemy, 8);
+    if (player->buff.withering > 0) {
+        player->buff.withering_times++;
+        player_be_attacked(player, enemy, player->buff.withering_times);
+    }
+}
+
+void wandering_ghost_block(Player *player, Enemy *enemy) {
+    enemy_get_block(enemy, 10);
+}
+
+void Thief_attack(Player *player, Enemy *enemy) {
+    enemy_attack_player(player, enemy, 2);
+    get_buff(&player->buff.poisoning, 3);
+}
+
+void Thief_attack2(Player *player, Enemy *enemy) {
+    enemy_attack_player(player, enemy, 5);
+    get_buff(&player->buff.fragile, 2);
+}
+
+void Thief_block(Player *player, Enemy *enemy) {
+    enemy_get_block(enemy, 5);
+}
+
 extern int Enemy_num_in_map[7][2];
 extern Enemy Enemy_in_map[7][2][10];
 
 void init_enemy(SDL_Renderer *renderer) {
-    Enemy_num_in_map[1][0] = 2;
+    Enemy_num_in_map[1][0] = 3;
     Enemy_in_map[1][0][0] = (Enemy) {"拾荒者", IMG_LoadTexture(renderer, "./img/ragpicker.png"), 45, 0, 3};
     Enemy_in_map[1][0][0].skill[0] = (Enemy_skill) {1, "2*3", ragpicker_attack};
     Enemy_in_map[1][0][0].skill[1] = (Enemy_skill) {4, "", ragpicker_Strengthen};
@@ -463,6 +559,16 @@ void init_enemy(SDL_Renderer *renderer) {
     Enemy_in_map[1][0][1].skill[0] = (Enemy_skill) {2, "3", vulture_block};
     Enemy_in_map[1][0][1].skill[1] = (Enemy_skill) {1, "3", vulture_attack};
     Enemy_in_map[1][0][1].skill[2] = (Enemy_skill) {1, "7", vulture_attack2};
+    Enemy_in_map[1][0][2] = (Enemy) {"盗贼", IMG_LoadTexture(renderer, "./img/Thief.png"), 35, 0, 3};
+    Enemy_in_map[1][0][2].skill[0] = (Enemy_skill) {3, "2", Thief_attack};
+    Enemy_in_map[1][0][2].skill[1] = (Enemy_skill) {3, "5", Thief_attack2};
+    Enemy_in_map[1][0][2].skill[2] = (Enemy_skill) {2, "5", Thief_block};
+    Enemy_in_map[1][1][0] = (Enemy) {"孤魂野鬼", IMG_LoadTexture(renderer, "./img/wandering_ghost.png"), 40, 0, 5};
+    Enemy_in_map[1][1][0].skill[0] = (Enemy_skill) {5, "10", wandering_ghost_recover};
+    Enemy_in_map[1][1][0].skill[1] = (Enemy_skill) {3, "8*2", wandering_ghost_attack};
+    Enemy_in_map[1][1][0].skill[2] = (Enemy_skill) {3, "", wandering_ghost_weaken};
+    Enemy_in_map[1][1][0].skill[3] = (Enemy_skill) {1, "8", wandering_ghost_attack2};
+    Enemy_in_map[1][1][0].skill[4] = (Enemy_skill) {2, "10", wandering_ghost_block};
 }
 
 void draw_card(Player *player) {
@@ -585,5 +691,22 @@ void player_get_collection(Player *player, int x, int y) {
     }
     if (x == 1 && y == 0) {
         player->coin += 100;
+    }
+    if (x == 1 && y == 2) {
+        player->maxhp += 10;
+        player->hp += 10;
+    }
+    if (x == 0 && y == 3) {
+        add_card_to_bag(player,
+                        &main_card[player->player_career][generate_random(2, main_cardnum[player->player_career] - 1)]);
+    }
+    if (x == 2 && y == 1) {
+        add_card_to_bag(player,
+                        &main_card[player->player_career][generate_random(2, main_cardnum[player->player_career] - 1)]);
+        add_card_to_bag(player,
+                        &main_card[player->player_career][generate_random(2, main_cardnum[player->player_career] - 1)]);
+        add_card_to_bag(player,
+                        &main_card[player->player_career][generate_random(2, main_cardnum[player->player_career] - 1)]);
+
     }
 }
