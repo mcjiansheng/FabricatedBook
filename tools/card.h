@@ -31,6 +31,7 @@ typedef struct {
     void (*effect)(struct Player *, struct Enemy *);
 
     char *description;
+    int value;
 } Card;
 extern Card main_card[4][50];
 extern int main_cardnum[4];
@@ -59,6 +60,7 @@ typedef struct Player {
     Buff buff;
     int extra_damage;
     bool enter_allowance;
+    double damage_increase;
 } Player;
 typedef struct Enemy_skill {
     int type;//1 atk 2def 3wek 4inc 5ukn
@@ -78,7 +80,7 @@ typedef struct Enemy {
 extern int main_Enemynum;
 extern Enemy main_enemy[3];
 
-void print_everycard(SDL_Renderer *renderer, Player *player, int y);
+void print_everycard(SDL_Renderer *renderer, Player *player, int y, int mouse_x, int mouse_y, int index);
 
 void print_everycollection(SDL_Renderer *renderer, Player *player, int y);
 
@@ -95,6 +97,8 @@ void buff_decrease(Buff *buff);
 Card *create_card(char *name, int cost, int type, int career, void (*effect)(struct Player *, struct Enemy *));
 
 Player *init_player(int hp, int career);
+
+void free_player(Player *player);
 
 void draw_card(Player *player);//抽牌
 
@@ -119,6 +123,8 @@ void defense(Player *player, Enemy *enemy);
 void add_card_to_bag(Player *player, Card *card);
 
 void add_card_to_deck(Player *player, Card *card);
+
+void add_card_to_hand(Player *player, Card *card);
 
 void delete_card_from_bag(Player *player, int index);
 

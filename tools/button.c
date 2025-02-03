@@ -266,11 +266,11 @@ void print_card(SDL_Renderer *renderer, Card *card, SDL_Rect rect, int hover, in
     draw_text(renderer, title_font, card->name, rect.x + 10, rect.y + 20, text_color);
     char cost_str[10];
     sprintf(cost_str, "费用: %d", card->cost);
-    draw_text(renderer, font, cost_str, rect.x + 10, rect.y + 100, text_color);
+    draw_text(renderer, font, cost_str, rect.x + 10, rect.y + rect.h / 3, text_color);
     if (card->exhaust) {
-        draw_text(renderer, font, "消耗", rect.x + 200, rect.y + 100, text_color);
+        draw_text(renderer, font, "消耗", rect.x + rect.w / 2, rect.y + rect.h / 3, text_color);
     }
-    draw_text(renderer, font, card->description, rect.x + 10, rect.y + 200, text_color);
+    draw_text(renderer, font, card->description, rect.x + 10, rect.y + rect.h / 2, text_color);
 }
 
 void print_collection(SDL_Renderer *renderer, Collection *collection, SDL_Rect rect, TTF_Font *font,
@@ -303,5 +303,5 @@ void print_collection(SDL_Renderer *renderer, Collection *collection, SDL_Rect r
     draw_rectangle(renderer, rect, COLOR_LIGHT_GREY);
     SDL_Color text_color = COLOR_BLACK;
     draw_text(renderer, title_font, collection->name, rect.x + 10, rect.y + 20, text_color);
-    draw_text(renderer, font, collection->discribe, rect.x + 10, rect.y + 200, text_color);
+    draw_text(renderer, font, collection->discribe, rect.x + 10, rect.y + rect.h / 2, text_color);
 }

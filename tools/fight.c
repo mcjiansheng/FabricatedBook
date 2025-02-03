@@ -25,7 +25,11 @@ void event_init() {
     fight_in_map[1][1] = 2;
     fight_map[1][1][0] = (Fight) {3, &Enemy_in_map[1][0][0], &Enemy_in_map[1][0][0], &Enemy_in_map[1][0][0]};
     fight_map[1][1][1] = (Fight) {1, &Enemy_in_map[1][1][0]};
-
+    fight_in_map[2][0] = 2;
+    fight_map[2][0][0] = (Fight) {1, &Enemy_in_map[2][0][0]};
+    fight_map[2][0][1] = (Fight) {1, &Enemy_in_map[2][0][1]};
+    fight_in_map[2][1] = 1;;
+    fight_map[2][1][0] = (Fight) {1, &Enemy_in_map[2][1][0]};
 }
 
 extern int deadly_tempotimes;
@@ -274,9 +278,11 @@ void print_enemys(SDL_Renderer *renderer, int layernum) {
         SDL_RenderCopy(renderer, main_enemy[0].texture, NULL, &rect);
         sprintf(text, "hp: %d", main_enemy[0].hp);
         draw_text(renderer, State_font, text, 1380, 400, COLOR_LIGHT_RED);
+        sprintf(text, "%s", main_enemy[0].name);
+        draw_text(renderer, State_font, text, 1450, 400, COLOR_BLACK);
         if (main_enemy[0].block > 0) {
             sprintf(text, "block: %d", main_enemy[0].block);
-            draw_text(renderer, State_font, text, 1380, 430, COLOR_BLACK);
+            draw_text(renderer, State_font, text, 1380, 330, COLOR_BLACK);
         }
         draw_enemy_next_step(renderer, 1380, 370, &main_enemy[0], layernum);
         draw_Buff(renderer, &main_enemy[0].buff, 1350, 400 + rect.h);
@@ -289,9 +295,11 @@ void print_enemys(SDL_Renderer *renderer, int layernum) {
         SDL_RenderCopy(renderer, main_enemy[1].texture, NULL, &rect);
         sprintf(text, "hp: %d", main_enemy[1].hp);
         draw_text(renderer, State_font, text, 1180, 450, COLOR_LIGHT_RED);
+        sprintf(text, "%s", main_enemy[1].name);
+        draw_text(renderer, State_font, text, 1250, 450, COLOR_BLACK);
         if (main_enemy[1].block > 0) {
             sprintf(text, "block: %d", main_enemy[1].block);
-            draw_text(renderer, State_font, text, 1180, 480, COLOR_BLACK);
+            draw_text(renderer, State_font, text, 1180, 390, COLOR_BLACK);
         }
         draw_enemy_next_step(renderer, 1180, 420, &main_enemy[1], layernum);
         draw_Buff(renderer, &main_enemy[1].buff, rect.x, rect.y + rect.h);
@@ -304,9 +312,11 @@ void print_enemys(SDL_Renderer *renderer, int layernum) {
         SDL_RenderCopy(renderer, main_enemy[2].texture, NULL, &rect);
         sprintf(text, "hp: %d", main_enemy[2].hp);
         draw_text(renderer, State_font, text, 1580, 350, COLOR_LIGHT_RED);
+        sprintf(text, "%s", main_enemy[2].name);
+        draw_text(renderer, State_font, text, 1650, 350, COLOR_BLACK);
         if (main_enemy[2].block > 0) {
             sprintf(text, "block: %d", main_enemy[2].block);
-            draw_text(renderer, State_font, text, 1580, 380, COLOR_BLACK);
+            draw_text(renderer, State_font, text, 1580, 290, COLOR_BLACK);
         }
         draw_enemy_next_step(renderer, 1580, 320, &main_enemy[2], layernum);
         draw_Buff(renderer, &main_enemy[2].buff, rect.x, rect.y + rect.h);
@@ -351,6 +361,13 @@ void round_start(Player *player) {
     }
     if (main_collection[3][1].get && player->maxhp / 10 >= player->hp) {
         player->block += 10;
+    }
+    if (main_collection[5][2].get) {
+        for (int i = 0; i < main_Enemynum; i++) {
+            if (main_enemy[i].hp > 0) {
+                Enemy_be_attack(&main_enemy[i], 2);
+            }
+        }
     }
 }
 
@@ -566,7 +583,7 @@ void round_settlement(Player *player, int *times) {
         player->hand_size = 0;
         player->hand = (Card **) realloc(player->hand, player->hand_size * sizeof(Card *));
         Buff_update(player);
-//        printf("update buff and discard pile success\n");
+//        printf("update buff and discard_able pile success\n");
     }
 //    printf("%d\n", *times);
     if (*times == 50) {
@@ -620,6 +637,27 @@ void check_end(Player *player, int *quit) {
 
 void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player *player, int dif, int layer_num) {
     fight_start(fight, player);
+    if (main_collection[5][5].get) {
+        player->damage_increase += 0.05;
+    }
+    if (main_collection[5][0].get) {
+        if (layer_num >= 1 && layer_num <= 4) {
+            player->damage_increase += 0.2;
+        } else {
+            for (int i = 0; i < main_Enemynum; i++) {
+                main_enemy[i].hp += main_enemy[i].hp / 5;
+            }
+        }
+    }
+    if (main_collection[5][1].get) {
+        if (layer_num >= 1 && layer_num <= 4) {
+            player->damage_increase -= 0.2;
+        } else {
+            for (int i = 0; i < main_Enemynum; i++) {
+                main_enemy[i].hp -= main_enemy[i].hp / 5;
+            }
+        }
+    }
     SDL_Event event;
     int quit = 0;
     char *hp_text = malloc(20 * sizeof(char)), *coin_text = malloc(20 * sizeof(char)), *text = malloc(
@@ -775,6 +813,16 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
     Button_destroy(&potion_discard);
     Button_destroy(&next_round);
     Title_destroy(&advise);
+    if (main_collection[5][0].get) {
+        if (layer_num >= 1 && layer_num <= 4) {
+            player->damage_increase -= 0.2;
+        }
+    }
+    if (main_collection[5][1].get) {
+        if (layer_num >= 1 && layer_num <= 4) {
+            player->damage_increase += 0.2;
+        }
+    }
     if (player->hp <= 0) {
         game_fail(window, renderer, player);
         return;
@@ -944,6 +992,9 @@ player_choose_reward(SDL_Window *window, SDL_Renderer *renderer, Player *player,
 
 void fight_success(SDL_Window *window, SDL_Renderer *renderer, Player *player, int dif, int layer_num) {//金币 卡牌 藏品 药水
     summary.fight_num++;
+    if (dif == 2 && layer_num == 5) {
+        return;
+    }
     if (player->player_career == 1) {
         player_get_hp(player, generate_random(6, 12));
     }
@@ -988,7 +1039,7 @@ void fight_success(SDL_Window *window, SDL_Renderer *renderer, Player *player, i
         get_potion = generate_random(1, 5) <= 3;
     }
     bool get_collection = generate_random(1, 5) <= 2;
-    if (dif == 1) {
+    if (dif == 1 || dif == 2) {
         get_collection = true;
     }
     Potion *potion_get = NULL;
@@ -1005,6 +1056,13 @@ void fight_success(SDL_Window *window, SDL_Renderer *renderer, Player *player, i
         } else {
             do {
                 int arr[5] = {40, 30, 20, 10, 1};
+                if (dif == 2) {
+                    arr[0] = 0;
+                    arr[1] = 0;
+                    arr[2] = 0;
+                    arr[3] = 50;
+                    arr[4] = 50;
+                }
                 collection_get_x = generate_random_with_weighted(arr);
                 collection_get_y = generate_random(0, main_collection_num[collection_get_x] - 1);
             } while (main_collection[collection_get_x][collection_get_y].get);

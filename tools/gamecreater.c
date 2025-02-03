@@ -141,9 +141,9 @@ void choose_card(SDL_Window *window, SDL_Renderer *renderer, Player *player) {
     int a, b, c;
     int selected_card = -1;
     TTF_Font *font = TTF_OpenFont("./res/ys_zt.ttf", 25), *title_font = TTF_OpenFont("./res/ys_zt.ttf", 35);
-    a = generate_random(2, main_cardnum[player->player_career]);
-    b = generate_random(2, main_cardnum[player->player_career]);
-    c = generate_random(2, main_cardnum[player->player_career]);
+    a = generate_random(2, main_cardnum[player->player_career] - 1);
+    b = generate_random(2, main_cardnum[player->player_career] - 1);
+    c = generate_random(2, main_cardnum[player->player_career] - 1);
 //    printf("%d %d %d\n", a, b, c);
     while (b == a) {
         b = generate_random(2, main_cardnum[player->player_career]);
@@ -378,7 +378,7 @@ void show_all_card(SDL_Window *window, SDL_Renderer *renderer, Player *player) {
         }
         SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
         SDL_RenderClear(renderer);
-        print_everycard(renderer, player, y);
+        print_everycard(renderer, player, y, mouse_x, mouse_y, -1);
         drawButton(renderer, &game_back);
         SDL_RenderPresent(renderer);
         SDL_Delay(20);

@@ -39,6 +39,8 @@ add_executable(SlaytheSpire game.c
         tools/collection.h
         tools/events.c
         tools/events.h
+        tools/shop.c
+        tools/shop.h
 )
 target_link_libraries(SlaytheSpire PUBLIC ${SDL_LIBRARIES})
 

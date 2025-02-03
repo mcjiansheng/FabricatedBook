@@ -22,6 +22,7 @@
 #include <string.h>
 #include "fight.h"
 #include "events.h"
+#include "shop.h"
 
 #define MAX_NODE_TYPES 9
 

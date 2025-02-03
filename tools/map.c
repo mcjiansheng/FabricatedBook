@@ -33,21 +33,23 @@ void init_picture_node(SDL_Renderer *renderer) {
 
 void free_picture_node() {
     for (int i = 1; i <= 9; i++) {
-        SDL_DestroyTexture(node_texture[i]);
+        if (node_texture[i] != NULL) {
+            SDL_DestroyTexture(node_texture[i]);
+        }
     }
 }
 
 void init_ppt() {
     first_floor = (PPT) {1, "荒野", "该区域环境平缓", &second_floor, &layers[0]};
-    second_floor[0] = (PPT) {2, "森林", "进入非战斗节点时金币损失金币，战斗获得金币数量增加", &third_floor[0],
+    second_floor[0] = (PPT) {2, "森林", "进入非战斗节点时损失金币，战斗获得金币数量增加", &third_floor[0],
                              &layers[1]};
-    second_floor[1] = (PPT) {5, "海港", "进入非战斗节点时金币损失金币，战斗获得金币数量增加", &third_floor[1],
+    second_floor[1] = (PPT) {5, "海港", "进入非战斗节点时损失金币，战斗获得金币数量增加", &third_floor[1],
                              &layers[1]};
     third_floor[0] = (PPT) {3, "诡异秘林", "每进入一个战斗节点，造成伤害-1，每进入一个非战斗节点，造成伤害+1，至多+-3\n",
                             &forth_floor[0], &layers[2]};
     third_floor[1] = (PPT) {6, "海洋", "每进入一个战斗节点，造成伤害-1，\n"
                                        "每进入一个非战斗节点，造成伤害+1，至多+-3", &forth_floor[1], &layers[2]};
-    forth_floor[0] = (PPT) {4, "迷雾", "每次前进都有概率回复或损失生命值", NULL, &layers[3]};
+    forth_floor[0] = (PPT) {4, "迷雾", "每次前进都有概率回复或损失生命值", &fifth_floor[0], &layers[3]};
     forth_floor[1] = (PPT) {7, "深海", "每次前进都有概率回复或损失生命值", NULL, &layers[3]};
     fifth_floor[0] = (PPT) {8, "高塔", "强大的敌人就在前方，战胜它", NULL, &layers[4]};
     fifth_floor[1] = (PPT) {9, "巴别塔", "。。。", NULL, &layers[4]};
@@ -66,7 +68,7 @@ void cutscene_animation(SDL_Window *window, SDL_Renderer *renderer, PPT *ppt) {
     SDL_RenderClear(renderer);
 
     SDL_RenderPresent(renderer);
-    printf("show ppt\n");
+//    printf("show ppt\n");
     while (t < 255) {
         while (SDL_PollEvent(&event) != 0) {
             if (event.type == SDL_QUIT) {
@@ -81,7 +83,7 @@ void cutscene_animation(SDL_Window *window, SDL_Renderer *renderer, PPT *ppt) {
         t += 10;
         SDL_Delay(50);
     }
-    printf("waiting\n");
+//    printf("waiting\n");
     int quit = 1;
     while (quit) {
         while (SDL_PollEvent(&event) != 0) {
@@ -94,7 +96,7 @@ void cutscene_animation(SDL_Window *window, SDL_Renderer *renderer, PPT *ppt) {
         }
         SDL_Delay(50);
     }
-    printf("quit\n");
+//    printf("quit\n");
     while (t > 0) {
         while (SDL_PollEvent(&event) != 0) {
             if (event.type == SDL_QUIT) {
@@ -114,7 +116,9 @@ void cutscene_animation(SDL_Window *window, SDL_Renderer *renderer, PPT *ppt) {
 void free_layer(Layer *layer) {
     for (int i = 0; i < layer->length; i++) {
         for (int j = 0; j < layer->line_num[i]; j++) {
-            free(layer->nodes[i][j]);
+            if (layer->nodes[i][j] != NULL) {
+                free(layer->nodes[i][j]);
+            }
         }
     }
 }
@@ -168,7 +172,7 @@ void init_layer(Layer *layer, int layer_idx) {
     // 设置特殊节点：起点和终点
     switch (layer_idx) {
         case 0:
-            layer->nodes[0][0] = create_node(EMERGENCY);
+            layer->nodes[0][0] = create_node(FIGHT);
             layer->nodes[0][0]->nxt_num = layer->line_num[1];
             for (int i = 0; i < layer->line_num[1]; i++) {
                 layer->nodes[0][0]->nxt[i] = layer->nodes[1][i];
@@ -415,13 +419,13 @@ extern Collection main_collection[6][10];
 
 Fight *generate_boss(Layer *layer) {
     int x = layer->num - 2, y;
-    if (layer->num == 2) {
+    if (layer->num == 3) {
         if (main_collection[5][3].get) {
             y = 2;
         } else {
             y = generate_random(0, 1);
         }
-    } else if (layer->num == 2) {
+    } else if (layer->num == 5) {
         if (main_collection[5][4].get) {
             y = 1;
         } else {
@@ -437,13 +441,15 @@ Fight *generate_boss(Layer *layer) {
     return &boss[x][y];
 }
 
-extern Events Safe_house, decitions[2], events_rewards;
+extern Events Safe_house, decitions[2], events_rewards, meeting;
+extern bool meet_meeting;
 extern int main_event_num;
 extern Events main_event[10];
 extern Rewards rewards;
+extern int endness;
 
 void goin_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *node, Layer *layer, Player *player) {
-    printf("goin!\n");
+//    printf("goin!\n");
     last_node = node;
     if (layer->num == 2) {
         if (node->type != 1 && node->type != 2 && node->type != 3) {
@@ -476,6 +482,9 @@ void goin_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *node, Layer *l
             }
         }
     }
+    if (main_collection[5][6].get && node->type >= 4) {
+        player->coin += 20;
+    }
     switch (node->type) {
         case 1:
             game_fight(window, renderer,
@@ -487,17 +496,37 @@ void goin_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *node, Layer *l
                        player, 1, layer->num);
             break;
         case 3:
-            game_fight(window, renderer, generate_boss(layer), player, 1, layer->num);
+            game_fight(window, renderer, generate_boss(layer), player, 2, layer->num);
+            if (layer->num == 5 && player->hp > 0) {
+                if (main_collection[5][3].get) {
+                    endness = 2;
+                } else {
+                    endness = 1;
+                }
+            }
             break;
         case 4:
-            enter_events(window, renderer, player, &main_event[generate_random(0, main_event_num - 1)]);
+            if (!meet_meeting && generate_random(1, 3) == 2) {
+                enter_events(window, renderer, player, &meeting);
+                meet_meeting = true;
+            } else {
+                enter_events(window, renderer, player, &main_event[generate_random(0, main_event_num - 1)]);
+            }
             break;
         case 5:
             init_rewards();
             enter_rewards(window, renderer, player, &rewards);
             break;
+        case 6:
+            Shop *shop = init_shop(player);
+            enter_shop(window, renderer, player, shop);
+            free_shop(shop);
+            break;
         case 8:
             init_decition();
+            if (layer->num == 5) {
+                enter_events(window, renderer, player, &decitions[1]);
+            }
             if (layer->num == 1) {
                 enter_events(window, renderer, player, &decitions[0]);
             }

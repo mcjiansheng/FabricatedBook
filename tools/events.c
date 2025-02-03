@@ -4,7 +4,7 @@
 
 #include "events.h"
 
-extern Events Safe_house, decitions[2], events_rewards;
+extern Events Safe_house, decitions[2], events_rewards, meeting;
 extern Rewards rewards;
 extern int main_event_num;
 extern Events main_event[10];
@@ -104,6 +104,18 @@ void decitions_back(Player *player) {
     return;
 }
 
+void decitions_power(Player *player) {
+    player_get_collection(player, 5, 5);
+}
+
+void decitions_wealth(Player *player) {
+    player_get_collection(player, 5, 6);
+}
+
+void decitions_fight(Player *player) {
+    player_get_collection(player, 5, 4);
+}
+
 void init_decition() {
     decitions[0].name = "迷雾";
     decitions[0].discribe = "迷雾渐起，前途未知，你将何去何从？\n选择下一层的方向";
@@ -117,6 +129,27 @@ void init_decition() {
     decitions[0].effect[1] = decitions_back;
     decitions[0].choice_end[1] = "你转身离去";
 
+    decitions[1].name = "门扉";
+    decitions[1].discribe = "斗争的火焰在高塔之上燃烧\n"
+                            "“勇敢的旅者，前进吧”，一个声音在门扉后回响\n"
+                            "强大的敌人就在前方，也许我可以给你一些小小的帮助";
+    decitions[1].choice_num = 2;
+    decitions[1].choice_name[0] = "权力";
+    decitions[1].choice_discribe[0] = "获得\"集权\"\n每进入一个战斗节点，造成伤害+5%";
+    decitions[1].effect[0] = decitions_power;
+    decitions[1].choice_end[0] = "绝对的集权，皇权至高无上，任何生命都要跪拜于王座之下";
+    decitions[1].choice_name[1] = "财富";
+    decitions[1].choice_discribe[1] = "获得\"寡头\"\n每进入一个非战斗节点，获得20金币";
+    decitions[1].effect[1] = decitions_wealth;
+    decitions[1].choice_end[1] = "为了利益无所不用其极，只要有合适的价格即使神明也可以被摆在货架上";
+
+    if (main_collection[5][0].get || main_collection[5][1].get) {
+        decitions[1].choice_num = 3;
+        decitions[1].choice_name[2] = "反抗";
+        decitions[1].choice_discribe[2] = "没有你，对我很重要，探索走向不同方向";
+        decitions[1].effect[2] = decitions_back;
+        decitions[1].choice_end[2] = "获得“巴别塔”:团结起来，不惜一切。险路恶敌中出现其他敌人";
+    }
 }
 
 void Wings_Statue_wish(Player *player) {
@@ -131,8 +164,87 @@ void Wings_Statue_leave(Player *player) {
     return;
 }
 
+void meeting1(Player *player) {
+    player_get_collection(player, 5, 0);
+}
+
+void meeting2(Player *player) {
+    player_get_collection(player, 5, 1);
+}
+
+void meeting3(Player *player) {
+    return;
+}
+
+void Goop1(Player *player) {
+    if (player->hp < 11) {
+        player->enter_allowance = false;
+        return;
+    }
+    player->coin += 75;
+    player->hp -= 11;
+}
+
+void Goop2(Player *player) {
+    player->coin -= generate_random(35, 75);
+    if (player->coin < 0) {
+        player->coin = 0;
+    }
+}
+
+void money1(Player *player) {
+    if (generate_random(1, 4) == 1) {
+        main_event[2].choice_end[0] = "你一无所获";
+    } else {
+        player->coin += 10;
+        main_event[2].choice_end[0] = "你获得了10块钱";
+    }
+}
+
+void money2(Player *player) {
+    if (player->coin < 50) {
+        player->enter_allowance = false;
+        return;
+    }
+    player->coin -= 50;
+    int index = generate_random(1, 100);
+    if (index <= 25) {
+        main_event[2].choice_end[1] = "你一无所获";
+    } else if (index <= 75) {
+        player->coin += 50;
+        main_event[2].choice_end[1] = "你获得了50块钱";
+    } else {
+        player->coin += 100;
+        main_event[2].choice_end[1] = "你获得了100块钱";
+    }
+}
+
+void money3(Player *player) {
+    if (player->coin < 100) {
+        player->enter_allowance = false;
+        return;
+    }
+    player->coin -= 100;
+    int index = generate_random(1, 100);
+    if (index <= 50) {
+        main_event[2].choice_end[2] = "你一无所获";
+    } else if (index <= 75) {
+        player->coin += 100;
+        main_event[2].choice_end[2] = "你获得了100块钱";
+    } else if (index <= 95) {
+        player->coin += 150;
+        main_event[2].choice_end[2] = "你获得了150块钱";
+    } else if (index <= 99) {
+        player->coin += 500;
+        main_event[2].choice_end[2] = "你获得了500块钱";
+    } else {
+        player->coin += 1000;
+        main_event[2].choice_end[2] = "你获得了1000块钱";
+    }
+}
+
 void init_events() {
-    main_event_num = 1;
+    main_event_num = 3;
     main_event[0] = (Events) {"翅膀雕像",
                               "在形状不同的巨石之间，你看见一尊做工精细的翅膀形状的蓝色雕像。\n你可以看见雕像的裂缝中有金币掉出来。或许里面还有更多……",
                               3, "祈祷", "摧毁", "离开", "", "从你的牌组中 随机 移除一张牌。获得 7 生命",
@@ -142,13 +254,41 @@ void init_events() {
                               "这个雕像让你觉得有点不安。你决定不要去惊扰它，直接离开了。"
                               "", "", Wings_Statue_wish, Wings_Statue_destroy, Wings_Statue_leave, NULL
     };
+    meeting = (Events) {"相遇",
+                        "你偶遇了一个衣衫褴褛的人，他请求与你同行",
+                        3, "同意", "拒绝", "无视", "", "...",
+                        "...", "...", "",
+                        "前方的未知还在等待你们，获得藏品“背叛”",
+                        "你拒绝了他，获得藏品“仇恨”",
+                        "你假装没听见他的请求，转身离去了"
+                        "", "", meeting1, meeting2, meeting3, NULL
+    };
+    main_event[1] = (Events) {"黏液世界",
+                              "你掉进了一个水坑里。可是坑里全是史莱姆黏液！\n爬出来后，你发现自己的金币似乎变少了。你回头一看，发现水坑里不但有你掉落的钱，还有不少其他不幸的冒险者们落下的金币。",
+                              2, "收集金币", "放手吧", "", "", "获得 75 金币。失去 11 生命。",
+                              "失去 35-75 金币。", "", "",
+                              "在长时间与黏液接触而导致你的皮肤被烧走之前，你成功地捞出了不少金币。",
+                              "你决定这样做不值得。",
+                              ""
+                              "", "", Goop1, Goop2, NULL, NULL
+    };
+    main_event[2] = (Events) {"投资",
+                              "付出金钱，收获金钱",
+                              3, "白嫖", "小赌", "土块", "", "付出0块，25%收获0块，75%收获10块",
+                              "付出50块，25%收获0块，50%收获50块，25%收获100块",
+                              "付出100块，50%收获0块，25%收获100块\n20%收获150块，4%收获500块，1%收获1000块", "",
+                              "",
+                              "",
+                              ""
+                              "", "", money1, money2, money3, NULL
+    };
 }
 
 void draw_events(SDL_Renderer *renderer, Events *events, int alpha) {
     char *title = events->name, *text = events->discribe;
     TTF_Font *title_font = TTF_OpenFont("./res/ys_zt.ttf", 45), *text_font = TTF_OpenFont("./res/ys_zt.ttf", 20);
     draw_text_alpha(renderer, title_font, title, 200, 500, COLOR_BLACK, alpha);
-    draw_text_alpha(renderer, text_font, text, 200, 550, COLOR_BLACK, alpha);
+    draw_text_alpha(renderer, text_font, text, 200, 600, COLOR_BLACK, alpha);
     TTF_CloseFont(title_font);
     TTF_CloseFont(text_font);
 }
@@ -232,7 +372,7 @@ void enter_events(SDL_Window *window, SDL_Renderer *renderer, Player *player, Ev
                "丢弃", "./res/ys_zt.ttf", 5);
     initButton(&potion_using, (Rect) {0.5, 0.2, 0.05, 0.025}, window, COLOR_GREY, COLOR_GREYGREEN, COLOR_LIGHT_RED,
                "使用", "./res/ys_zt.ttf", 5);
-    printf("init button finish!\n");
+//    printf("init button finish!\n");
     int mouse_x = 0, mouse_y = 0;
     int choose_potion = -1, press = 0, choice = -1;
     int alpha = 0, step = 7;
@@ -384,7 +524,7 @@ void enter_rewards(SDL_Window *window, SDL_Renderer *renderer, Player *player, R
                "丢弃", "./res/ys_zt.ttf", 5);
     initButton(&potion_using, (Rect) {0.5, 0.2, 0.05, 0.025}, window, COLOR_GREY, COLOR_GREYGREEN, COLOR_LIGHT_RED,
                "使用", "./res/ys_zt.ttf", 5);
-    printf("init button finish!\n");
+//    printf("init button finish!\n");
     int mouse_x = 0, mouse_y = 0;
     int choose_potion = -1, press = 0, choice = -1;
     int alpha = 0, step = 7;

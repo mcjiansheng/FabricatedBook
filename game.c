@@ -12,6 +12,7 @@
 #include "tools/map.h"
 #include "tools/fight.h"
 #include "tools/events.h"
+#include "tools/shop.h"
 
 #define TTF_FILE "./res/ys_zt.ttf"
 #undef main
@@ -35,13 +36,15 @@ Enemy Enemy_in_map[7][2][10];
 int fight_in_map[7][2];
 Fight fight_map[7][2][10];
 PlayerInfo playerInfo;
-Events Safe_house, decitions[2], events_rewards;
+Events Safe_house, decitions[2], events_rewards, meeting;
+bool meet_meeting;
 Rewards rewards;
 int main_event_num;
 Events main_event[10];
 Fight boss[3][3];
 int endness;
 PPT first_floor, second_floor[2], third_floor[2], forth_floor[2], fifth_floor[2], small_path, sixth_floor[2];
+int discard_coin;
 
 void game_Quit(SDL_Window *window, SDL_Renderer *renderer) {
     free_picture_node();
@@ -63,6 +66,7 @@ void game_start(SDL_Window *window, SDL_Renderer *renderer);
 
 void game_main(SDL_Window *window, SDL_Renderer *renderer);
 
+void game_end(SDL_Window *window, SDL_Renderer *renderer, int end, Player *player);
 
 int main(int argc, char *argv[]) {
 
@@ -223,6 +227,8 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
     seed = rand();
     Player *player = init_player(characters[selectedCharacter].hp, selectedCharacter);
     endness = -1;
+    discard_coin = 75;
+    meet_meeting = false;
     init_collection();
 //    printf("init player finish!\n");
     init_card();
@@ -232,6 +238,7 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
     last_node = NULL;
     if (playerInfo.reward) {
         game_choose_reward(renderer, window, player);
+        playerInfo.reward = 0;
     }
 //    playerInfo.reward = 0;
     push_beginning_cards(player);
@@ -274,7 +281,7 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
                "使用", "./res/ys_zt.ttf", 5);
     initButton(&potion_discard, (Rect) {0.5, 0.2, 0.05, 0.025}, window, COLOR_GREY, COLOR_GREYGREEN, COLOR_BLACK,
                "丢弃", "./res/ys_zt.ttf", 5);
-    printf("init button finish!\n");
+//    printf("init button finish!\n");
     while (quit) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -327,18 +334,22 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
                     show_collection.isPressed = false;
                     check_choose_nodes(window, renderer, last_node, now_ppt->layer, mouse_x, mouse_y, x, player);
                     if (player->hp <= 0) {
-                        return;
+                        quit = 0;
                     }
                     if (endness != -1) {
-                        return;
+                        game_end(window, renderer, endness, player);
+                        quit = 0;
                     }
                     if (now_ppt->layer->tail == last_node) {
                         now_ppt = now_ppt->next_PPT;
                         last_node = NULL;
                         init_map_printer(now_ppt->layer);
                         cutscene_animation(window, renderer, now_ppt);
+                        if (now_ppt->layer->num == 3) {
+                            playerInfo.reward = 1;
+                        }
                         x = 0;
-                        printf("next floor!\n");
+//                        printf("next floor!\n");
                     }
                     if (choose_potion != -1 && potion_discard.isPressed &&
                         isMouseInButton(event.button.x, event.button.y, &potion_discard)) {
@@ -357,6 +368,9 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
         }
         SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
         SDL_RenderClear(renderer);
+        if (!quit) {
+            break;
+        }
         draw_Potion(renderer, player);
         if (choose_potion != -1) {
             print_potion_discribe(renderer, player, choose_potion, &potion_using, &potion_discard);
@@ -372,7 +386,7 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
         }
         drawButton(renderer, &show_card);
         drawButton(renderer, &show_collection);
-        printf("draw button!\n");
+//        printf("draw button!\n");
         //渲染当前节点和可选下一步的节点
         print_nodes(renderer, last_node, now_ppt->layer, x);
         //渲染地图
@@ -390,6 +404,7 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
     free(hp_text);
     free(coin_text);
     TTF_CloseFont(State_font);
+    free_player(player);
 }
 
 void game_start(SDL_Window *window, SDL_Renderer *renderer) {
@@ -446,7 +461,7 @@ void game_start(SDL_Window *window, SDL_Renderer *renderer) {
                     game_continue.isPressed = false;
                     if (game_back.isPressed &&
                         isMouseInButton(event.button.x, event.button.y, &game_back)) {
-                        printf("game back Clicked!\n");
+//                        printf("game back Clicked!\n");
                         Button_destroy(&game_continue);
                         Button_destroy(&game_back);
                         return;
@@ -562,4 +577,65 @@ void game_Welcoming(SDL_Window *window, SDL_Renderer *text_renderer, SDL_Texture
         SDL_Delay(50);
     }
     TTF_CloseFont(textfont);
+}
+
+void game_end(SDL_Window *window, SDL_Renderer *renderer, int end, Player *player) {
+    TTF_Font *textfont = TTF_OpenFont("./res/ys_zt.ttf", 30);
+    TTF_Font *titlefont = TTF_OpenFont("./res/ys_zt.ttf", 70), *font = TTF_OpenFont("./res/ys_zt.ttf", 25);;
+    SDL_Surface *textsurface, *titlesurface;
+    int t = 5;
+    SDL_Event event;
+    SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
+    SDL_RenderClear(renderer);
+    SDL_RenderPresent(renderer);
+//    printf("show end\n");
+    char *title_text, *text;
+    SDL_Color color = COLOR_BLACK;
+    if (end == 0) {
+        color = COLOR_BLACK;
+        title_text = "讲述中断";
+        text = "这一切都太过诡异，你决定立马离开";
+    } else if (end == 1) {
+        color = COLOR_LIGHT_BLUE;
+        title_text = "故事终局";
+        text = "你战胜了一个俗套故事中的最终boss\n它无恶不作，损人不利己，为了为恶而为恶\n它或许有着悲惨的过往但不值得同情";
+    } else {
+        color = COLOR_PURPLE;
+        title_text = "沉入虚妄";
+        text = "诸天神魔？以玩弄人间为乐，你？魔王？无外乎一场取悦的游戏罢了。\n"
+               "反抗？背后的背后，请神明睁眼，告诉我一切为何发生。";
+    }
+    char *sum_text = malloc(1010 * sizeof(char));
+    sprintf(sum_text, "你总共经过了%d个节点\n完成了%d次战斗\n获得了%d张卡牌\n获得了%d个藏品", summary.node_num,
+            summary.fight_num, player->sum_deck_size, player->sum_collection);
+    while (t < 255) {
+        while (SDL_PollEvent(&event) != 0) {
+            if (event.type == SDL_QUIT) {
+                game_Quit(window, renderer);
+            }
+        }
+        SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
+        SDL_RenderClear(renderer);
+        draw_text_with_alpha(renderer, textfont, text, windowWidth / 2, 300, COLOR_BLACK, t);
+        draw_text_with_alpha(renderer, titlefont, title_text, windowWidth / 2, 200, color, t);
+        draw_text_with_alpha(renderer, font, sum_text, windowWidth / 2, windowHeight / 2, COLOR_BLACK,
+                             t);
+        SDL_RenderPresent(renderer);
+        t += 10;
+        SDL_Delay(50);
+    }
+//    printf("waiting\n");
+    int quit = 1;
+    while (quit) {
+        while (SDL_PollEvent(&event) != 0) {
+            if (event.type == SDL_QUIT) {
+                game_Quit(window, renderer);
+            }
+            if (event.type == SDL_KEYUP || event.type == SDL_MOUSEBUTTONUP) {
+                quit = 0;
+            }
+        }
+        SDL_Delay(50);
+    }
+    free(sum_text);
 }
