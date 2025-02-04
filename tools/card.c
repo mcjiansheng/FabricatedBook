@@ -695,6 +695,16 @@ void player_be_attacked(Player *player, Enemy *enemy, int damage) {
     if (player->buff.resistance > 0) {
         damage_increase -= 0.25;
     }
+    if (main_collection[3][7].get) {
+        for (int i = 0; i < main_collection_num[6]; i++) {
+            if (main_collection[6][i].get) {
+                damage_increase -= 0.1;
+            }
+        }
+    }
+    if (damage_increase < 0) {
+        return;
+    }
     if (main_collection[4][5].get) {
         damage_increase *= 0.7;
     }

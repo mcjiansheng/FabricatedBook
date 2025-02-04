@@ -271,17 +271,52 @@ void village3(Player *player) {
     player_get_hp(player, player->maxhp * 3 / 4);
 }
 
+void rsyy1(Player *player) {
+    player->hp = player->maxhp;
+}
+
+void rsyy2(Player *player) {
+    player->coin += 500;
+}
+
+void hsws1(Player *player) {
+    for (int i = 0; i < 5; i++) {
+        add_card_to_bag(player,
+                        &main_card[player->player_career][generate_random(2, main_cardnum[player->player_career] - 1)]);
+    }
+}
+
+void hsws2(Player *player) {
+    int index_x = 0, index_y = 0;
+    bool flag = true;
+    for (int i = 0; i <= 3; i++) {
+        for (int j = 0; j < main_collection_num[i]; j++) {
+            if (!main_collection[i][j].get) {
+                flag = false;
+                break;
+            }
+        }
+    }
+    if (!flag) {
+        do {
+            index_x = generate_random(0, 3);
+            index_y = generate_random(0, main_collection_num[index_x] - 1);
+        } while (main_collection[index_x][index_y].get);
+    }
+    player_get_collection(player, index_x, index_y);
+    sprintf(main_event[6].choice_end[1], "获得藏品：%s", main_collection[index_x][index_y].name);
+}
+
+void hsws3(Player *player) {
+    int index_x = 6, index_y = 0;
+    do {
+        index_y = generate_random(0, main_collection_num[index_x] - 1);
+    } while (main_collection[index_x][index_y].get);
+    player_get_collection(player, index_x, index_y);
+    sprintf(main_event[6].choice_end[2], "获得藏品：%s", main_collection[index_x][index_y].name);
+}
+
 void init_events() {
-    main_event_num = 5;
-    main_event[0] = (Events) {"翅膀雕像",
-                              "在形状不同的巨石之间，你看见一尊做工精细的翅膀形状的蓝色雕像。\n你可以看见雕像的裂缝中有金币掉出来。或许里面还有更多……",
-                              3, "祈祷", "摧毁", "离开", "", "从你的牌组中 随机 移除一张牌。获得 7 生命",
-                              "获得 50-80 金币", "", "",
-                              "你曾听人提起过一个崇拜巨大鸟类的邪教。当你跪下祷告的时候，你开始觉得有一些头晕……过了一会儿，你醒了过来，感觉脚步有点变轻了。",
-                              "你使出浑身的力气开始砸雕像。很快它就彻底裂开，里面是一大堆金币。你把钱尽可能收集起来，重新上路。",
-                              "这个雕像让你觉得有点不安。你决定不要去惊扰它，直接离开了。"
-                              "", "", Wings_Statue_wish, Wings_Statue_destroy, Wings_Statue_leave, NULL
-    };
     meeting = (Events) {"相遇",
                         "你偶遇了一个衣衫褴褛的人，他请求与你同行",
                         3, "同意", "拒绝", "无视", "", "...",
@@ -290,6 +325,15 @@ void init_events() {
                         "你拒绝了他，获得藏品“仇恨”",
                         "你假装没听见他的请求，转身离去了"
                         "", "", meeting1, meeting2, meeting3, NULL
+    };
+    main_event[0] = (Events) {"翅膀雕像",
+                              "在形状不同的巨石之间，你看见一尊做工精细的翅膀形状的蓝色雕像。\n你可以看见雕像的裂缝中有金币掉出来。或许里面还有更多……",
+                              3, "祈祷", "摧毁", "离开", "", "从你的牌组中 随机 移除一张牌。获得 7 生命",
+                              "获得 50-80 金币", "", "",
+                              "你曾听人提起过一个崇拜巨大鸟类的邪教。当你跪下祷告的时候，你开始觉得有一些头晕……过了一会儿，你醒了过来，感觉脚步有点变轻了。",
+                              "你使出浑身的力气开始砸雕像。很快它就彻底裂开，里面是一大堆金币。你把钱尽可能收集起来，重新上路。",
+                              "这个雕像让你觉得有点不安。你决定不要去惊扰它，直接离开了。"
+                              "", "", Wings_Statue_wish, Wings_Statue_destroy, Wings_Statue_leave, NULL
     };
     main_event[1] = (Events) {"黏液世界",
                               "你掉进了一个水坑里。可是坑里全是史莱姆黏液！\n爬出来后，你发现自己的金币似乎变少了。\n你回头一看，发现水坑里不但有你掉落的钱，还有不少其他不幸的冒险者们落下的金币。",
@@ -331,6 +375,29 @@ void init_events() {
                               "麦门"
                               "", "", village1, village2, village3, NULL
     };
+    main_event[5] = (Events) {"人生意义",
+                              "你看到一张4格漫画\n两只白色的精灵伫立在乱石与惊涛之畔\n探讨着此世的真理",
+                              2, "去码头整点薯条", "去银行整点金条", "", "",
+                              "生命值回满",
+                              "获得500块",
+                              "", "",
+                              "",
+                              "",
+                              ""
+                              "", "", rsyy1, rsyy2, NULL, NULL
+    };
+    main_event[6] = (Events) {"好诗歪诗",
+                              "你来到一处断壁，墙上刻了1首诗\n“商鞅知马力，比干见人心。孙膑脚扑朔，左丘眼迷离。”",
+                              3, "豪诗", "歪诗", "看不懂思密达", "",
+                              "获得5张牌",
+                              "获得随机1个价值3及以下藏品",
+                              "获得一个奇怪的藏品", "",
+                              "",
+                              "",
+                              ""
+                              "", "", hsws1, hsws2, hsws3, NULL
+    };
+    main_event_num = 7;
 }
 
 void draw_events(SDL_Renderer *renderer, Events *events, int alpha) {

@@ -35,7 +35,7 @@ void init_collection() {
     main_collection[2][4] = (Collection) {"悬丝木偶", "敌人的中毒和凋零伤害+10%", 2, 0};
     main_collection[2][5] = (Collection) {"5A级连招", "造成伤害+25%", 2, 0};
 
-    main_collection_num[3] = 7;
+    main_collection_num[3] = 8;
     main_collection[3][0] = (Collection) {"国王的长枪", "生命值低于10%时\n造成伤害+50%", 3, 0};
     main_collection[3][1] = (Collection) {"国王的铠甲", "生命值低于10%时\n每回合获得10点护盾\n护盾获取量+50%", 3, 0};
     main_collection[3][2] = (Collection) {"国王的水晶", "战斗胜利时\n若生命值高于10%\n则损失5点生命值\n获得额外20金币",
@@ -46,8 +46,9 @@ void init_collection() {
                                           3, 0};
     main_collection[3][5] = (Collection) {"窥秘之眼", "敌方受到伤害+40%",
                                           3, 0};
-    main_collection[3][6] = (Collection) {"“我来助你”", "回合开始时\n所有敌人受到2点伤害", 5,
+    main_collection[3][6] = (Collection) {"“我来助你”", "回合开始时\n所有敌人受到2点伤害", 3,
                                           0};
+    main_collection[3][7] = (Collection) {"蓝卡坞安全衣", "每拥有一个负面藏品\n受到伤害-10%", 3, 0};
 
     main_collection_num[4] = 6;
     main_collection[4][0] = (Collection) {"金酒之杯", "每拥有10金币\n造成伤害+8%", 4, 0};
