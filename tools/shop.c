@@ -4,8 +4,8 @@
 
 #include "shop.h"
 
-extern int main_collection_num[6];
-extern Collection main_collection[6][10];
+extern int main_collection_num[7];
+extern Collection main_collection[7][10];
 extern int main_potion_num;
 extern Potion main_potion[20];
 extern Card main_card[4][50];
@@ -263,6 +263,7 @@ void player_buy_discard(Player *player, Shop *shop, SDL_Window *window, SDL_Rend
     if (player->sum_deck_size <= 1) {
         return;
     }
+    player->coin -= discard_coin;
     shop->discard_able = false;
     player_choose_card_to_discard(window, renderer, player);
     discard_coin += 25;

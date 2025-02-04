@@ -84,6 +84,8 @@ void print_everycard(SDL_Renderer *renderer, Player *player, int y, int mouse_x,
 
 void print_everycollection(SDL_Renderer *renderer, Player *player, int y);
 
+void player_withering(Player *player);
+
 void init_card();
 
 void init_potion();
@@ -125,6 +127,8 @@ void add_card_to_bag(Player *player, Card *card);
 void add_card_to_deck(Player *player, Card *card);
 
 void add_card_to_hand(Player *player, Card *card);
+
+void enemy_withering(Enemy *enemy);
 
 void delete_card_from_bag(Player *player, int index);
 

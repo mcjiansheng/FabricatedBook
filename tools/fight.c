@@ -13,11 +13,18 @@ extern Enemy main_enemy[3];
 extern int main_potion_num;
 extern Potion main_potion[20];
 extern int round_times;
-extern int main_collection_num[6];
-extern Collection main_collection[6][10];
+extern int main_collection_num[7];
+extern Collection main_collection[7][10];
 extern Fight boss[3][3];
 
 void event_init() {
+    boss[0][0] = (Fight) {1, &Enemy_in_map[3][1][1]};
+    boss[0][1] = (Fight) {1, &Enemy_in_map[3][1][2]};
+    boss[0][2] = (Fight) {1, &Enemy_in_map[3][1][3]};
+    boss[1][0] = (Fight) {3, &Enemy_in_map[4][1][2], &Enemy_in_map[4][1][3], &Enemy_in_map[4][1][3]};
+    boss[1][1] = (Fight) {1, &Enemy_in_map[4][1][4]};
+    boss[2][0] = (Fight) {1, &Enemy_in_map[5][1][3]};
+    boss[2][1] = (Fight) {2, &Enemy_in_map[5][1][4], &Enemy_in_map[5][1][5]};
     fight_in_map[1][0] = 3;
     fight_map[1][0][0] = (Fight) {1, &Enemy_in_map[1][0][0]};
     fight_map[1][0][1] = (Fight) {3, &Enemy_in_map[1][0][1], &Enemy_in_map[1][0][1], &Enemy_in_map[1][0][1]};
@@ -25,11 +32,43 @@ void event_init() {
     fight_in_map[1][1] = 2;
     fight_map[1][1][0] = (Fight) {3, &Enemy_in_map[1][0][0], &Enemy_in_map[1][0][0], &Enemy_in_map[1][0][0]};
     fight_map[1][1][1] = (Fight) {1, &Enemy_in_map[1][1][0]};
-    fight_in_map[2][0] = 2;
+    fight_in_map[2][0] = 4;
     fight_map[2][0][0] = (Fight) {1, &Enemy_in_map[2][0][0]};
     fight_map[2][0][1] = (Fight) {1, &Enemy_in_map[2][0][1]};
-    fight_in_map[2][1] = 1;;
+    fight_map[2][0][2] = (Fight) {2, &Enemy_in_map[2][0][2], &Enemy_in_map[2][0][2]};
+    fight_map[2][0][3] = (Fight) {3, &Enemy_in_map[2][0][3], &Enemy_in_map[2][0][3], &Enemy_in_map[2][0][3]};
+    fight_in_map[2][1] = 2;
     fight_map[2][1][0] = (Fight) {1, &Enemy_in_map[2][1][0]};
+    fight_map[2][1][1] = (Fight) {1, &Enemy_in_map[2][1][1]};
+    fight_in_map[3][0] = 5;
+    fight_map[3][0][0] = (Fight) {1, &Enemy_in_map[2][0][0]};
+    fight_map[3][0][1] = (Fight) {1, &Enemy_in_map[2][0][1]};
+    fight_map[3][0][2] = (Fight) {2, &Enemy_in_map[2][0][2], &Enemy_in_map[2][0][2]};
+    fight_map[3][0][3] = (Fight) {3, &Enemy_in_map[2][0][3], &Enemy_in_map[2][0][3], &Enemy_in_map[2][0][3]};
+    fight_map[3][0][4] = (Fight) {1, &Enemy_in_map[3][0][0]};
+    fight_in_map[3][1] = 3;
+    fight_map[3][1][0] = (Fight) {1, &Enemy_in_map[2][1][0]};
+    fight_map[3][1][1] = (Fight) {1, &Enemy_in_map[2][1][1]};
+    fight_map[3][1][2] = (Fight) {1, &Enemy_in_map[3][1][0]};
+    fight_in_map[4][0] = 4;
+    fight_map[4][0][0] = (Fight) {1, &Enemy_in_map[4][0][0]};
+    fight_map[4][0][1] = (Fight) {1, &Enemy_in_map[4][0][1]};
+    fight_map[4][0][2] = (Fight) {1, &Enemy_in_map[4][0][2]};
+    fight_map[4][0][3] = (Fight) {2, &Enemy_in_map[4][0][3], &Enemy_in_map[4][0][3]};
+    fight_in_map[4][1] = 3;
+    fight_map[4][1][0] = (Fight) {2, &Enemy_in_map[4][0][1], &Enemy_in_map[4][0][2]};
+    fight_map[4][1][1] = (Fight) {1, &Enemy_in_map[4][1][0]};
+    fight_map[4][1][2] = (Fight) {1, &Enemy_in_map[4][1][1]};
+    fight_in_map[5][0] = 4;
+    fight_map[5][0][0] = (Fight) {1, &Enemy_in_map[5][0][0]};
+    fight_map[5][0][1] = (Fight) {1, &Enemy_in_map[5][0][1]};
+    fight_map[5][0][2] = (Fight) {1, &Enemy_in_map[5][0][2]};
+    fight_map[5][0][3] = (Fight) {1, &Enemy_in_map[5][0][3]};
+    fight_in_map[5][1] = 4;
+    fight_map[5][1][0] = (Fight) {1, &Enemy_in_map[5][1][0]};
+    fight_map[5][1][1] = (Fight) {3, &Enemy_in_map[5][1][1], &Enemy_in_map[5][0][0], &Enemy_in_map[5][0][2]};
+    fight_map[5][1][2] = (Fight) {3, &Enemy_in_map[5][1][1], &Enemy_in_map[5][0][1], &Enemy_in_map[5][0][3]};
+    fight_map[5][1][3] = (Fight) {1, &Enemy_in_map[5][1][2]};
 }
 
 extern int deadly_tempotimes;
@@ -56,6 +95,12 @@ void fight_start(Fight *fight, Player *player) {
     deadly_tempotimes = 0;
     for (int i = 0; i < player->sum_deck_size; i++) {
         add_card_to_deck(player, player->sum_deck[i]);
+    }// 简单的洗牌算法，交换多次
+    for (int i = 0; i < player->deck_size; i++) {
+        int j = generate_random(0, player->deck_size - 1);
+        Card *temp = player->deck[i];
+        player->deck[i] = player->deck[j];
+        player->deck[j] = temp;
     }
 }
 
@@ -271,21 +316,27 @@ void print_enemys(SDL_Renderer *renderer, int layernum) {
     TTF_Font *State_font = TTF_OpenFont("./res/ys_zt.ttf", 20);
     char *text = malloc(20 * sizeof(char));
     if (main_Enemynum > 0 && main_enemy[0].hp > 0) {
-        SDL_Rect rect = {1350, 400};
+
+        SDL_Rect rect = {1350, 300};
         SDL_QueryTexture(main_enemy[0].texture, NULL, NULL, &rect.w, &rect.h);
-        rect.h = rect.h * 200 / rect.w;
-        rect.w = 200;
+        if (main_Enemynum == 1) {
+            rect.h = rect.h * 300 / rect.w;
+            rect.w = 300;
+        } else {
+            rect.h = rect.h * 200 / rect.w;
+            rect.w = 200;
+        }
         SDL_RenderCopy(renderer, main_enemy[0].texture, NULL, &rect);
         sprintf(text, "hp: %d", main_enemy[0].hp);
-        draw_text(renderer, State_font, text, 1380, 400, COLOR_LIGHT_RED);
-        sprintf(text, "%s", main_enemy[0].name);
-        draw_text(renderer, State_font, text, 1450, 400, COLOR_BLACK);
+        draw_text(renderer, State_font, text, 1380, 300, COLOR_LIGHT_RED);
+        sprintf(text, "  %s", main_enemy[0].name);
+        draw_text(renderer, State_font, text, 1450, 300, COLOR_BLACK);
         if (main_enemy[0].block > 0) {
             sprintf(text, "block: %d", main_enemy[0].block);
-            draw_text(renderer, State_font, text, 1380, 330, COLOR_BLACK);
+            draw_text(renderer, State_font, text, 1380, 230, COLOR_BLACK);
         }
-        draw_enemy_next_step(renderer, 1380, 370, &main_enemy[0], layernum);
-        draw_Buff(renderer, &main_enemy[0].buff, 1350, 400 + rect.h);
+        draw_enemy_next_step(renderer, 1380, 270, &main_enemy[0], layernum);
+        draw_Buff(renderer, &main_enemy[0].buff, 1350, 300 + rect.h);
     }
     if (main_Enemynum > 1 && main_enemy[1].hp > 0) {
         SDL_Rect rect = {1150, 450};
@@ -295,7 +346,7 @@ void print_enemys(SDL_Renderer *renderer, int layernum) {
         SDL_RenderCopy(renderer, main_enemy[1].texture, NULL, &rect);
         sprintf(text, "hp: %d", main_enemy[1].hp);
         draw_text(renderer, State_font, text, 1180, 450, COLOR_LIGHT_RED);
-        sprintf(text, "%s", main_enemy[1].name);
+        sprintf(text, "  %s", main_enemy[1].name);
         draw_text(renderer, State_font, text, 1250, 450, COLOR_BLACK);
         if (main_enemy[1].block > 0) {
             sprintf(text, "block: %d", main_enemy[1].block);
@@ -312,7 +363,7 @@ void print_enemys(SDL_Renderer *renderer, int layernum) {
         SDL_RenderCopy(renderer, main_enemy[2].texture, NULL, &rect);
         sprintf(text, "hp: %d", main_enemy[2].hp);
         draw_text(renderer, State_font, text, 1580, 350, COLOR_LIGHT_RED);
-        sprintf(text, "%s", main_enemy[2].name);
+        sprintf(text, "  %s", main_enemy[2].name);
         draw_text(renderer, State_font, text, 1650, 350, COLOR_BLACK);
         if (main_enemy[2].block > 0) {
             sprintf(text, "block: %d", main_enemy[2].block);
@@ -327,6 +378,7 @@ void print_enemys(SDL_Renderer *renderer, int layernum) {
 
 void round_start(Player *player) {
     round_times++;
+    buff_decrease(&player->buff);
     for (int i = 0; i < 5; i++) {
         if (player->deck_size == 0 && player->discard_pile_size == 0) {
             break;
@@ -494,10 +546,15 @@ void player_aim(Player *player, int mouse_x, int mouse_y, int *choose_card) {
     if (!aim && mouse_in_rect(rect, mouse_x, mouse_y)) {
         use_card(player, choose_card, NULL);
     }
-    rect = (SDL_Rect) {1350, 400};
+    rect = (SDL_Rect) {1350, 300};
     SDL_QueryTexture(main_enemy[0].texture, NULL, NULL, &rect.w, &rect.h);
-    rect.h = rect.h * 200 / rect.w;
-    rect.w = 200;
+    if (main_Enemynum == 1) {
+        rect.h = rect.h * 300 / rect.w;
+        rect.w = 300;
+    } else {
+        rect.h = rect.h * 200 / rect.w;
+        rect.w = 200;
+    }
     if (main_Enemynum > 0 && main_enemy[0].hp > 0 && mouse_in_rect(rect, mouse_x, mouse_y)) {
         use_card(player, choose_card, &main_enemy[0]);
     }
@@ -532,12 +589,20 @@ void Buff_update(Player *player) {
             continue;
         }
         if (main_enemy[i].buff.poisoning > 0) {
-            Enemy_be_attack(&main_enemy[i], main_enemy[i].buff.poisoning);
+            double damage_increase = 1.0;
+            if (main_collection[2][4].get) {
+                damage_increase += 0.1;
+            }
+            Enemy_be_attack(&main_enemy[i], main_enemy[i].buff.poisoning * damage_increase);
         }
         if (main_enemy[i].buff.withering > 0) {
-            main_enemy[i].buff.withering_times++;
-            Enemy_be_attack(&main_enemy[i], main_enemy[i].buff.withering_times);
+            enemy_withering(&main_enemy[i]);
+            if (main_collection[4][4].get) {
+                enemy_withering(&main_enemy[i]);
+            }
+            main_enemy[i].buff.withering--;
         }
+
         if (main_enemy[i].buff.undead > 0 && main_enemy[i].hp <= 0) {
             main_enemy[i].hp = 1;
         }
@@ -555,17 +620,14 @@ void Buff_update(Player *player) {
 }
 
 void Enemy_Action(Player *player, Enemy *enemy) {
-    if (enemy->buff.armor <= 0) {
-        enemy->block = 0;
-    } else {
-        enemy->buff.armor--;
-    }/*
+    /*
     if (enemy->skill[enemy->next_step].effect == NULL) {
         printf("enemy skill is null!\n");
     } else {
         printf("enemy's skill is ready!\n");
     }*/
     if (enemy->buff.dizziness > 0) {
+        enemy->buff.dizziness--;
         enemy->next_step = generate_random(0, enemy->skill_num - 1);
         return;
     }
@@ -583,6 +645,16 @@ void round_settlement(Player *player, int *times) {
         player->hand_size = 0;
         player->hand = (Card **) realloc(player->hand, player->hand_size * sizeof(Card *));
         Buff_update(player);
+        for (int i = 0; i < main_Enemynum; i++) {
+            if (main_enemy[i].hp <= 0) {
+                continue;
+            }
+            if (main_enemy[i].buff.armor <= 0) {
+                main_enemy[i].block = 0;
+            } else {
+                main_enemy[i].buff.armor--;
+            }
+        }
 //        printf("update buff and discard_able pile success\n");
     }
 //    printf("%d\n", *times);
@@ -612,12 +684,18 @@ void round_settlement(Player *player, int *times) {
         }
     }
     if (*times == 550) {
-        buff_decrease(&player->buff);
         for (int i = 0; i < main_Enemynum; i++) {
             if (main_enemy[i].hp > 0) {
 //                printf("buff decrease %d\n", i);
                 buff_decrease(&main_enemy[i].buff);
             }
+        }
+        if (player->buff.undead == 1) {
+            player->buff.undead = 0;
+            player->hp = 0;
+        }
+        if (player->buff.undead > 1) {
+            player->buff.undead--;
         }
 //        printf("buff decrease success!\n");
     }
@@ -656,6 +734,11 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
             for (int i = 0; i < main_Enemynum; i++) {
                 main_enemy[i].hp -= main_enemy[i].hp / 5;
             }
+        }
+    }
+    if (main_collection[6][0].get) {
+        for (int i = 0; i < main_Enemynum; i++) {
+            main_enemy[i].hp += main_enemy[i].hp / 4;
         }
     }
     SDL_Event event;
@@ -707,9 +790,6 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
                         player_choose_card(player, mouse_x, mouse_y, &choose_card);
                         player_choose_potion(player, mouse_x, mouse_y, &choose_potion);
                     }
-                    if (choose_card != -1 && round_progress == 1) {
-                        player_aim(player, mouse_x, mouse_y, &choose_card);
-                    }
                     next_round.isPressed = isMouseInButton(event.motion.x, event.motion.y, &next_round);
                     potion_using.isPressed = isMouseInButton(event.motion.x, event.motion.y, &potion_using);
                     potion_discard.isPressed = isMouseInButton(event.motion.x, event.motion.y, &potion_discard);
@@ -736,11 +816,15 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
                         choose_potion = -1;
                     }
                     potion_discard.isPressed = false;
+                    if (choose_card != -1 && round_progress == 1) {
+                        player_aim(player, mouse_x, mouse_y, &choose_card);
+                    }
                     break;
             }
         }
         SDL_SetRenderDrawColor(renderer, 220, 220, 220, 220);
         SDL_RenderClear(renderer);
+        print_enemys(renderer, layer_num);
         draw_Potion(renderer, player);
         if (round_progress == 1 && choose_potion != -1) {
             print_potion_discribe(renderer, player, choose_potion, &potion_using, &potion_discard);
@@ -784,7 +868,6 @@ void game_fight(SDL_Window *window, SDL_Renderer *renderer, Fight *fight, Player
 //        printf("print title success!\n");
         print_players(renderer, player);
 //        printf("print_players success!\n");
-        print_enemys(renderer, layer_num);
 //        printf("print enemys success!\n");
         sprintf(hp_text, "生命值: %d / %d", player->hp, player->maxhp);
         draw_text(renderer, State_font, hp_text, 50, 300, COLOR_LIGHT_RED);
@@ -998,6 +1081,12 @@ void fight_success(SDL_Window *window, SDL_Renderer *renderer, Player *player, i
     if (player->player_career == 1) {
         player_get_hp(player, generate_random(6, 12));
     }
+    if (main_collection[3][4].get) {
+        player->damage_increase = 0.08;
+    }
+    if (main_collection[0][7].get) {
+        player_get_hp(player, player->maxhp / 10);
+    }
     SDL_Event event;
     char *hp_text = malloc(20 * sizeof(char)), *coin_text = malloc(20 * sizeof(char));
     int quit = 0;
@@ -1040,6 +1129,9 @@ void fight_success(SDL_Window *window, SDL_Renderer *renderer, Player *player, i
     }
     bool get_collection = generate_random(1, 5) <= 2;
     if (dif == 1 || dif == 2) {
+        get_collection = true;
+    }
+    if (!get_collection && main_collection[0][8].get && generate_random(1, 3) == 2) {
         get_collection = true;
     }
     Potion *potion_get = NULL;

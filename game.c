@@ -16,7 +16,7 @@
 
 #define TTF_FILE "./res/ys_zt.ttf"
 #undef main
-
+Potion Nuclear_Bomb;
 Layer layers[MAX_LAYERS];
 int seed;
 int main_Enemynum;
@@ -45,6 +45,7 @@ Fight boss[3][3];
 int endness;
 PPT first_floor, second_floor[2], third_floor[2], forth_floor[2], fifth_floor[2], small_path, sixth_floor[2];
 int discard_coin;
+bool be_init = false;
 
 void game_Quit(SDL_Window *window, SDL_Renderer *renderer) {
     free_picture_node();
@@ -97,7 +98,7 @@ int main(int argc, char *argv[]) {
     int quit = 0;
     // 初始化 UI 元素
     Button But_Start, But_intr, But_Setting, But_exit, game_title;
-    initButton(&But_Start, (Rect) {0.12, 0.45, 0.2, 0.1}, window, COLOR_BLACK,
+    initButton(&But_Start, (Rect) {0.12, 0.65, 0.2, 0.1}, window, COLOR_BLACK,
                COLOR_GREY,
                COLOR_GREYRED, "开始游戏", TTF_FILE, 16);
     initButton(&But_intr, (Rect) {0.12, 0.56, 0.2, 0.1}, window, COLOR_BLACK,
@@ -163,7 +164,7 @@ int main(int argc, char *argv[]) {
                         printf("But_Start Clicked!\n");
                         game_start(window, renderer);
                     }
-                    But_Start.isPressed = false;
+                    But_Start.isPressed = false;/*
                     if (But_intr.isPressed && isMouseInButton(event.button.x, event.button.y, &But_intr)) {
                         // 按钮被点击，执行相应操作
                         printf("But_intr Clicked!\n");
@@ -173,7 +174,7 @@ int main(int argc, char *argv[]) {
                         // 按钮被点击，执行相应操作
                         printf("But_Setting Clicked!\n");
                     }
-                    But_Setting.isPressed = false;
+                    But_Setting.isPressed = false;*/
                     if (But_exit.isPressed && isMouseInButton(event.button.x, event.button.y, &But_exit)) {
                         // 按钮被点击，执行相应操作
                         game_Quit(window, renderer);
@@ -199,8 +200,8 @@ int main(int argc, char *argv[]) {
         // 绘制 UI 元素
         SDL_RenderCopy(renderer, back_texture, NULL, NULL);
         drawButton(renderer, &But_Start);
-        drawButton(renderer, &But_intr);
-        drawButton(renderer, &But_Setting);
+        //drawButton(renderer, &But_intr);
+        //drawButton(renderer, &But_Setting);
         drawButton(renderer, &But_exit);
 
         // 显示渲染结果
@@ -250,13 +251,18 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
     event_init();
     init_events();
 //    printf("init event finish!\n");
-    init_enemy(renderer);
+    if (!be_init) {
+        init_enemy(renderer);
+        be_init = true;
+    }
 //    printf("init enemy finish!\n");
     PPT *now_ppt = &first_floor;
 //    init_map(now_ppt);
     cutscene_animation(window, renderer, now_ppt);
     init_picture_node(renderer);
 //    printf("init every finish!\n");
+//    player_get_collection(player, 4, 2);
+//    player_get_collection(player, 5, 3);
     int x = 0;
     int mouse_x, mouse_y;
     bool dragging = false;
@@ -335,10 +341,12 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
                     check_choose_nodes(window, renderer, last_node, now_ppt->layer, mouse_x, mouse_y, x, player);
                     if (player->hp <= 0) {
                         quit = 0;
+                        break;
                     }
                     if (endness != -1) {
                         game_end(window, renderer, endness, player);
                         quit = 0;
+                        break;
                     }
                     if (now_ppt->layer->tail == last_node) {
                         now_ppt = now_ppt->next_PPT;

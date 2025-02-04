@@ -147,7 +147,7 @@ void init_decition() {
         decitions[1].choice_num = 3;
         decitions[1].choice_name[2] = "反抗";
         decitions[1].choice_discribe[2] = "没有你，对我很重要，探索走向不同方向";
-        decitions[1].effect[2] = decitions_back;
+        decitions[1].effect[2] = decitions_fight;
         decitions[1].choice_end[2] = "获得“巴别塔”:团结起来，不惜一切。险路恶敌中出现其他敌人";
     }
 }
@@ -243,8 +243,36 @@ void money3(Player *player) {
     }
 }
 
+void zl1(Player *player) {
+    if (player->hp <= 15) {
+        player->enter_allowance = false;
+        return;
+    }
+    player->hp -= 15;
+    player_get_collection(player, 5, 3);
+}
+
+void zl2(Player *player) {
+    player_get_hp(player, 20);
+    player_get_collection(player, 6, generate_random(0, main_collection_num[5] - 1));
+}
+
+extern Potion Nuclear_Bomb;
+
+void village1(Player *player) {
+    get_potion(player, &Nuclear_Bomb);
+}
+
+void village2(Player *player) {
+    player->coin += 200;
+}
+
+void village3(Player *player) {
+    player_get_hp(player, player->maxhp * 3 / 4);
+}
+
 void init_events() {
-    main_event_num = 3;
+    main_event_num = 5;
     main_event[0] = (Events) {"翅膀雕像",
                               "在形状不同的巨石之间，你看见一尊做工精细的翅膀形状的蓝色雕像。\n你可以看见雕像的裂缝中有金币掉出来。或许里面还有更多……",
                               3, "祈祷", "摧毁", "离开", "", "从你的牌组中 随机 移除一张牌。获得 7 生命",
@@ -264,7 +292,7 @@ void init_events() {
                         "", "", meeting1, meeting2, meeting3, NULL
     };
     main_event[1] = (Events) {"黏液世界",
-                              "你掉进了一个水坑里。可是坑里全是史莱姆黏液！\n爬出来后，你发现自己的金币似乎变少了。你回头一看，发现水坑里不但有你掉落的钱，还有不少其他不幸的冒险者们落下的金币。",
+                              "你掉进了一个水坑里。可是坑里全是史莱姆黏液！\n爬出来后，你发现自己的金币似乎变少了。\n你回头一看，发现水坑里不但有你掉落的钱，还有不少其他不幸的冒险者们落下的金币。",
                               2, "收集金币", "放手吧", "", "", "获得 75 金币。失去 11 生命。",
                               "失去 35-75 金币。", "", "",
                               "在长时间与黏液接触而导致你的皮肤被烧走之前，你成功地捞出了不少金币。",
@@ -281,6 +309,27 @@ void init_events() {
                               "",
                               ""
                               "", "", money1, money2, money3, NULL
+    };
+    main_event[3] = (Events) {"追猎",
+                              "森林里传来了异响，你似乎成为了猎物",
+                              2, "反抗", "逃跑", "", "", "失去15生命值，获得藏品“复仇者”",
+                              "获得20生命值和一个负面藏品",
+                              "", "",
+                              "在密林之中似乎出现了一个诡异的人影\n在“险路恶敌”中将会出现不同的敌人",
+                              "你拼命逃窜，森林中诡异的声音消失了",
+                              ""
+                              "", "", zl1, zl2, NULL, NULL
+    };
+    main_event[4] = (Events) {"村庄",
+                              "你来到了一处不知名的村庄\n在说明来意后村民热情的招待了你，并表示愿意提供帮助",
+                              3, "村民向你分享了曼哈顿计划", "村民给你了一个绿宝石", "村民给你分享了一个板烧鸡腿堡", "",
+                              "获得1个核弹",
+                              "获得200金币",
+                              "回复生命值", "",
+                              "尤里卡！",
+                              "哼？",
+                              "麦门"
+                              "", "", village1, village2, village3, NULL
     };
 }
 
@@ -426,7 +475,7 @@ void enter_events(SDL_Window *window, SDL_Renderer *renderer, Player *player, Ev
         //渲染药水
         draw_Potion(renderer, player);
         if (choose_potion != -1) {
-            printf("%d\n", choose_potion);
+//            printf("%d\n", choose_potion);
             print_potion_discribe(renderer, player, choose_potion, &potion_using, &potion_discard);
             drawButton(renderer, &potion_discard);
         }
@@ -493,7 +542,7 @@ void enter_events(SDL_Window *window, SDL_Renderer *renderer, Player *player, Ev
         //渲染药水
         draw_Potion(renderer, player);
         if (choose_potion != -1) {
-            printf("%d\n", choose_potion);
+//            printf("%d\n", choose_potion);
             print_potion_discribe(renderer, player, choose_potion, &potion_using, &potion_discard);
             drawButton(renderer, &potion_discard);
         }
@@ -578,7 +627,7 @@ void enter_rewards(SDL_Window *window, SDL_Renderer *renderer, Player *player, R
         //渲染药水
         draw_Potion(renderer, player);
         if (choose_potion != -1) {
-            printf("%d\n", choose_potion);
+//            printf("%d\n", choose_potion);
             print_potion_discribe(renderer, player, choose_potion, &potion_using, &potion_discard);
             drawButton(renderer, &potion_discard);
         }
@@ -645,7 +694,7 @@ void enter_rewards(SDL_Window *window, SDL_Renderer *renderer, Player *player, R
         //渲染药水
         draw_Potion(renderer, player);
         if (choose_potion != -1) {
-            printf("%d\n", choose_potion);
+//            printf("%d\n", choose_potion);
             print_potion_discribe(renderer, player, choose_potion, &potion_using, &potion_discard);
             drawButton(renderer, &potion_discard);
         }

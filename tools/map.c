@@ -418,7 +418,7 @@ extern Fight boss[3][3];
 extern Collection main_collection[6][10];
 
 Fight *generate_boss(Layer *layer) {
-    int x = layer->num - 2, y;
+    int x = layer->num - 3, y;
     if (layer->num == 3) {
         if (main_collection[5][3].get) {
             y = 2;
@@ -432,11 +432,14 @@ Fight *generate_boss(Layer *layer) {
             y = 0;
         }
     } else {
-        if (main_collection[5][3].get) {
-            y = 1;
-        } else {
-            y = generate_random(0, 1);
-        }
+        y = 0;
+    }
+//    printf("汉字\n");
+//    printf("enter boss %d %d %s \n", x, y, boss[x][y].enemy[0]->name);
+    if (&boss[x][y] == NULL) {
+        printf("boss is null!");
+        x = 0;
+        y = 0;
     }
     return &boss[x][y];
 }
@@ -451,6 +454,7 @@ extern int endness;
 void goin_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *node, Layer *layer, Player *player) {
 //    printf("goin!\n");
     last_node = node;
+    summary.node_num++;
     if (layer->num == 2) {
         if (node->type != 1 && node->type != 2 && node->type != 3) {
             player->coin -= generate_random(10, 20);
@@ -496,9 +500,10 @@ void goin_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *node, Layer *l
                        player, 1, layer->num);
             break;
         case 3:
+            printf("enter boss in layer %d\n", layer->num);
             game_fight(window, renderer, generate_boss(layer), player, 2, layer->num);
             if (layer->num == 5 && player->hp > 0) {
-                if (main_collection[5][3].get) {
+                if (main_collection[5][4].get) {
                     endness = 2;
                 } else {
                     endness = 1;
@@ -518,13 +523,16 @@ void goin_nodes(SDL_Window *window, SDL_Renderer *renderer, Node *node, Layer *l
             enter_rewards(window, renderer, player, &rewards);
             break;
         case 6:
+            if (main_collection[1][4].get) {
+                player->coin += 25;
+            }
             Shop *shop = init_shop(player);
             enter_shop(window, renderer, player, shop);
             free_shop(shop);
             break;
         case 8:
             init_decition();
-            if (layer->num == 5) {
+            if (layer->num == 4) {
                 enter_events(window, renderer, player, &decitions[1]);
             }
             if (layer->num == 1) {

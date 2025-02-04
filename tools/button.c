@@ -121,14 +121,11 @@ void Title_destroy(Title *title) {
 }
 
 int generate_random(int lower, int upper) {
-    srand(seed + time(NULL));
-    seed = rand();
+    srand(rand());
     return (rand() % (upper - lower + 1)) + lower;
 }
 
 int generate_random_with_weighted(int x[5]) {
-    srand(seed + time(NULL));
-    seed = rand();
     int i, sum = 0;
     for (i = 0; i < 5; i++) {
         sum += x[i];
