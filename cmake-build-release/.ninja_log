@@ -1,0 +1,27 @@
+# ninja log v6
+55	220	7603893519372071	CMakeFiles/SlaytheSpire.dir/tools/Color.c.obj	caaed28e877e1f47
+21	1177	7603893519033782	CMakeFiles/SlaytheSpire.dir/tools/button.c.obj	b62b79af8649e8fd
+38	306	7603893519202918	CMakeFiles/SlaytheSpire.dir/tools/Saves.c.obj	e24718803b257563
+164	600	7603893520463453	CMakeFiles/SlaytheSpire.dir/tools/collection.c.obj	505545a483fbe485
+109	1175	7603893519913684	CMakeFiles/SlaytheSpire.dir/tools/videos.c.obj	95ad54c75c6488da
+14	2620	7604277221070570	CMakeFiles/SlaytheSpire.dir/game.c.obj	bbf5b1cdc5ed1654
+126	1498	7603893520081928	CMakeFiles/SlaytheSpire.dir/tools/map.c.obj	d2e3aa3e730478c5
+203	1402	7603893520855503	CMakeFiles/SlaytheSpire.dir/tools/shop.c.obj	5b5a7e86dd3838a3
+72	1235	7603893519541725	CMakeFiles/SlaytheSpire.dir/tools/gamecreater.c.obj	b65251cb04959f6b
+183	1582	7603893520663459	CMakeFiles/SlaytheSpire.dir/tools/events.c.obj	a53b492442df7497
+146	1697	7603893520291946	CMakeFiles/SlaytheSpire.dir/tools/fight.c.obj	362f4075dad051a2
+91	2802	7603893519723164	CMakeFiles/SlaytheSpire.dir/tools/card.c.obj	947e1b380348c5f6
+2623	8512	7604277247159042	SlaytheSpire.exe	73cb0df6fbacd7e6
+94	483	7604279930342245	CMakeFiles/FabricBook.dir/tools/Color.c.obj	f1567567333a2240
+56	879	7604279929964168	CMakeFiles/FabricBook.dir/tools/Saves.c.obj	e7d8182300c28c57
+318	1172	7604279932587960	CMakeFiles/FabricBook.dir/tools/collection.c.obj	72155982321f37ef
+3	2498	7604279929428523	CMakeFiles/FabricBook.dir/game.c.obj	588c809d37f1f621
+28	2501	7604279929679931	CMakeFiles/FabricBook.dir/tools/button.c.obj	5be6f731aafd83db
+189	2502	7604279931295606	CMakeFiles/FabricBook.dir/tools/videos.c.obj	e974877d25cb174a
+228	2599	7604279931687658	CMakeFiles/FabricBook.dir/tools/map.c.obj	9d3aa26aae9b31f5
+121	2600	7604279930607297	CMakeFiles/FabricBook.dir/tools/gamecreater.c.obj	d186ef9389ca2a11
+426	2601	7604279933670677	CMakeFiles/FabricBook.dir/tools/shop.c.obj	f1bd879adafe205a
+369	2674	7604279933101294	CMakeFiles/FabricBook.dir/tools/events.c.obj	e205bf50ec9462dd
+269	3087	7604279932093638	CMakeFiles/FabricBook.dir/tools/fight.c.obj	d828fb558194e7ed
+153	4645	7604279930936832	CMakeFiles/FabricBook.dir/tools/card.c.obj	9156ec1502356fb5
+4645	4831	7604279975856665	FabricBook.exe	6c5d548fb60ae1a2

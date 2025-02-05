@@ -8,6 +8,10 @@ For the CPL final project at Nanjing University: Slay the Spire
 
 # 杀戮尖塔详情文档
 
+## 封装
+
+详见Output
+
 ## 节点类型
 
 战斗节点：  

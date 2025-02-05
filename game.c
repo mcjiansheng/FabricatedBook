@@ -260,6 +260,8 @@ void game_main(SDL_Window *window, SDL_Renderer *renderer) {
 //    init_map(now_ppt);
     cutscene_animation(window, renderer, now_ppt);
     init_picture_node(renderer);
+    summary.node_num = 0;
+    summary.fight_num = 0;
 //    printf("init every finish!\n");
 //    player_get_collection(player, 4, 2);
 //    player_get_collection(player, 5, 3);

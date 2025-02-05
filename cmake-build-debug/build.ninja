@@ -12,7 +12,7 @@
 
 # =============================================================================
 # Project: SlaytheSpire
-# Configurations: Debug
+# Configurations: Release
 # =============================================================================
 
 #############################################
@@ -24,7 +24,7 @@ ninja_required_version = 1.5
 #############################################
 # Set configuration variable for custom commands.
 
-CONFIGURATION = Debug
+CONFIGURATION = Release
 # =============================================================================
 # Include auxiliary files.
 
@@ -49,10 +49,10 @@ cmake_ninja_workdir = D$:/FabricatedBook/cmake-build-debug/
 
 build cmake_object_order_depends_target_botton: phony || .
 
-build CMakeFiles/botton.dir/tools/button.c.obj: C_COMPILER__botton_unscanned_Debug D$:/FabricatedBook/tools/button.c || cmake_object_order_depends_target_botton
+build CMakeFiles/botton.dir/tools/button.c.obj: C_COMPILER__botton_unscanned_Release D$:/FabricatedBook/tools/button.c || cmake_object_order_depends_target_botton
   DEP_FILE = CMakeFiles\botton.dir\tools\button.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
+  FLAGS = -O3 -DNDEBUG -fdiagnostics-color=always
+  INCLUDES = -ID:/FabricatedBook/./SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
   OBJECT_DIR = CMakeFiles\botton.dir
   OBJECT_FILE_DIR = CMakeFiles\botton.dir\tools
 
@@ -64,10 +64,10 @@ build CMakeFiles/botton.dir/tools/button.c.obj: C_COMPILER__botton_unscanned_Deb
 #############################################
 # Link the executable botton.exe
 
-build botton.exe: C_EXECUTABLE_LINKER__botton_Debug CMakeFiles/botton.dir/tools/button.c.obj
-  FLAGS = -g
+build botton.exe: C_EXECUTABLE_LINKER__botton_Release CMakeFiles/botton.dir/tools/button.c.obj
+  FLAGS = -O3 -DNDEBUG
   LINK_LIBRARIES = -lmingw32  -lSDL2main  -lSDL2  -lSDL2_image  -lSDL2_mixer  -lSDL2_ttf  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
-  LINK_PATH = -LD:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/lib
+  LINK_PATH = -LD:/FabricatedBook/./SDL2-2.26.0-allinone/x86_64-w64-mingw32/lib
   OBJECT_DIR = CMakeFiles\botton.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
@@ -84,87 +84,87 @@ build botton.exe: C_EXECUTABLE_LINKER__botton_Debug CMakeFiles/botton.dir/tools/
 
 build cmake_object_order_depends_target_SlaytheSpire: phony || .
 
-build CMakeFiles/SlaytheSpire.dir/game.c.obj: C_COMPILER__SlaytheSpire_unscanned_Debug D$:/FabricatedBook/game.c || cmake_object_order_depends_target_SlaytheSpire
+build CMakeFiles/SlaytheSpire.dir/game.c.obj: C_COMPILER__SlaytheSpire_unscanned_Release D$:/FabricatedBook/game.c || cmake_object_order_depends_target_SlaytheSpire
   DEP_FILE = CMakeFiles\SlaytheSpire.dir\game.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
+  FLAGS = -O3 -DNDEBUG -fdiagnostics-color=always
+  INCLUDES = -ID:/FabricatedBook/./SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
   OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
   OBJECT_FILE_DIR = CMakeFiles\SlaytheSpire.dir
 
-build CMakeFiles/SlaytheSpire.dir/tools/button.c.obj: C_COMPILER__SlaytheSpire_unscanned_Debug D$:/FabricatedBook/tools/button.c || cmake_object_order_depends_target_SlaytheSpire
+build CMakeFiles/SlaytheSpire.dir/tools/button.c.obj: C_COMPILER__SlaytheSpire_unscanned_Release D$:/FabricatedBook/tools/button.c || cmake_object_order_depends_target_SlaytheSpire
   DEP_FILE = CMakeFiles\SlaytheSpire.dir\tools\button.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
+  FLAGS = -O3 -DNDEBUG -fdiagnostics-color=always
+  INCLUDES = -ID:/FabricatedBook/./SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
   OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
   OBJECT_FILE_DIR = CMakeFiles\SlaytheSpire.dir\tools
 
-build CMakeFiles/SlaytheSpire.dir/tools/Saves.c.obj: C_COMPILER__SlaytheSpire_unscanned_Debug D$:/FabricatedBook/tools/Saves.c || cmake_object_order_depends_target_SlaytheSpire
+build CMakeFiles/SlaytheSpire.dir/tools/Saves.c.obj: C_COMPILER__SlaytheSpire_unscanned_Release D$:/FabricatedBook/tools/Saves.c || cmake_object_order_depends_target_SlaytheSpire
   DEP_FILE = CMakeFiles\SlaytheSpire.dir\tools\Saves.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
+  FLAGS = -O3 -DNDEBUG -fdiagnostics-color=always
+  INCLUDES = -ID:/FabricatedBook/./SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
   OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
   OBJECT_FILE_DIR = CMakeFiles\SlaytheSpire.dir\tools
 
-build CMakeFiles/SlaytheSpire.dir/tools/Color.c.obj: C_COMPILER__SlaytheSpire_unscanned_Debug D$:/FabricatedBook/tools/Color.c || cmake_object_order_depends_target_SlaytheSpire
+build CMakeFiles/SlaytheSpire.dir/tools/Color.c.obj: C_COMPILER__SlaytheSpire_unscanned_Release D$:/FabricatedBook/tools/Color.c || cmake_object_order_depends_target_SlaytheSpire
   DEP_FILE = CMakeFiles\SlaytheSpire.dir\tools\Color.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
+  FLAGS = -O3 -DNDEBUG -fdiagnostics-color=always
+  INCLUDES = -ID:/FabricatedBook/./SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
   OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
   OBJECT_FILE_DIR = CMakeFiles\SlaytheSpire.dir\tools
 
-build CMakeFiles/SlaytheSpire.dir/tools/gamecreater.c.obj: C_COMPILER__SlaytheSpire_unscanned_Debug D$:/FabricatedBook/tools/gamecreater.c || cmake_object_order_depends_target_SlaytheSpire
+build CMakeFiles/SlaytheSpire.dir/tools/gamecreater.c.obj: C_COMPILER__SlaytheSpire_unscanned_Release D$:/FabricatedBook/tools/gamecreater.c || cmake_object_order_depends_target_SlaytheSpire
   DEP_FILE = CMakeFiles\SlaytheSpire.dir\tools\gamecreater.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
+  FLAGS = -O3 -DNDEBUG -fdiagnostics-color=always
+  INCLUDES = -ID:/FabricatedBook/./SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
   OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
   OBJECT_FILE_DIR = CMakeFiles\SlaytheSpire.dir\tools
 
-build CMakeFiles/SlaytheSpire.dir/tools/card.c.obj: C_COMPILER__SlaytheSpire_unscanned_Debug D$:/FabricatedBook/tools/card.c || cmake_object_order_depends_target_SlaytheSpire
+build CMakeFiles/SlaytheSpire.dir/tools/card.c.obj: C_COMPILER__SlaytheSpire_unscanned_Release D$:/FabricatedBook/tools/card.c || cmake_object_order_depends_target_SlaytheSpire
   DEP_FILE = CMakeFiles\SlaytheSpire.dir\tools\card.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
+  FLAGS = -O3 -DNDEBUG -fdiagnostics-color=always
+  INCLUDES = -ID:/FabricatedBook/./SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
   OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
   OBJECT_FILE_DIR = CMakeFiles\SlaytheSpire.dir\tools
 
-build CMakeFiles/SlaytheSpire.dir/tools/videos.c.obj: C_COMPILER__SlaytheSpire_unscanned_Debug D$:/FabricatedBook/tools/videos.c || cmake_object_order_depends_target_SlaytheSpire
+build CMakeFiles/SlaytheSpire.dir/tools/videos.c.obj: C_COMPILER__SlaytheSpire_unscanned_Release D$:/FabricatedBook/tools/videos.c || cmake_object_order_depends_target_SlaytheSpire
   DEP_FILE = CMakeFiles\SlaytheSpire.dir\tools\videos.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
+  FLAGS = -O3 -DNDEBUG -fdiagnostics-color=always
+  INCLUDES = -ID:/FabricatedBook/./SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
   OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
   OBJECT_FILE_DIR = CMakeFiles\SlaytheSpire.dir\tools
 
-build CMakeFiles/SlaytheSpire.dir/tools/map.c.obj: C_COMPILER__SlaytheSpire_unscanned_Debug D$:/FabricatedBook/tools/map.c || cmake_object_order_depends_target_SlaytheSpire
+build CMakeFiles/SlaytheSpire.dir/tools/map.c.obj: C_COMPILER__SlaytheSpire_unscanned_Release D$:/FabricatedBook/tools/map.c || cmake_object_order_depends_target_SlaytheSpire
   DEP_FILE = CMakeFiles\SlaytheSpire.dir\tools\map.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
+  FLAGS = -O3 -DNDEBUG -fdiagnostics-color=always
+  INCLUDES = -ID:/FabricatedBook/./SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
   OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
   OBJECT_FILE_DIR = CMakeFiles\SlaytheSpire.dir\tools
 
-build CMakeFiles/SlaytheSpire.dir/tools/fight.c.obj: C_COMPILER__SlaytheSpire_unscanned_Debug D$:/FabricatedBook/tools/fight.c || cmake_object_order_depends_target_SlaytheSpire
+build CMakeFiles/SlaytheSpire.dir/tools/fight.c.obj: C_COMPILER__SlaytheSpire_unscanned_Release D$:/FabricatedBook/tools/fight.c || cmake_object_order_depends_target_SlaytheSpire
   DEP_FILE = CMakeFiles\SlaytheSpire.dir\tools\fight.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
+  FLAGS = -O3 -DNDEBUG -fdiagnostics-color=always
+  INCLUDES = -ID:/FabricatedBook/./SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
   OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
   OBJECT_FILE_DIR = CMakeFiles\SlaytheSpire.dir\tools
 
-build CMakeFiles/SlaytheSpire.dir/tools/collection.c.obj: C_COMPILER__SlaytheSpire_unscanned_Debug D$:/FabricatedBook/tools/collection.c || cmake_object_order_depends_target_SlaytheSpire
+build CMakeFiles/SlaytheSpire.dir/tools/collection.c.obj: C_COMPILER__SlaytheSpire_unscanned_Release D$:/FabricatedBook/tools/collection.c || cmake_object_order_depends_target_SlaytheSpire
   DEP_FILE = CMakeFiles\SlaytheSpire.dir\tools\collection.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
+  FLAGS = -O3 -DNDEBUG -fdiagnostics-color=always
+  INCLUDES = -ID:/FabricatedBook/./SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
   OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
   OBJECT_FILE_DIR = CMakeFiles\SlaytheSpire.dir\tools
 
-build CMakeFiles/SlaytheSpire.dir/tools/events.c.obj: C_COMPILER__SlaytheSpire_unscanned_Debug D$:/FabricatedBook/tools/events.c || cmake_object_order_depends_target_SlaytheSpire
+build CMakeFiles/SlaytheSpire.dir/tools/events.c.obj: C_COMPILER__SlaytheSpire_unscanned_Release D$:/FabricatedBook/tools/events.c || cmake_object_order_depends_target_SlaytheSpire
   DEP_FILE = CMakeFiles\SlaytheSpire.dir\tools\events.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
+  FLAGS = -O3 -DNDEBUG -fdiagnostics-color=always
+  INCLUDES = -ID:/FabricatedBook/./SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
   OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
   OBJECT_FILE_DIR = CMakeFiles\SlaytheSpire.dir\tools
 
-build CMakeFiles/SlaytheSpire.dir/tools/shop.c.obj: C_COMPILER__SlaytheSpire_unscanned_Debug D$:/FabricatedBook/tools/shop.c || cmake_object_order_depends_target_SlaytheSpire
+build CMakeFiles/SlaytheSpire.dir/tools/shop.c.obj: C_COMPILER__SlaytheSpire_unscanned_Release D$:/FabricatedBook/tools/shop.c || cmake_object_order_depends_target_SlaytheSpire
   DEP_FILE = CMakeFiles\SlaytheSpire.dir\tools\shop.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
+  FLAGS = -O3 -DNDEBUG -fdiagnostics-color=always
+  INCLUDES = -ID:/FabricatedBook/./SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
   OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
   OBJECT_FILE_DIR = CMakeFiles\SlaytheSpire.dir\tools
 
@@ -176,198 +176,16 @@ build CMakeFiles/SlaytheSpire.dir/tools/shop.c.obj: C_COMPILER__SlaytheSpire_uns
 #############################################
 # Link the executable SlaytheSpire.exe
 
-build SlaytheSpire.exe: C_EXECUTABLE_LINKER__SlaytheSpire_Debug CMakeFiles/SlaytheSpire.dir/game.c.obj CMakeFiles/SlaytheSpire.dir/tools/button.c.obj CMakeFiles/SlaytheSpire.dir/tools/Saves.c.obj CMakeFiles/SlaytheSpire.dir/tools/Color.c.obj CMakeFiles/SlaytheSpire.dir/tools/gamecreater.c.obj CMakeFiles/SlaytheSpire.dir/tools/card.c.obj CMakeFiles/SlaytheSpire.dir/tools/videos.c.obj CMakeFiles/SlaytheSpire.dir/tools/map.c.obj CMakeFiles/SlaytheSpire.dir/tools/fight.c.obj CMakeFiles/SlaytheSpire.dir/tools/collection.c.obj CMakeFiles/SlaytheSpire.dir/tools/events.c.obj CMakeFiles/SlaytheSpire.dir/tools/shop.c.obj
-  FLAGS = -g
+build SlaytheSpire.exe: C_EXECUTABLE_LINKER__SlaytheSpire_Release CMakeFiles/SlaytheSpire.dir/game.c.obj CMakeFiles/SlaytheSpire.dir/tools/button.c.obj CMakeFiles/SlaytheSpire.dir/tools/Saves.c.obj CMakeFiles/SlaytheSpire.dir/tools/Color.c.obj CMakeFiles/SlaytheSpire.dir/tools/gamecreater.c.obj CMakeFiles/SlaytheSpire.dir/tools/card.c.obj CMakeFiles/SlaytheSpire.dir/tools/videos.c.obj CMakeFiles/SlaytheSpire.dir/tools/map.c.obj CMakeFiles/SlaytheSpire.dir/tools/fight.c.obj CMakeFiles/SlaytheSpire.dir/tools/collection.c.obj CMakeFiles/SlaytheSpire.dir/tools/events.c.obj CMakeFiles/SlaytheSpire.dir/tools/shop.c.obj
+  FLAGS = -O3 -DNDEBUG
   LINK_LIBRARIES = -lmingw32  -lSDL2main  -lSDL2  -lSDL2_image  -lSDL2_mixer  -lSDL2_ttf  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
-  LINK_PATH = -LD:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/lib
+  LINK_PATH = -LD:/FabricatedBook/./SDL2-2.26.0-allinone/x86_64-w64-mingw32/lib
   OBJECT_DIR = CMakeFiles\SlaytheSpire.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
   TARGET_FILE = SlaytheSpire.exe
   TARGET_IMPLIB = libSlaytheSpire.dll.a
   TARGET_PDB = SlaytheSpire.exe.dbg
-
-# =============================================================================
-# Object build statements for EXECUTABLE target test
-
-
-#############################################
-# Order-only phony target for test
-
-build cmake_object_order_depends_target_test: phony || .
-
-build CMakeFiles/test.dir/test_sdl.c.obj: C_COMPILER__test_unscanned_Debug D$:/FabricatedBook/test_sdl.c || cmake_object_order_depends_target_test
-  DEP_FILE = CMakeFiles\test.dir\test_sdl.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
-  OBJECT_DIR = CMakeFiles\test.dir
-  OBJECT_FILE_DIR = CMakeFiles\test.dir
-
-
-# =============================================================================
-# Link build statements for EXECUTABLE target test
-
-
-#############################################
-# Link the executable test.exe
-
-build test.exe: C_EXECUTABLE_LINKER__test_Debug CMakeFiles/test.dir/test_sdl.c.obj
-  FLAGS = -g
-  LINK_LIBRARIES = -lmingw32  -lSDL2main  -lSDL2  -lSDL2_image  -lSDL2_mixer  -lSDL2_ttf  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
-  LINK_PATH = -LD:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/lib
-  OBJECT_DIR = CMakeFiles\test.dir
-  POST_BUILD = cd .
-  PRE_LINK = cd .
-  TARGET_FILE = test.exe
-  TARGET_IMPLIB = libtest.dll.a
-  TARGET_PDB = test.exe.dbg
-
-# =============================================================================
-# Object build statements for EXECUTABLE target test2
-
-
-#############################################
-# Order-only phony target for test2
-
-build cmake_object_order_depends_target_test2: phony || .
-
-build CMakeFiles/test2.dir/test_sdl2.c.obj: C_COMPILER__test2_unscanned_Debug D$:/FabricatedBook/test_sdl2.c || cmake_object_order_depends_target_test2
-  DEP_FILE = CMakeFiles\test2.dir\test_sdl2.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
-  OBJECT_DIR = CMakeFiles\test2.dir
-  OBJECT_FILE_DIR = CMakeFiles\test2.dir
-
-
-# =============================================================================
-# Link build statements for EXECUTABLE target test2
-
-
-#############################################
-# Link the executable test2.exe
-
-build test2.exe: C_EXECUTABLE_LINKER__test2_Debug CMakeFiles/test2.dir/test_sdl2.c.obj
-  FLAGS = -g
-  LINK_LIBRARIES = -lmingw32  -lSDL2main  -lSDL2  -lSDL2_image  -lSDL2_mixer  -lSDL2_ttf  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
-  LINK_PATH = -LD:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/lib
-  OBJECT_DIR = CMakeFiles\test2.dir
-  POST_BUILD = cd .
-  PRE_LINK = cd .
-  TARGET_FILE = test2.exe
-  TARGET_IMPLIB = libtest2.dll.a
-  TARGET_PDB = test2.exe.dbg
-
-# =============================================================================
-# Object build statements for EXECUTABLE target test3
-
-
-#############################################
-# Order-only phony target for test3
-
-build cmake_object_order_depends_target_test3: phony || .
-
-build CMakeFiles/test3.dir/test3.c.obj: C_COMPILER__test3_unscanned_Debug D$:/FabricatedBook/test3.c || cmake_object_order_depends_target_test3
-  DEP_FILE = CMakeFiles\test3.dir\test3.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
-  OBJECT_DIR = CMakeFiles\test3.dir
-  OBJECT_FILE_DIR = CMakeFiles\test3.dir
-
-
-# =============================================================================
-# Link build statements for EXECUTABLE target test3
-
-
-#############################################
-# Link the executable test3.exe
-
-build test3.exe: C_EXECUTABLE_LINKER__test3_Debug CMakeFiles/test3.dir/test3.c.obj
-  FLAGS = -g
-  LINK_LIBRARIES = -lmingw32  -lSDL2main  -lSDL2  -lSDL2_image  -lSDL2_mixer  -lSDL2_ttf  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
-  LINK_PATH = -LD:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/lib
-  OBJECT_DIR = CMakeFiles\test3.dir
-  POST_BUILD = cd .
-  PRE_LINK = cd .
-  TARGET_FILE = test3.exe
-  TARGET_IMPLIB = libtest3.dll.a
-  TARGET_PDB = test3.exe.dbg
-
-# =============================================================================
-# Object build statements for EXECUTABLE target testmap
-
-
-#############################################
-# Order-only phony target for testmap
-
-build cmake_object_order_depends_target_testmap: phony || .
-
-build CMakeFiles/testmap.dir/tools/map.c.obj: C_COMPILER__testmap_unscanned_Debug D$:/FabricatedBook/tools/map.c || cmake_object_order_depends_target_testmap
-  DEP_FILE = CMakeFiles\testmap.dir\tools\map.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
-  OBJECT_DIR = CMakeFiles\testmap.dir
-  OBJECT_FILE_DIR = CMakeFiles\testmap.dir\tools
-
-build CMakeFiles/testmap.dir/tools/button.c.obj: C_COMPILER__testmap_unscanned_Debug D$:/FabricatedBook/tools/button.c || cmake_object_order_depends_target_testmap
-  DEP_FILE = CMakeFiles\testmap.dir\tools\button.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
-  OBJECT_DIR = CMakeFiles\testmap.dir
-  OBJECT_FILE_DIR = CMakeFiles\testmap.dir\tools
-
-build CMakeFiles/testmap.dir/tools/Saves.c.obj: C_COMPILER__testmap_unscanned_Debug D$:/FabricatedBook/tools/Saves.c || cmake_object_order_depends_target_testmap
-  DEP_FILE = CMakeFiles\testmap.dir\tools\Saves.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
-  OBJECT_DIR = CMakeFiles\testmap.dir
-  OBJECT_FILE_DIR = CMakeFiles\testmap.dir\tools
-
-build CMakeFiles/testmap.dir/tools/Color.c.obj: C_COMPILER__testmap_unscanned_Debug D$:/FabricatedBook/tools/Color.c || cmake_object_order_depends_target_testmap
-  DEP_FILE = CMakeFiles\testmap.dir\tools\Color.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
-  OBJECT_DIR = CMakeFiles\testmap.dir
-  OBJECT_FILE_DIR = CMakeFiles\testmap.dir\tools
-
-build CMakeFiles/testmap.dir/tools/gamecreater.c.obj: C_COMPILER__testmap_unscanned_Debug D$:/FabricatedBook/tools/gamecreater.c || cmake_object_order_depends_target_testmap
-  DEP_FILE = CMakeFiles\testmap.dir\tools\gamecreater.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
-  OBJECT_DIR = CMakeFiles\testmap.dir
-  OBJECT_FILE_DIR = CMakeFiles\testmap.dir\tools
-
-build CMakeFiles/testmap.dir/tools/card.c.obj: C_COMPILER__testmap_unscanned_Debug D$:/FabricatedBook/tools/card.c || cmake_object_order_depends_target_testmap
-  DEP_FILE = CMakeFiles\testmap.dir\tools\card.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
-  OBJECT_DIR = CMakeFiles\testmap.dir
-  OBJECT_FILE_DIR = CMakeFiles\testmap.dir\tools
-
-build CMakeFiles/testmap.dir/tools/videos.c.obj: C_COMPILER__testmap_unscanned_Debug D$:/FabricatedBook/tools/videos.c || cmake_object_order_depends_target_testmap
-  DEP_FILE = CMakeFiles\testmap.dir\tools\videos.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
-  INCLUDES = -ID:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/include
-  OBJECT_DIR = CMakeFiles\testmap.dir
-  OBJECT_FILE_DIR = CMakeFiles\testmap.dir\tools
-
-
-# =============================================================================
-# Link build statements for EXECUTABLE target testmap
-
-
-#############################################
-# Link the executable testmap.exe
-
-build testmap.exe: C_EXECUTABLE_LINKER__testmap_Debug CMakeFiles/testmap.dir/tools/map.c.obj CMakeFiles/testmap.dir/tools/button.c.obj CMakeFiles/testmap.dir/tools/Saves.c.obj CMakeFiles/testmap.dir/tools/Color.c.obj CMakeFiles/testmap.dir/tools/gamecreater.c.obj CMakeFiles/testmap.dir/tools/card.c.obj CMakeFiles/testmap.dir/tools/videos.c.obj
-  FLAGS = -g
-  LINK_LIBRARIES = -lmingw32  -lSDL2main  -lSDL2  -lSDL2_image  -lSDL2_mixer  -lSDL2_ttf  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
-  LINK_PATH = -LD:/mingw(CLion+VSC)/SDL2-2.26.0-allinone/x86_64-w64-mingw32/lib
-  OBJECT_DIR = CMakeFiles\testmap.dir
-  POST_BUILD = cd .
-  PRE_LINK = cd .
-  TARGET_FILE = testmap.exe
-  TARGET_IMPLIB = libtestmap.dll.a
-  TARGET_PDB = testmap.exe.dbg
 
 
 #############################################
@@ -399,14 +217,6 @@ build SlaytheSpire: phony SlaytheSpire.exe
 
 build botton: phony botton.exe
 
-build test: phony test.exe
-
-build test2: phony test2.exe
-
-build test3: phony test3.exe
-
-build testmap: phony testmap.exe
-
 # =============================================================================
 # Folder targets.
 
@@ -415,7 +225,7 @@ build testmap: phony testmap.exe
 #############################################
 # Folder: D:/FabricatedBook/cmake-build-debug
 
-build all: phony botton.exe SlaytheSpire.exe test.exe test2.exe test3.exe testmap.exe
+build all: phony botton.exe SlaytheSpire.exe
 
 # =============================================================================
 # Built-in targets

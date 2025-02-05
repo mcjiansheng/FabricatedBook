@@ -1,0 +1,4 @@
+D:/FabricatedBook/cmake-build-release/CMakeFiles/botton.dir
+D:/FabricatedBook/cmake-build-release/CMakeFiles/FabricBook.dir
+D:/FabricatedBook/cmake-build-release/CMakeFiles/edit_cache.dir
+D:/FabricatedBook/cmake-build-release/CMakeFiles/rebuild_cache.dir
